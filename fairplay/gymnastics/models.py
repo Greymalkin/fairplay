@@ -53,7 +53,7 @@ class Group(models.Model):
         ordering = ['level', 'age_group', ]
 
     def __str__(self):
-        return "Level {} ({}yo)".format(self.level, self.age_group)
+        return "Level {} ({} years)".format(self.level, self.age_group)
 
 
 class Session(models.Model):
