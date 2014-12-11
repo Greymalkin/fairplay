@@ -20,6 +20,9 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta():
+        ordering = ['name', ]
+
 
 class Event(models.Model):
     order = models.PositiveSmallIntegerField()
@@ -28,17 +31,6 @@ class Event(models.Model):
 
     class Meta():
         ordering = ['order', ]
-
-    def starting_teams(self):
-        teams = Team.objects.filter(initial_event=self)
-        return ', '.join([str(t) for t in teams])
-
-    def starting_athletes(self):
-        count = 0
-        teams = Team.objects.filter(initial_event=self)
-        for team in teams:
-            count += len(team.athletes.all())
-        return count
 
     def __str__(self):
         return self.name
@@ -81,7 +73,7 @@ class Athlete(models.Model):
     starting_event = models.ForeignKey(Event, null=True)
 
     class Meta():
-        ordering = ['athlete_id', ]
+        ordering = ['last_name', 'first_name', ]
 
     def __str__(self):
         return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
