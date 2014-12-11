@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     LEDSign, Group, Event, Athlete, Team, AthleteEvent, Message,
-    Session, SessionEvent
+    Session
 )
 
 
@@ -25,19 +25,12 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ('id', 'level', 'age_group')
 
 
-class SessionEventSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SessionEvent
-        fields = ('event', 'teams')
-
-
 class SessionSerializer(serializers.ModelSerializer):
     groups = GroupSerializer(many=True)
-    events = SessionEventSerializer(many=True)
 
     class Meta:
         model = Session
-        fields = ('name', 'groups', 'events')
+        fields = ('name', 'groups',)
 
 
 class AthleteEventSerializer(serializers.ModelSerializer):
@@ -52,7 +45,7 @@ class AthleteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Athlete
-        fields = ('id', 'last_name', 'first_name', 'group', 'events')
+        fields = ('id', 'last_name', 'first_name', 'group', 'events', 'starting_event')
 
 
 class TeamSerializer(serializers.ModelSerializer):

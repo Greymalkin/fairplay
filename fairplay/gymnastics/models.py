@@ -63,21 +63,6 @@ class Session(models.Model):
         return self.name
 
 
-class SessionEvent(models.Model):
-    session = models.ForeignKey(Session, related_name="events")
-    event = models.ForeignKey(Event)
-    teams = models.ManyToManyField(Team,
-                                   help_text="Teams starting on this event")
-
-    class Meta():
-        verbose_name = "Starting event"
-        verbose_name_plural = "Starting events"
-
-    def __str__(self):
-        teams = ", ".join([str(t) for t in self.teams.all()])
-        return "{} - {}".format(self.event, teams)
-
-
 class TeamAward(models.Model):
     name = models.CharField(max_length=255)
     groups = models.ManyToManyField(Group)
@@ -93,6 +78,7 @@ class Athlete(models.Model):
     team = models.ForeignKey(Team, related_name='athletes')
     group = models.ForeignKey(Group)
     position = models.PositiveSmallIntegerField(default=0)
+    starting_event = models.ForeignKey(Event, null=True)
 
     class Meta():
         ordering = ['athlete_id', ]

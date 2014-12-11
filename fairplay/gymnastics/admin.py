@@ -6,8 +6,14 @@ from django.db.models import Count
 
 from .models import (
     Group, Athlete, Event, Team, LEDSign, AthleteEvent, Message, TeamAward,
-    Session, SessionEvent
+    Session,
 )
+
+
+def make_event_action(event):
+    name = 'mark_%s' % event
+    action = lambda modeladmin, req, qset: qset.update(starting_event=event)
+    return (name, (action, name, "Set starting event to {}".format(event)))
 
 
 class AthleteEventAdmin(admin.ModelAdmin):
@@ -67,10 +73,15 @@ class TeamAwardAdmin(admin.ModelAdmin):
 class AthleteAdmin(admin.ModelAdmin):
     model = Athlete
     inlines = (AthleteEventInlineAdmin, )
-    fields = ('athlete_id', 'last_name', 'first_name', 'team', 'group')
-    list_display = ('athlete_id', 'last_name', 'first_name', 'team', 'group',)
-    search_fields = ['athlete_id', 'id', 'last_name', 'first_name']
-    list_filter = ('team', 'group')
+    fields = ('athlete_id', 'last_name', 'first_name',
+              'team', 'group', 'starting_event')
+    list_display = ('athlete_id', 'last_name', 'first_name',
+                    'team', 'group', 'starting_event')
+    search_fields = ['athlete_id', 'last_name', 'first_name']
+    list_filter = ('team', 'group', 'starting_event')
+
+    def get_actions(self, request):
+        return dict([make_event_action(q) for q in Event.objects.all()])
 
 
 class GroupAdmin(admin.ModelAdmin):
@@ -92,18 +103,8 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'message', )
 
 
-class SessionEventInlineAdmin(admin.StackedInline):
-    model = SessionEvent
-    extra = 1
-    fields = ('event', 'teams',)
-    classes = ('grp-collapse grp-open',)
-    inline_classes = ('grp-collapse grp-open',)
-    filter_horizontal = ('teams',)
-
-
 class SessionAdmin(admin.ModelAdmin):
     model = Session
-    inlines = (SessionEventInlineAdmin, )
     list_display = ('name',)
     filter_horizontal = ('groups',)
 
