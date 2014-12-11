@@ -30,8 +30,7 @@ class Command(BaseCommand):
                 print(row)
                 # Is there a team / group in the db?  No? Make it.  Retain object.
                 team, created = models.Team.objects.get_or_create(
-                    name=row[settings.TEAM_COL],
-                    initial_event=settings.INITAL_EVENT)
+                    name=row[settings.TEAM_COL])
                 group, created = models.Group.objects.get_or_create(
                     level=int(row[settings.LEVEL_COL]),
                     age_group=row[settings.AGE_GROUP_COL])
@@ -41,7 +40,8 @@ class Command(BaseCommand):
                     'last_name': row[settings.LASTNAME_COL],
                     'first_name': row[settings.FIRSTNAME_COL],
                     'team': team,
-                    'group': group}
+                    'group': group,
+                    'starting_event': settings.INITAL_EVENT}
                 )
 
         # Update the athlete positions for all the teams
