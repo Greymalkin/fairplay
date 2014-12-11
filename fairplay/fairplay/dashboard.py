@@ -31,6 +31,7 @@ class CustomIndexDashboard(Dashboard):
                 'gymnastics.models.Group',
                 'gymnastics.models.Team',
                 'gymnastics.models.Athlete',
+                'gymnastics.models.TeamAwards',
                 ),
         ))
 

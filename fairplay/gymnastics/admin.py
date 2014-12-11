@@ -5,7 +5,7 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 from django.db.models import Count
 
 from .models import (
-    Group, Athlete, Event, Team, LEDSign, AthleteEvent
+    Group, Athlete, Event, Team, LEDSign, AthleteEvent, TeamAwards
 )
 
 
@@ -77,9 +77,16 @@ class EventAdmin(admin.ModelAdmin):
     model = Event
     list_display = ('name', 'order', )
 
+class TeamAwardsAdmin(admin.ModelAdmin):
+    model = TeamAwards
+    list_display = ('name', )
+    filter_horizontal = ('teams', 'groups')
+
+
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(LEDSign, LEDSignAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(AthleteEvent, AthleteEventAdmin)
 admin.site.register(Athlete, AthleteAdmin)
+admin.site.register(TeamAwards, TeamAwardsAdmin)
