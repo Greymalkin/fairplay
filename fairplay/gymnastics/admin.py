@@ -5,7 +5,7 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 from django.db.models import Count
 
 from .models import (
-    AgeGroup, Level, Athlete, Event, Team, LEDSign, AthleteEvent
+    Group, Athlete, Event, Team, LEDSign, AthleteEvent
 )
 
 
@@ -55,17 +55,12 @@ class TeamAdmin(admin.ModelAdmin):
 class AthleteAdmin(admin.ModelAdmin):
     model = Athlete
     inlines = (AthleteEventInlineAdmin, )
-    list_display = ('athlete_id', 'last_name', 'first_name', 'team', 'level', 'age_group',)
+    list_display = ('athlete_id', 'last_name', 'first_name', 'team', 'group',)
 
 
-class AgeGroupAdmin(admin.ModelAdmin):
-    model = AgeGroup
-    list_display = ('group', )
-
-
-class LevelAdmin(admin.ModelAdmin):
-    model = Level
-    list_display = ('level', )
+class GroupAdmin(admin.ModelAdmin):
+    model = Group
+    list_display = ('level', 'age_group', 'show_difficulty')
 
 
 class LEDSignAdmin(admin.ModelAdmin):
@@ -77,8 +72,7 @@ class EventAdmin(admin.ModelAdmin):
     model = Event
     list_display = ('name', 'order', )
 
-admin.site.register(AgeGroup, AgeGroupAdmin)
-admin.site.register(Level, LevelAdmin)
+admin.site.register(Group, GroupAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(LEDSign, LEDSignAdmin)
 admin.site.register(Event, EventAdmin)

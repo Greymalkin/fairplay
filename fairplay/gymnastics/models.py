@@ -13,14 +13,6 @@ class LEDSign(models.Model):
         verbose_name_plural = "LED signs"
 
 
-class Level(models.Model):
-    level = models.PositiveSmallIntegerField()
-    show_difficulty = models.BooleanField(default=False)
-
-    def __str__(self):
-        return "{}".format(self.level)
-
-
 class Event(models.Model):
     order = models.PositiveSmallIntegerField()
     name = models.CharField(max_length=255, help_text="Event name")
@@ -41,11 +33,13 @@ class Team(models.Model):
         return self.name
 
 
-class AgeGroup(models.Model):
-    group = models.CharField(max_length=255)
+class Group(models.Model):
+    level = models.PositiveSmallIntegerField()
+    age_group = models.CharField(max_length=255)
+    show_difficulty = models.BooleanField(default=False, help_text="Whether to enter difficulty when scoring")
 
     def __str__(self):
-        return self.group
+        return "Level {} ({}yo)".format(self.level, self.age_group)
 
 
 class Athlete(models.Model):
@@ -53,8 +47,7 @@ class Athlete(models.Model):
     last_name = models.CharField(max_length=30)
     first_name = models.CharField(max_length=30)
     team = models.ForeignKey(Team, related_name='athletes')
-    level = models.ForeignKey(Level)
-    age_group = models.ForeignKey(AgeGroup)
+    group = models.ForeignKey(Group)
     position = models.PositiveSmallIntegerField(default=0)
 
     class Meta():

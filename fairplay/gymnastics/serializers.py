@@ -1,11 +1,5 @@
 from rest_framework import serializers
-from .models import AgeGroup, Level, Event, Athlete, Team, AthleteEvent
-
-
-class LevelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Level
-        fields = ('id', 'level', 'show_difficulty')
+from .models import Group, Event, Athlete, Team, AthleteEvent
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -14,19 +8,18 @@ class EventSerializer(serializers.ModelSerializer):
         fields = ('id', 'name',)
 
 
-class AgeGroupSerializer(serializers.ModelSerializer):
+class GroupSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AgeGroup
-        fields = ('id', 'group', )
+        model = Group
+        fields = ('id', 'level', 'age_group', 'show_difficulty')
 
 
 class AthleteSerializer(serializers.ModelSerializer):
-    level = LevelSerializer()
-    age_group = AgeGroupSerializer()
+    group = GroupSerializer()
 
     class Meta:
         model = Athlete
-        fields = ('id', 'last_name', 'first_name', 'level', 'age_group',)
+        fields = ('id', 'last_name', 'first_name', 'group',)
 
 
 class TeamSerializer(serializers.ModelSerializer):
