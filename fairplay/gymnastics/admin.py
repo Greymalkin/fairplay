@@ -5,14 +5,16 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 from django.db.models import Count
 
 from .models import (
-    Group, Athlete, Event, Team, LEDSign, AthleteEvent, Message, TeamAward, Session
+    Group, Athlete, Event, Team, LEDSign, AthleteEvent, Message, TeamAward,
+    Session, SessionEvent
 )
 
 
 class AthleteEventAdmin(admin.ModelAdmin):
     model = AthleteEvent
     fields = ('athlete', 'event', 'difficulty_score', 'execution_score')
-    list_display = ('athlete', 'event', 'difficulty_score', 'execution_score', 'total_score')
+    list_display = ('athlete', 'event', 'difficulty_score', 'execution_score',
+                    'total_score')
     search_fields = ['athlete', 'id', ]
 
 
@@ -40,10 +42,10 @@ class AthleteInlineAdmin(GrappelliSortableHiddenMixin, admin.TabularInline):
 class TeamAdmin(admin.ModelAdmin):
     model = Team
     inlines = (AthleteInlineAdmin,)
-    list_display = ('name', 'initial_event', 'team_size', 'qualified')
-    list_display = ('name', 'initial_event', 'team_size')
+    list_display = ('name', 'team_size', 'qualified')
+    list_display = ('name', 'team_size')
     search_fields = ['name', 'id', ]
-    list_filter = ('initial_event',)
+    list_filter = ('qualified',)
 
     def queryset(self, request):
         qs = super(TeamAdmin, self).queryset(request)
@@ -90,8 +92,18 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'message', )
 
 
+class SessionEventInlineAdmin(admin.StackedInline):
+    model = SessionEvent
+    extra = 1
+    fields = ('event', 'teams',)
+    classes = ('grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-open',)
+    filter_horizontal = ('teams',)
+
+
 class SessionAdmin(admin.ModelAdmin):
     model = Session
+    inlines = (SessionEventInlineAdmin, )
     list_display = ('name',)
     filter_horizontal = ('groups',)
 

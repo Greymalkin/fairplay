@@ -70,7 +70,8 @@ def upload():
                                '{0}/local_media/'.format(env.project),
                                '{0}/local_logs/'.format(env.project),
                                '*.pyc',
-                               '*.pyo'))
+                               '*.pyo',
+                               '__pycache__',))
 
 
 @task

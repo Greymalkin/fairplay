@@ -3,6 +3,7 @@
     var events = [];
     var eventTable = {};
     var currentEvent = null;
+    var currentSession = null;
 
     function onSelectEvent(event) {
         currentEvent  = eventTable[$(event.target).attr('data-id')];
@@ -14,6 +15,13 @@
 
         $("label[for='sign-mode-select']").show();
         $("#sign-mode-select").show();
+        $("#sign-mode-select").val('messaging');
+        $("#sign-mode-select").change();
+        $("#message-select").change();
+    }
+
+    function onChangeSession(event) {
+        currentSession  = sessionTable[$(event.target).attr('data-id')];
         $("#sign-mode-select").val('messaging');
         $("#sign-mode-select").change();
         $("#message-select").change();
@@ -46,17 +54,14 @@
         });
     }
 
-    function onMessageChange(event) {
-        var value = $(event.target).val();
-
-    }
-
     function processSessions(data) {
         $("#session-select").empty();
         for (var i=0; i<data.length; ++i) {
             sessionTable[data[i].id] = data[i];
             $("#session-select").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
         }
+
+        currentSession = sessionTable[$("#session-select").attr('data-id')];
     }
 
     function processMessages(data) {
@@ -88,6 +93,7 @@
 
     $("#sign-mode-select").hide();
 
+    $("#session-select").change(onChangeSession);
     $("#sign-mode-select").change(onChangeMode);
     $("#message-select").change(onChangeMessage);
 

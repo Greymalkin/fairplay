@@ -15,7 +15,6 @@ class LEDSign(models.Model):
 
 class Team(models.Model):
     name = models.CharField(max_length=255)
-    initial_event = models.ForeignKey('Event')
     qualified = models.BooleanField(default=True, help_text="Qualifies for team awards")
 
     def __str__(self):
@@ -62,6 +61,21 @@ class Session(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SessionEvent(models.Model):
+    session = models.ForeignKey(Session, related_name="events")
+    event = models.ForeignKey(Event)
+    teams = models.ManyToManyField(Team,
+                                   help_text="Teams starting on this event")
+
+    class Meta():
+        verbose_name = "Starting event"
+        verbose_name_plural = "Starting events"
+
+    def __str__(self):
+        teams = ", ".join([str(t) for t in self.teams.all()])
+        return "{} - {}".format(self.event, teams)
 
 
 class TeamAward(models.Model):

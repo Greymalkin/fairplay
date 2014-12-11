@@ -3,11 +3,12 @@ from django.core.management.base import BaseCommand
 from gymnastics import models
 from . import settings as settings
 
+
 class Command(BaseCommand):
     """
     Go get the data from the a csv file provided by AVC, and parse it.
     * Create Athletes, Teams, Age Groups
-    Example: $ ./manage.py import_athletes fairland.4.csv 
+    Example: $ ./manage.py import_athletes fairland.4.csv
     """
     args = "<CSV File>"
 
@@ -21,19 +22,19 @@ class Command(BaseCommand):
         with open(args[0], 'r') as csvfile:
             unitreader = csv.reader(csvfile)
 
-            # skip csv rows before the data row 
+            # skip csv rows before the data row
             for i in range(settings.FIRST_ROW):
-                next(unitreader)            
+                next(unitreader)
 
             for row in unitreader:
                 print(row)
                 # Is there a team / group in the db?  No? Make it.  Retain object.
                 team, created = models.Team.objects.get_or_create(
                     name=row[settings.TEAM_COL],
-                    initial_event=settings.INITAL_EVENT)    
+                    initial_event=settings.INITAL_EVENT)
                 group, created = models.Group.objects.get_or_create(
-                    level=int(row[settings.LEVEL_COL]), 
-                    age_group=row[settings.AGE_GROUP_COL])       
+                    level=int(row[settings.LEVEL_COL]),
+                    age_group=row[settings.AGE_GROUP_COL])
                 # Make the athlete and associate to teams/groups
                 models.Athlete.objects.create(**{
                     'athlete_id': int(row[settings.ATHLETE_ID_COL]),
@@ -41,7 +42,7 @@ class Command(BaseCommand):
                     'first_name': row[settings.FIRSTNAME_COL],
                     'team': team,
                     'group': group}
-                )      
+                )
 
         # Update the athlete positions for all the teams
         for t in models.Team.objects.all():
