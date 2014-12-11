@@ -37,8 +37,11 @@ class Group(models.Model):
     level = models.PositiveSmallIntegerField()
     age_group = models.CharField(max_length=255)
 
+    class Meta():
+        ordering = ['level', ]
+
     def __str__(self):
-        return "Level {} ({}yo)".format(self.level, self.age_group)
+        return "Level {} ({} years)".format(self.level, self.age_group)
 
 
 class Athlete(models.Model):

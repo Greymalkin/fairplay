@@ -13,6 +13,7 @@ class AthleteEventAdmin(admin.ModelAdmin):
     model = AthleteEvent
     fields = ('athlete', 'event', 'difficulty_score', 'execution_score')
     list_display = ('athlete', 'event', 'difficulty_score', 'execution_score', 'total_score')
+    search_fields = ['athlete', 'id', ]
 
 
 class AthleteEventInlineFormset(BaseInlineFormSet):
@@ -40,6 +41,8 @@ class TeamAdmin(admin.ModelAdmin):
     model = Team
     inlines = (AthleteInlineAdmin,)
     list_display = ('name', 'initial_event', 'team_size')
+    search_fields = ['name', 'id', ]
+    list_filter = ('initial_event',)
 
     def queryset(self, request):
         qs = super(TeamAdmin, self).queryset(request)
@@ -56,6 +59,8 @@ class AthleteAdmin(admin.ModelAdmin):
     model = Athlete
     inlines = (AthleteEventInlineAdmin, )
     list_display = ('athlete_id', 'last_name', 'first_name', 'team', 'group',)
+    search_fields = ['athlete_id', 'id', 'last_name', 'first_name']
+    list_filter = ('team', 'group')
 
 
 class GroupAdmin(admin.ModelAdmin):
