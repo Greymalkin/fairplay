@@ -11,6 +11,7 @@ AGE_GROUP_COL = 4
 ATHLETE_ID_COL = 6
 
 # teams need to be set to an initial event.  for importing, we will set them all the same.
+# events are assigned to an initial sign. for importing, we will set them all the same
 INITIAL_SIGN = models.LEDSign.objects.first()
 if not INITIAL_SIGN:
     INITIAL_SIGN, created = models.LEDSign.objects.get_or_create(sign_id=99, device='alice')
