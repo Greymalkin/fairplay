@@ -11,7 +11,7 @@ class EventSerializer(serializers.ModelSerializer):
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
-        fields = ('id', 'level', 'age_group', 'show_difficulty')
+        fields = ('id', 'level', 'age_group')
 
 
 class AthleteSerializer(serializers.ModelSerializer):

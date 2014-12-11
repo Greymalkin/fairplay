@@ -36,7 +36,6 @@ class Team(models.Model):
 class Group(models.Model):
     level = models.PositiveSmallIntegerField()
     age_group = models.CharField(max_length=255)
-    show_difficulty = models.BooleanField(default=False, help_text="Whether to enter difficulty when scoring")
 
     def __str__(self):
         return "Level {} ({}yo)".format(self.level, self.age_group)

@@ -60,7 +60,7 @@ class AthleteAdmin(admin.ModelAdmin):
 
 class GroupAdmin(admin.ModelAdmin):
     model = Group
-    list_display = ('level', 'age_group', 'show_difficulty')
+    list_display = ('level', 'age_group',)
 
 
 class LEDSignAdmin(admin.ModelAdmin):
