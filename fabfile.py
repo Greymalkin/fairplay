@@ -28,12 +28,12 @@ def local():
 
 
 @task
-def staging():
+def production():
     env.run = run
     env.cd = cd
-    env.user = 'fairplay'
-    env.name = 'staging'
-    env.hosts = ['theey.es']
+    env.user = 'pi'
+    env.name = 'production'
+    env.hosts = ['fairplay.local']
     env.path = '/srv/fairplay/'
     env.project = 'fairplay'
     env.virtualenv = 'virtualenv -p python3'

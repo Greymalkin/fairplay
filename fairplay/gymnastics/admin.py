@@ -5,7 +5,7 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 from django.db.models import Count
 
 from .models import (
-    Group, Athlete, Event, Team, LEDSign, AthleteEvent
+    Group, Athlete, Event, Team, LEDSign, AthleteEvent, Message, TeamAward, Session
 )
 
 
@@ -39,7 +39,7 @@ class AthleteInlineAdmin(GrappelliSortableHiddenMixin, admin.TabularInline):
 class TeamAdmin(admin.ModelAdmin):
     model = Team
     inlines = (AthleteInlineAdmin,)
-    list_display = ('name', 'initial_event', 'team_size')
+    list_display = ('name', 'initial_event', 'team_size', 'qualified')
 
     def queryset(self, request):
         qs = super(TeamAdmin, self).queryset(request)
@@ -52,15 +52,21 @@ class TeamAdmin(admin.ModelAdmin):
     team_size.admin_order_field = 'team_size'
 
 
+class TeamAwardAdmin(admin.ModelAdmin):
+    model = TeamAward
+    list_display = ('name', )
+    filter_horizontal = ('groups',)
+
+
 class AthleteAdmin(admin.ModelAdmin):
     model = Athlete
     inlines = (AthleteEventInlineAdmin, )
+    fields = ('athlete_id', 'last_name', 'first_name', 'team', 'group')
     list_display = ('athlete_id', 'last_name', 'first_name', 'team', 'group',)
 
 
 class GroupAdmin(admin.ModelAdmin):
     model = Group
-    list_display = ('level', 'age_group',)
 
 
 class LEDSignAdmin(admin.ModelAdmin):
@@ -70,7 +76,18 @@ class LEDSignAdmin(admin.ModelAdmin):
 
 class EventAdmin(admin.ModelAdmin):
     model = Event
-    list_display = ('name', 'order', )
+    list_display = ('name', 'order', 'starting_teams', 'starting_athletes')
+
+
+class MessageAdmin(admin.ModelAdmin):
+    model = Message
+    list_display = ('name', 'message', )
+
+
+class SessionAdmin(admin.ModelAdmin):
+    model = Session
+    list_display = ('name',)
+    filter_horizontal = ('groups',)
 
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Team, TeamAdmin)
@@ -78,3 +95,6 @@ admin.site.register(LEDSign, LEDSignAdmin)
 admin.site.register(Event, EventAdmin)
 admin.site.register(AthleteEvent, AthleteEventAdmin)
 admin.site.register(Athlete, AthleteAdmin)
+admin.site.register(Message, MessageAdmin)
+admin.site.register(TeamAward, TeamAwardAdmin)
+admin.site.register(Session, SessionAdmin)

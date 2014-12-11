@@ -1,0 +1,38 @@
+body {
+    margin-top: 50px;
+}
+
+#scoreboard td {
+    vertical-align: middle;
+}
+
+#session-select {
+    width: 150px;
+}
+
+#sign-mode-select {
+    display: block;
+    margin-bottom: 20px;
+    width: 300px;
+}
+
+#message-select {
+    display: block;
+    width: 300px;
+}
+
+#messaging {
+    display: none;
+}
+
+#introduce_teams {
+    display: none;
+}
+
+#event_name {
+    display: none;
+}
+
+#competition {
+    display: none;
+}

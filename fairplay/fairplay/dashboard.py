@@ -31,6 +31,9 @@ class CustomIndexDashboard(Dashboard):
                 'gymnastics.models.Group',
                 'gymnastics.models.Team',
                 'gymnastics.models.Athlete',
+                'gymnastics.models.TeamAward',
+                'gymnastics.models.Session',
+                'gymnastics.models.Message',
                 ),
         ))
 
@@ -49,19 +52,14 @@ class CustomIndexDashboard(Dashboard):
             column=2,
             children=[
                 {
-                    'title': _('Django Documentation'),
-                    'url': 'http://docs.djangoproject.com/',
-                    'external': True,
+                    'title': _('Scoreboard Control'),
+                    'url': '/static/scoreboard.html',
+                    'external': False,
                 },
                 {
-                    'title': _('Grappelli Documentation'),
-                    'url': 'http://packages.python.org/django-grappelli/',
-                    'external': True,
-                },
-                {
-                    'title': _('Grappelli Google-Code'),
-                    'url': 'http://code.google.com/p/django-grappelli/',
-                    'external': True,
+                    'title': _('Download Leaderboard'),
+                    'url': '/leaderboard',
+                    'external': False,
                 },
             ]
         ))
