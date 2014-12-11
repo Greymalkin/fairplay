@@ -1,0 +1,11 @@
+Django==1.7.1
+SwampDragon==0.3.8.1
+certifi==14.05.14
+django-grappelli==2.6.3
+psycopg2==2.5.4
+python-dateutil==2.3
+redis==2.10.3
+six==1.8.0
+sockjs-tornado==1.0.1
+tornado==4.0.2
+tornado-redis==2.4.18
