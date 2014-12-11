@@ -8,7 +8,7 @@ class Command(BaseCommand):
     Go get the data from the a csv file provided by AVC, and parse it.
     * Create Athletes, Teams, Age Groups
     Example: $ ./manage.py import_athletes fairland.4.csv 
-"""
+    """
     args = "<CSV File>"
 
     def handle(self, *args, **kwargs):
