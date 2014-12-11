@@ -1,0 +1,7 @@
+*.pyo
+*.pyc
+*.orig
+.DS_Store
+venv/
+__pycache__
+fairplay/local_*
