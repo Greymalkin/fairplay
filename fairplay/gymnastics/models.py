@@ -88,19 +88,6 @@ class AthleteEvent(models.Model):
                 return self.execution_score + self.difficulty_score
 
 
-class TeamAwards(models.Model):
-    name = models.CharField(max_length=255)
-    teams = models.ManyToManyField(Team)
-    groups = models.ManyToManyField(Group)
-
-    class Meta:
-        ordering = ['name',]
-        verbose_name = 'Awards'
-        verbose_name_plural = 'Awards'
-
-    def __str__(self):
-        return "{} {} {}".format(self.name, self.teams, self.groups)
-
 def populate_athlete(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
