@@ -81,7 +81,7 @@ class AthleteAdmin(admin.ModelAdmin):
     list_filter = ('team', 'group', 'starting_event')
 
     def get_actions(self, request):
-        return dict([make_event_action(q) for q in Event.objects.all()])
+        return dict([make_event_action(q) for q in Event.objects.all().order_by('order')])
 
 
 class GroupAdmin(admin.ModelAdmin):
@@ -95,7 +95,7 @@ class LEDSignAdmin(admin.ModelAdmin):
 
 class EventAdmin(admin.ModelAdmin):
     model = Event
-    list_display = ('name', 'order', 'starting_teams', 'starting_athletes')
+    list_display = ('name', 'order',)
 
 
 class MessageAdmin(admin.ModelAdmin):
