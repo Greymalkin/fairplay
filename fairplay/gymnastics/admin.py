@@ -9,6 +9,7 @@ from .models import (
     Session,
 )
 
+from django.utils.translation import ugettext_lazy as _
 
 def make_event_action(event):
     name = 'mark_%s' % event
@@ -16,11 +17,25 @@ def make_event_action(event):
     return (name, (action, name, "Set starting event to {}".format(event)))
 
 
+class SessionFilter(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = _('session')
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'session'
+
+    def lookups(self, request, model_admin):
+        return [(s.id, s.name) for s in Session.objects.all()]
+
+    def queryset(self, request, queryset):
+        return queryset.filter(group__session__id=self.value())
+
+
 class AthleteEventAdmin(admin.ModelAdmin):
     model = AthleteEvent
-    fields = ('athlete', 'event', 'difficulty_score', 'execution_score')
-    list_display = ('athlete', 'event', 'difficulty_score', 'execution_score',
-                    'total_score')
+    fields = ('athlete', 'event', 'score',)
+    list_display = ('athlete', 'event', 'score',)
     search_fields = ['athlete', 'id', ]
 
 
@@ -36,7 +51,7 @@ class AthleteEventInlineAdmin(admin.TabularInline):
     extra = 0
     max_num = 0
     readonly_fields = ('event', )
-    fields = ('event', 'difficulty_score', 'execution_score')
+    fields = ('event', 'score',)
 
 
 class AthleteInlineAdmin(GrappelliSortableHiddenMixin, admin.TabularInline):
@@ -60,7 +75,6 @@ class TeamAdmin(admin.ModelAdmin):
 
     def team_size(self, obj):
         return obj.athletes__count
-
     team_size.admin_order_field = 'team_size'
 
 
@@ -75,13 +89,30 @@ class AthleteAdmin(admin.ModelAdmin):
     inlines = (AthleteEventInlineAdmin, )
     fields = ('athlete_id', 'last_name', 'first_name',
               'team', 'group', 'starting_event')
-    list_display = ('athlete_id', 'last_name', 'first_name',
-                    'team', 'group', 'starting_event')
     search_fields = ['athlete_id', 'last_name', 'first_name']
-    list_filter = ('team', 'group', 'starting_event')
+    list_filter = ('team', 'group', SessionFilter, 'starting_event',)
+    list_per_page = 50
 
     def get_actions(self, request):
-        return dict([make_event_action(q) for q in Event.objects.all().order_by('order')])
+        return dict([make_event_action(q) for q in Event.objects.all()])
+
+    def session(self, athlete):
+        return Session.objects.get(groups=athlete.group).name
+
+    def get_list_display(self, request):
+        result = ['athlete_id', 'last_name', 'first_name', 'team', 'group', 'session', 'starting_event']
+        events = Event.objects.all()
+        result += [e.initials for e in events]
+        return result
+
+    def __getattr__(self, attr):
+        event = Event.objects.get(initials=attr)
+
+        def get_score(athlete):
+            return AthleteEvent.objects.get(event=event, athlete=athlete).score
+        get_score.short_description = attr
+
+        return get_score
 
 
 class GroupAdmin(admin.ModelAdmin):
@@ -95,7 +126,7 @@ class LEDSignAdmin(admin.ModelAdmin):
 
 class EventAdmin(admin.ModelAdmin):
     model = Event
-    list_display = ('name', 'order',)
+    list_display = ('name', 'initials', 'order',)
 
 
 class MessageAdmin(admin.ModelAdmin):

@@ -13,12 +13,18 @@ body {
 #sign-mode-select {
     display: block;
     margin-bottom: 20px;
-    width: 300px;
+    width: 200px;
 }
 
 #message-select {
     display: block;
-    width: 300px;
+    width: 200px;
+}
+
+#rotation-select {
+    display: block;
+    width: 200px;
+    margin-bottom: 15px;
 }
 
 #messaging {

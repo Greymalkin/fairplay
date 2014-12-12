@@ -16,7 +16,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ('id', 'name', 'sign')
+        fields = ('id', 'name', 'initials', 'sign')
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -36,7 +36,7 @@ class SessionSerializer(serializers.ModelSerializer):
 class AthleteEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = AthleteEvent
-        fields = ('id', 'event', 'difficulty_score', 'execution_score')
+        fields = ('id', 'event', 'score', )
 
 
 class AthleteSerializer(serializers.ModelSerializer):
@@ -45,7 +45,7 @@ class AthleteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Athlete
-        fields = ('id', 'last_name', 'first_name', 'group', 'events', 'starting_event')
+        fields = ('id', 'athlete_id', 'last_name', 'first_name', 'group', 'events', 'starting_event')
 
 
 class TeamSerializer(serializers.ModelSerializer):

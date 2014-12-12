@@ -27,6 +27,7 @@ class Team(models.Model):
 class Event(models.Model):
     order = models.PositiveSmallIntegerField()
     name = models.CharField(max_length=255, help_text="Event name")
+    initials = models.CharField(max_length=2, help_text="Event initials")
     sign = models.ForeignKey(LEDSign)
 
     class Meta():
@@ -49,7 +50,7 @@ class Group(models.Model):
 
 class Session(models.Model):
     name = models.CharField(max_length=255, help_text="Session name")
-    groups = models.ManyToManyField(Group)
+    groups = models.ManyToManyField(Group, related_name='session')
 
     def __str__(self):
         return self.name
@@ -61,6 +62,22 @@ class TeamAward(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class AthleteEvent(models.Model):
+    athlete = models.ForeignKey('Athlete', related_name="events")
+    event = models.ForeignKey(Event, related_name="athletes")
+    score = models.FloatField(null=True, blank=True)
+
+    class Meta():
+        ordering = ['athlete', 'event']
+        unique_together = ('athlete', 'event',)
+
+    def __str__(self):
+        return "{} - {} - {}".format(
+            self.athlete,
+            self.event,
+            self.score)
 
 
 class Athlete(models.Model):
@@ -75,37 +92,12 @@ class Athlete(models.Model):
     class Meta():
         ordering = ['last_name', 'first_name', ]
 
+    def session(self):
+        return ""
+
     def __str__(self):
         return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
 
-
-class AthleteEvent(models.Model):
-    athlete = models.ForeignKey(Athlete, related_name="events")
-    event = models.ForeignKey(Event, related_name="athletes")
-    difficulty_score = models.FloatField(null=True, blank=True)
-    execution_score = models.FloatField(null=True, blank=True)
-
-    class Meta():
-        ordering = ['athlete', 'event']
-        unique_together = ('athlete', 'event',)
-
-    def __str__(self):
-        return "{} - {} - {}".format(
-            self.athlete,
-            self.event,
-            self.total_score())
-
-    def total_score(self):
-        if self.difficulty_score is None:
-            if self.execution_score is None:
-                return None
-            else:
-                return self.execution_score
-        else:
-            if self.execution_score is None:
-                return None
-            else:
-                return self.execution_score + self.difficulty_score
 
 
 class Message(models.Model):
