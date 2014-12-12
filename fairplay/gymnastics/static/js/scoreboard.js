@@ -5,6 +5,30 @@
     var currentEvent = null;
     var currentSession = null;
 
+    // using jQuery
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    });
+
     function onSelectEvent(event) {
         currentEvent  = eventTable[$(event.target).attr('data-id')];
 
@@ -38,6 +62,7 @@
         $("#" + value).show();
 
         if (value == "competition") {
+            $("#rotation-select").val("0");
             $("#rotation-select").change();
         }
 
@@ -66,26 +91,30 @@
 
         for (var i=0; i<athletes.length; ++i) {
             var athlete = athletes[i];
-            var score = "";
+            var score = null;
 
-            for (var j=0; j<athlete.events.length; ++j) {
-                if (athlete.events[j].event == currentEvent.id) {
-                    score = athlete.events[j].score;
+            for (var j=0; j<athlete.athlete.events.length; ++j) {
+                if (athlete.athlete.events[j].event == currentEvent.id) {
+                    score = athlete.athlete.events[j].score;
                 }
             }
 
-            var row = $("<tr></tr>");
+            var row = $('<tr data-id="' + athlete.athleteEventID + '"></tr>');
             row.append('<td>' + athlete.athlete.athlete_id+ '</td>');
             row.append('<td>' + athlete.athlete.last_name+'</td>');
             row.append('<td>' + athlete.athlete.first_name+'</td>');
             row.append('<td>' + athlete.athlete.team+'</td>');
             row.append('<td><button type="button" class="btn btn-warning next-button">Up Next</button></td>');
-            if (score === "") {
-                row.append('<td><input class="form-control bg-warning" size="4"></input></td>');
+            if (score === null) {
+                scoreInput = $('<input class="form-control"  size="4"></input>');
             } else {
-                row.append('<td><input class="form-control bg-success" size="4"></input></td>');
+                scoreInput = $('<input class="form-control alert-success" size="4" value="'+score+'"></input>');
             }
-            row.append('<td><button data-id="' + athlete.athleteEventID + '"type="button" class="btn btn-primary save-button">Save</button></td>');
+            scoreInput.keypress(onScoreKey);
+            scoreCol = $("<td></td>");
+            scoreCol.append(scoreInput);
+            row.append(scoreCol);
+            row.append('<td><button "type="button" class="btn btn-primary save-button">Save</button></td>');
             row.append('<td><button type="button" class="btn btn-success show-button">Show</button></td>');
             $("#scoreboard").append(row);
         }
@@ -93,6 +122,13 @@
         $(".next-button").click(showNextAthlete);
         $(".save-button").click(saveAthlete);
         $(".show-button").click(showAthleteScore);
+    }
+
+    function onScoreKey(event) {
+        if (event.which == 13) {
+            var row = $(event.target).parent().parent().find("td");
+            saveAthlete(event);
+        }
     }
 
     function showNextAthlete(event) {
@@ -121,7 +157,31 @@
     }
 
     function saveAthlete(event) {
-        var row = $(event.target).parent().parent().find("td");
+        var tr = $(event.target).parent().parent();
+        var row = tr.find("td");
+
+        var score = parseFloat($(row[5]).children()[0].value);
+
+        if (score > 0 && score <= 20) {
+            var id = tr.attr('data-id');
+            $.ajax({
+                url: '/api/athleteevents/' + id,
+                data: JSON.stringify({"id":id, "score": score, "event":currentEvent.id}),
+                type: 'PUT',
+                contentType: 'Application/JSON'
+            })
+            .success(function(data) {
+                tr.fadeTo(100, 0.2, function() { tr.fadeTo(100, 1); });
+                var button = $($(row[5]).children()[0]);
+                button.addClass("alert-success");
+            })
+            .error(function(data) {
+                console.log("FAILURE");
+            });
+        } else {
+            alert("Invalid score");
+            $(row[5]).children()[0].value = "";
+        }
 
     }
 
@@ -132,19 +192,9 @@
         var lastName = $(row[1]).text();
         var firstName = $(row[2]).text();
         var team = $(row[3]).text();
-        var diff_score = $(row[5]).text();
-        var exec_score = $(row[6]).text();
-        var score = 0;
+        var score = parseFloat($(row[5]).val());
 
-        if (diff_score.length > 0) {
-            score += parseFloat(diff_score);
-        }
-
-        if (exec_score.length > 0) {
-            score += parseFloat(exec_score);
-        }
-
-        if (score > 0) {
+        if (!isNaN(score) && score > 0) {
 
             var message = "|MODE_ROTATE||COLOR_RED|";
             message += id + " " + firstName + " " + lastName + " - " + team + " : ";

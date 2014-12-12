@@ -12,6 +12,16 @@ from django.core.urlresolvers import reverse
 from grappelli.dashboard import modules, Dashboard
 from grappelli.dashboard.utils import get_admin_site_name
 
+upload_html = """
+<br/>
+<div style="margin:5px;">
+    <input id='upload_roster' type="button" value="Upload Roster" class="grp-button grp-default" style="width:100%;margin-bottom:3px;margin-top:6px;padding-bottom:20px;"/>
+    <input id='download_roster' type="button" value="Download Roster" class="grp-button grp-default" style="width:100%;margin-bottom:3px;margin-top:6px;"/>
+</div>
+<script src="/static/js/jquery.ocupload-min.js"></script>
+<script src="/static/js/dashboard.js"></script>
+"""
+
 
 class CustomIndexDashboard(Dashboard):
     """
@@ -57,11 +67,12 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                 },
                 {
-                    'title': _('Download Leaderboard'),
+                    'title': _('Leaderboard'),
                     'url': '/leaderboard',
                     'external': False,
                 },
-            ]
+            ],
+            post_content=upload_html
         ))
 
         # append a recent actions module

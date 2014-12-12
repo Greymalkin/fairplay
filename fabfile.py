@@ -31,7 +31,7 @@ def local():
 def production():
     env.run = run
     env.cd = cd
-    env.user = 'pi'
+    env.user = 'bhall'
     env.name = 'production'
     env.hosts = ['fairplay.local']
     env.path = '/srv/fairplay/'

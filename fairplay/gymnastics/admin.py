@@ -29,7 +29,10 @@ class SessionFilter(admin.SimpleListFilter):
         return [(s.id, s.name) for s in Session.objects.all()]
 
     def queryset(self, request, queryset):
-        return queryset.filter(group__session__id=self.value())
+        if self.value() is not None:
+            return queryset.filter(group__session__id=self.value())
+        else:
+            return queryset
 
 
 class AthleteEventAdmin(admin.ModelAdmin):
@@ -100,7 +103,7 @@ class AthleteAdmin(admin.ModelAdmin):
         return Session.objects.get(groups=athlete.group).name
 
     def get_list_display(self, request):
-        result = ['athlete_id', 'last_name', 'first_name', 'team', 'group', 'session', 'starting_event']
+        result = ['athlete_id', 'last_name', 'first_name', 'team', 'group', 'starting_event']
         events = Event.objects.all()
         result += [e.initials for e in events]
         return result
