@@ -17,5 +17,7 @@ urlpatterns = patterns(
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/',  include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
-    url(r'^ledsign/', gymnastics.views.led_sign)
+    url(r'^ledsign/', gymnastics.views.led_sign),
+    url(r'^roster/', gymnastics.views.download_roster),
+    url(r'^leaderboard/(?P<id>\d+)/$', gymnastics.views.leaderboard),
 )
