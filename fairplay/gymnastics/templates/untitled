@@ -1,0 +1,10 @@
+team_awards = []
+for team_award in TeamAward.objects.all():
+    teams = []
+    for t in Team.objects.all():
+        team = {'name': t.name, 'score': 0}
+        for event in Event.objects.all():
+            top_3 = AthleteEvent.objects.filter(event=event, athlete__team=t).filter(athlete__group__in=team_award.groups.all()).order_by("-score")[:3].aggregate(total=Sum('score'))
+            if top_3['total'] is not None:
+                team['score'] += top_3['total']
+        print team

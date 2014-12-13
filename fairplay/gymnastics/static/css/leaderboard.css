@@ -1,3 +1,33 @@
 .bwi_logo {
     float:right;
 }
+
+.report {
+    clear:both;
+}
+
+.row {
+    margin-left: -70px;
+    margin-right: -90px;
+}
+
+@media print {
+    table.leaderboard {
+        break-after: always;
+        page-break-after: always;
+    }
+
+    .menu {
+        display: none;
+    }
+
+    .row {
+        padding: none;
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+
+    hr {
+        display: none;
+    }
+}

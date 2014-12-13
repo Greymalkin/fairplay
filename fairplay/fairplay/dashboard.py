@@ -53,33 +53,15 @@ class CustomIndexDashboard(Dashboard):
             models=('django.contrib.*', 'gymnastics.models.LEDSign'),
         ))
 
-        tools = [
-            {
-                'title': _('Scoreboard Control'),
-                'url': '/static/scoreboard.html',
-                'external': False,
-            },
-        ]
-
-        sessions = Session.objects.all()
-        for session in sessions:
-            tools.append({
-                'title': "{} Leaderboard".format(session.name),
-                'url': '/leaderboard/{}'.format(session.id),
-                'external': False,
-                })
-
-        # append another link list module for "support".
         self.children.append(modules.LinkList(
             _('Tools'),
             column=2,
-            children=tools,
-        ))
-
-        self.children.append(modules.LinkList(
-            _('Roster'),
-            column=2,
             children=[
+                {
+                    'title': _('Scoreboard Control'),
+                    'url': '/static/scoreboard.html',
+                    'external': False,
+                },
                 {
                     'title': _('Download Roster'),
                     'url': '/roster',
@@ -87,6 +69,24 @@ class CustomIndexDashboard(Dashboard):
                 },
             ],
             post_content=roster_html
+        ))
+
+        leaderboards = [
+        ]
+
+        sessions = Session.objects.all()
+        for session in sessions:
+            leaderboards.append({
+                'title': "{}".format(session.name),
+                'url': '/leaderboard/{}'.format(session.id),
+                'external': False,
+                })
+
+        # append another link list module for "support".
+        self.children.append(modules.LinkList(
+            _('Leaderboards'),
+            column=2,
+            children=leaderboards,
         ))
 
         # append a recent actions module

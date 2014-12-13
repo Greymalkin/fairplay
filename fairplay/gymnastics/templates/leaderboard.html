@@ -1,14 +1,22 @@
+<a name="{{leaderboard.level}}_{{leaderboard.age_group}}_{{leaderboard.initials}}"></a>
 <img src="/static/images/bwi_logo.png" class="bwi_logo">
-<h2>Level {{leaderboard.level}} ({{leaderboard.age_group}})</h2>
-<h2>{{leaderboard.event}}</h2>
+<h2>{{leaderboard.event}} - Level {{leaderboard.level}} ({{leaderboard.age_group}})</h2>
+<h3><em>Official Results</em></h3>
 <table class="table table-striped leaderboard">
+      <tr>
+        <th>Rank</td>
+        <th>Last Name</td>
+        <th>First Name</td>
+        <th>Team</td>
+        <th>Score</td>
+      </tr>
     {% for athlete in leaderboard.athletes %}
       <tr>
-        <td>{{athlete.rank}}</td>
-        <td>{{athlete.last_name}}</td>
-        <td>{{athlete.first_name}}</td>
-        <td>{{athlete.team}}</td>
-        <td>{{athlete.score}}</td>
+        <td style="padding:4px;">{{athlete.rank}}</td>
+        <td style="padding:4px;">{{athlete.last_name}}</td>
+        <td style="padding:4px;">{{athlete.first_name}}</td>
+        <td style="padding:4px;">{{athlete.team}}</td>
+        <td style="padding:4px;">{{athlete.score}}</td>
       </tr>
     {% endfor %}
 </table>
