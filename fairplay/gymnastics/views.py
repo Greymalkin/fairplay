@@ -2,6 +2,8 @@ import json
 from datetime import datetime
 import csv
 
+from django.views.generic import TemplateView
+
 from rest_framework import viewsets
 from .models import Event, Team, Athlete, AthleteEvent, Message, Session
 from .serializers import (
@@ -15,6 +17,7 @@ from .serializers import (
 
 from ledsign.bigdot import BigDot
 
+from django.db.models import Sum, Max
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -81,11 +84,62 @@ def download_roster(request):
     return response
 
 
-def leaderboard(request, id):
+def multikeysort(items, columns):
+    from operator import itemgetter
+    comparers = [ ((itemgetter(col[1:].strip()), -1) if col.startswith('-') else (itemgetter(col.strip()), 1)) for col in columns]
+    def comparer(left, right):
+        for fn, mult in comparers:
+            result = cmp(fn(left), fn(right))
+            if result:
+                return mult * result
+        else:
+            return 0
+    return sorted(items, cmp=comparer)
 
-    response = HttpResponse(id)
 
-    return response
+class SessionLeaderboardView(TemplateView):
+    template_name = "session_leaderboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionLeaderboardView, self).get_context_data(**kwargs)
+
+        session = Session.objects.get(id=self.kwargs['id'])
+        leaderboards = []
+
+        for group in session.groups.all():
+
+            for event in Event.objects.all():
+                athletes = []
+                for a in AthleteEvent.objects.filter(event=event, athlete__group=group):
+                    athlete = {
+                        'athlete_id': a.athlete.athlete_id,
+                        'last_name': a.athlete.last_name,
+                        'first_name': a.athlete.first_name,
+                        'team': a.athlete.team.name,
+                        'score': a.score,
+                    }
+                    info = AthleteEvent.objects.filter(athlete=a.athlete).aggregate(total_score=Sum('score'), max_score=Max('score'))
+                    athlete['total_score'] = info['total_score']
+                    athlete['max_score'] = info['max_score']
+                    athletes.append(athlete)
+
+                athletes = multikeysort(athletes, ('score', 'total_score', 'max_score'))
+                athletes.reverse()
+                leaderboards.append({'event': event.name,
+                                     'level': group.level,
+                                     'age_group': group.age_group,
+                                     'athletes': athletes})
+
+            athletes = multikeysort(athletes, ('total_score', 'max_score'))
+            athletes.reverse()
+            leaderboards.append({'event': 'Overall',
+                                 'level': group.level,
+                                 'age_group': group.age_group,
+                                 'athletes': athletes})
+
+        context['individual'] = leaderboards
+
+        return context
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
     """

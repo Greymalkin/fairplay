@@ -1,0 +1,14 @@
+<img src="/static/images/bwi_logo.png" class="bwi_logo">
+<h2>Level {{leaderboard.level}} ({{leaderboard.age_group}})</h2>
+<h2>{{leaderboard.event}}</h2>
+<table class="table table-striped leaderboard">
+    {% for athlete in leaderboard.athletes %}
+      <tr>
+        <td>{{athlete.rank}}</td>
+        <td>{{athlete.last_name}}</td>
+        <td>{{athlete.first_name}}</td>
+        <td>{{athlete.team}}</td>
+        <td>{{athlete.score}}</td>
+      </tr>
+    {% endfor %}
+</table>
