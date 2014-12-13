@@ -22,9 +22,7 @@ class Command(BaseCommand):
         with open(args[0], 'r') as csvfile:
             unitreader = csv.reader(csvfile)
 
-            # skip csv rows before the data row
-            for i in range(settings.FIRST_ROW):
-                next(unitreader)
+            header = next(unitreader)
 
             for row in unitreader:
                 print(row)
@@ -35,14 +33,21 @@ class Command(BaseCommand):
                     level=int(row[settings.LEVEL_COL]),
                     age_group=row[settings.AGE_GROUP_COL])
                 # Make the athlete and associate to teams/groups
-                models.Athlete.objects.create(**{
+                athlete = models.Athlete.objects.create(**{
                     'athlete_id': int(row[settings.ATHLETE_ID_COL]),
                     'last_name': row[settings.LASTNAME_COL],
                     'first_name': row[settings.FIRSTNAME_COL],
                     'team': team,
                     'group': group,
-                    'starting_event': settings.INITAL_EVENT}
+                    'starting_event': models.Event.objects.get(initials__iexact=row[settings.START_EVENT_COL])}
                 )
+
+                for i in range(7, len(row)):
+                    if len(row[i]) > 0:
+                        event = models.Event.objects.get(initials__iexact=header[i])
+                        athlete_event = models.AthleteEvent.objects.get(athlete=athlete, event=event)
+                        athlete_event.score = float(row[i])
+                        athlete_event.save()
 
         # Update the athlete positions for all the teams
         for t in models.Team.objects.all():

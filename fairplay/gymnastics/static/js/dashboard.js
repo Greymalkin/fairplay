@@ -1,5 +1,5 @@
 $ = grp.jQuery;
 
-$("#upload_roster").upload({
+$('a[href="#upload"]').upload({
     action: "/",
 });
