@@ -1,7 +1,7 @@
 import csv
 from django.core.management.base import BaseCommand
 from gymnastics import models
-from . import settings as settings
+from django.conf import settings
 
 
 class Command(BaseCommand):
@@ -28,18 +28,19 @@ class Command(BaseCommand):
                 print(row)
                 # Is there a team / group in the db?  No? Make it.  Retain object.
                 team, created = models.Team.objects.get_or_create(
-                    name=row[settings.TEAM_COL])
+                    name=row[settings.IMPORT_ATHLETES_TEAM_COL])
                 group, created = models.Group.objects.get_or_create(
-                    level=int(row[settings.LEVEL_COL]),
-                    age_group=row[settings.AGE_GROUP_COL])
+                    level=int(row[settings.IMPORT_ATHLETES_LEVEL_COL]),
+                    age_group=row[settings.IMPORT_ATHLETES_AGE_GROUP_COL])
                 # Make the athlete and associate to teams/groups
                 athlete = models.Athlete.objects.create(**{
-                    'athlete_id': int(row[settings.ATHLETE_ID_COL]),
-                    'last_name': row[settings.LASTNAME_COL],
-                    'first_name': row[settings.FIRSTNAME_COL],
+                    'athlete_id': int(row[settings.IMPORT_ATHLETES_ATHLETE_ID_COL]),
+                    'last_name': row[settings.IMPORT_ATHLETES_LASTNAME_COL],
+                    'first_name': row[settings.IMPORT_ATHLETES_FIRSTNAME_COL],
                     'team': team,
                     'group': group,
-                    'starting_event': models.Event.objects.get(initials__iexact=row[settings.START_EVENT_COL])}
+                    'starting_event': models.Event.objects.get(
+                        initials__iexact=row[settings.IMPORT_ATHLETES_START_EVENT_COL])}
                 )
 
                 for i in range(7, len(row)):
