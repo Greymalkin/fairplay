@@ -30,7 +30,7 @@ class SessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Session
-        fields = ('name', 'groups',)
+        fields = ('id', 'name', 'groups',)
 
 
 class AthleteEventSerializer(serializers.ModelSerializer):

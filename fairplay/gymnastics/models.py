@@ -55,6 +55,9 @@ class Session(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta():
+        ordering = ['name', ]
+
 
 class TeamAward(models.Model):
     name = models.CharField(max_length=255)
@@ -97,7 +100,6 @@ class Athlete(models.Model):
 
     def __str__(self):
         return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
-
 
 
 class Message(models.Model):

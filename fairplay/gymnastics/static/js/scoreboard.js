@@ -4,6 +4,7 @@
     var eventTable = {};
     var currentEvent = null;
     var currentSession = null;
+    var introText = "";
 
     // using jQuery
     function getCookie(name) {
@@ -41,14 +42,35 @@
         $("#sign-mode-select").show();
         $("#sign-mode-select").val('messaging');
         $("#sign-mode-select").change();
+        $("#message-select").val($("#message-select option:first").val());
         $("#message-select").change();
     }
 
     function onChangeSession(event) {
-        currentSession  = sessionTable[$(event.target).attr('data-id')];
-        $("#sign-mode-select").val('messaging');
-        $("#sign-mode-select").change();
-        $("#message-select").change();
+        currentSession  = sessionTable[parseInt($("#session-select").val())];
+
+        if (currentEvent !== null) {
+            $("#sign-mode-select").val('messaging');
+            $("#sign-mode-select").change();
+            $("#message-select").val($("#message-select option:first").val());
+            $("#message-select").change();
+        }
+
+        for (var p in currentSession.teams) {
+            var athleteList = currentSession.teams[p];
+            introText += "|MODE_WIPE_DOWN||COLOR_RED|"+p+"|MODE_ROTATE|";
+            for (var i=0; i<athleteList.length; ++i) {
+                var athlete = athleteList[i];
+                if (i % 2 === 0){
+                    introText += "|COLOR_YELLOW|";
+                } else {
+                    introText += "|COLOR_GREEN|";
+                }
+                introText += athlete.id + " " + athlete.first_name + " " + athlete.last_name + "  ";
+            }
+        }
+
+        console.log(introText.length);
     }
 
     function onChangeMode(event) {
@@ -56,7 +78,6 @@
 
         $("#messaging").hide();
         $("#introduce_teams").hide();
-        $("#event_name").hide();
         $("#competition").hide();
 
         $("#" + value).show();
@@ -64,6 +85,20 @@
         if (value == "competition") {
             $("#rotation-select").val("0");
             $("#rotation-select").change();
+
+        } else if (value == "introduce_teams") {
+            var data = {
+                "device": currentEvent.sign.device,
+                "message": introText
+            };
+
+            $.post('/ledsign/', JSON.stringify(data))
+            .success(function(data) {
+                console.log("Sent message!", data);
+            })
+            .error(function(data) {
+                console.log("Error sending message!", data);
+            });
         }
 
     }
@@ -139,7 +174,7 @@
         var firstName = $(row[2]).text();
         var team = $(row[3]).text();
 
-        var message = "|MODE_ROLL_UP||COLOR_GREEN|Next Up:|MODE_ROTATE||COLOR_YELLOW|";
+        var message = "|MODE_WIPE_UP||COLOR_GREEN|Next Up:|MODE_ROTATE||COLOR_YELLOW|";
         message += id + " " + firstName + " " + lastName + " - " + team;
 
         var data = {
@@ -192,12 +227,12 @@
         var lastName = $(row[1]).text();
         var firstName = $(row[2]).text();
         var team = $(row[3]).text();
-        var score = parseFloat($(row[5]).val());
+        var score = parseFloat($(row[5]).children()[0].value);
 
         if (!isNaN(score) && score > 0) {
 
             var message = "|MODE_ROTATE||COLOR_RED|";
-            message += id + " " + firstName + " " + lastName + " - " + team + " : ";
+            message += id + " " + firstName + " " + lastName + " - " + team + " ";
 
             message += "|WIDE_ON||COLOR_GREEN|"+score + "|WIDE_OFF|";
 
@@ -220,21 +255,21 @@
         $("#session-select").empty();
 
         for (var i=0; i<data.length; ++i) {
-            data[i].events = {};
+            var session = data[i];
+            session.events = {};
+            session.teams = {};
 
             for (var j=0; j<eventList.length; ++j) {
-                data[i].events[eventList[j].id] = [];
+                session.events[eventList[j].id] = [];
 
                 for (var k=0; k<eventList.length; ++k) {
-                    data[i].events[eventList[j].id].push([]);
+                    session.events[eventList[j].id].push([]);
                 }
             }
 
-            sessionTable[data[i].id] = data[i];
-            $("#session-select").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+            sessionTable[session.id] = data[i];
+            $("#session-select").append('<option value="' + session.id + '">' + session.name + '</option>');
         }
-
-        currentSession = sessionTable[$("#session-select").attr('data-id')];
 
         $.getJSON('/api/teams')
         .success(processTeams)
@@ -271,9 +306,10 @@
 
     function findSession(id) {
         for (var p in sessionTable) {
-            for (var q=0; q<sessionTable[p].groups.length; ++q) {
-                if (sessionTable[p].groups[q].id === id) {
-                    return sessionTable[p];
+            session = sessionTable[p];
+            for (var q=0; q<session.groups.length; ++q) {
+                if (session.groups[q].id === id) {
+                    return session;
                 }
             }
         }
@@ -303,7 +339,6 @@
         return result;
     }
 
-
     function processTeams(data) {
         for (var i=0; i<data.length; ++i) {
             var team = data[i];
@@ -312,7 +347,13 @@
                 athlete = team.athletes[j];
                 athlete.team = team.name;
                 session = findSession(athlete.group.id);
+
                 if (session !== null) {
+                    if (session.teams[team.name] == null) {
+                        session.teams[team.name] = [];
+                    }
+                    session.teams[team.name].push(athlete);
+
                     var eventIDs = getEventList(athlete.starting_event);
 
                     for (var k=0; k<eventIDs.length; ++k) {
@@ -333,6 +374,8 @@
                 }
             }
         }
+
+        onChangeSession(null);
     }
 
     function handleError(e) {

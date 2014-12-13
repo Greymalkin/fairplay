@@ -7,18 +7,18 @@ body {
 }
 
 #session-select {
-    width: 200px;
+    width: 250px;
 }
 
 #sign-mode-select {
     display: block;
     margin-bottom: 20px;
-    width: 200px;
+    width: 250px;
 }
 
 #message-select {
     display: block;
-    width: 200px;
+    width: 250px;
 }
 
 #rotation-select {

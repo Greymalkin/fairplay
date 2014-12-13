@@ -6,13 +6,13 @@ PREAMBLE = chr(0) * 5 + chr(1) + 'Z00' + chr(2)
 # 00 = At all addresses
 # STX = start message
 
-CONFIG = PREAMBLE + 'E$AAU0100FF00'
+CONFIG = PREAMBLE + 'E$AAU4000FF00'
 # E = process a command
 # $ = Command type: $ = Write config table command
 # A = Type of file for this directory slot: A = Text file
 # A = Label for the file (think of it as the file name)
 # U = Keyboard Lock/Unlock flag: U = unlocked (accessable by keyboard)
-# 0100 = number of bytes for the file: 0100 = 256 bytes (100 hex)
+# 4000 = number of bytes(in hex) for the file
 # FF = Start time: FF = On Always
 # 00 = stop time: 00 = unused because of the FF in prior section
 
