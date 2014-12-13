@@ -1,56 +1,56 @@
-id,lastname,firstname,team,level,division,floor,pommel,rings,vault,pbars,high bar,all around
-701,Dorris,Anthony,ASAP,7,12-Up,8.1,9.1,8.8,12,9.9,10.5,58.4
-702,Marino,Christian,ASAP,7,12-Up,5.9,9.5,8,11.6,7,4.5,46.5
-703,Van Etten,Sawyer,ASAP,7,12-Up,8.2,9.2,8.4,12.2,8,8.4,54.4
-704,Zellers,Brandon,ASAP,7,12-Up,6.8,8.9,10.3,10.9,8.6,7.5,53
-801,Clingman,Chase,Apex,8,11/12/2014,12.3,13.7,11.5,11.5,12.7,12.6,74.3
-831,Armstrong,Elliott,Apex,8,13-Up,10.6,10.7,8.4,10.8,10.3,0,0
-705,Liberto,Alexander,Columbia,7,11-Un,8,9.8,10,11,10.5,6.1,55.4
-802,Donovan,Caleb,Columbia,8,11/12/2014,10.8,12.3,8.6,11.4,12.3,10.6,66
-803,Keller,Kyle,Columbia,8,11/12/2014,10.7,11.1,10.6,11.2,11,11,65.6
-804,Fong,James,Docksiders,8,11/12/2014,10,10.5,0,11.4,0,0,0
-707,Foster,Elliot,Excalibur,7,11-Un,9.6,9.7,8.5,11.6,8.1,10.1,57.6
-708,Levy,Paden,Excalibur,7,11-Un,9.1,9.1,8.3,11.8,10.4,10.9,59.6
-709,Micklos,Connor,Excalibur,7,11-Un,9.2,9.5,9.5,11.9,9.3,9.3,58.7
-710,Smith,Samuel,Excalibur,7,11-Un,9.4,10,11.4,12.9,10,10.4,64.1
-805,Postell,Ahmir,Excalibur,8,11/12/2014,11.7,11,10.4,11.5,11.6,11.9,68.1
-711,Hewitt,Donovan,Fairland,7,11-Un,9.5,10.1,9.5,12.3,10.4,9.8,61.6
-712,Louloudes,Nicholas,Fairland,7,11-Un,7.5,10,8.8,11.7,8.5,6.2,52.7
-713,Henry-Price,Joshua,Fairland,7,11-Un,9.5,11.1,9.4,11.8,7.5,8.6,57.9
-714,Singleton,Brandon,Fairland,7,11-Un,8.8,9.4,8.3,12.6,7.6,8.8,55.5
-806,Jarrell,Pierce,Fairland,8,11/12/2014,11.1,10,10.3,11.5,10.4,10.6,63.9
-807,Jobst,Andre,Fairland,8,11/12/2014,11.6,11.4,10.6,11.6,11.2,9.5,65.9
-808,Trinh,Brian,Fairland,8,11/12/2014,11.1,11.9,9.4,12,12,10.2,66.6
-809,Dittman,David,GymLand/Arena,8,11/12/2014,11.1,10.4,8.2,9.8,10.7,9,59.2
-810,Hill,Cameron,GymLand/Arena,8,11/12/2014,11.3,11.2,10.8,10.9,11.6,8.1,63.9
-811,Padki,Kedar,GymLand/Arena,8,11/12/2014,10.8,10,7.8,10.6,11.5,9.6,60.3
-812,Smith,Brendan,GymLand/Arena,8,13-Up,12.2,13,11.6,11.3,12,11.1,71.2
-813,Bachman,Liam,KMC,8,11/12/2014,11.9,11.3,11,11.9,12.8,10.4,69.3
-814,Cunane,Collin,KMC,8,11/12/2014,12,12.4,11.4,10.9,12.9,11.7,71.3
-815,Murdocca,Kieran,KMC,8,11/12/2014,10.7,13.2,10.4,10.5,12,11.6,68.4
-817,Scheck,Jackson,KMC,8,11/12/2014,10.9,11,10.2,11.4,11.1,10.1,64.7
-715,Eades,Wesley,Loudon,7,11-Un,10.5,10,7,11.4,10.5,9.8,59.2
-716,Dev,Vijay,Paragon,7,12-Up,7.4,10.1,8.2,10.9,8.1,5.9,50.6
-717,Dinmore,Ian,Paragon,7,11-Un,8,10,9.4,11.5,10.3,8.3,57.5
-718,Klier,Elijah,Paragon,7,11-Un,6.2,9.6,9.5,11.9,8,8.3,53.5
-719,Mateer,Christopher,Paragon,7,11-Un,9.3,10,9.8,11.3,9.3,8.2,57.9
-720,Bowling,Brett,Paragon,7,12-Up,8.8,10.1,9.3,12.2,7.5,5.7,53.6
-818,Kuzmenchuk,Aleksandr,Paragon,8,11/12/2014,12.6,13.1,12,11,13.2,13,74.9
-819,Lutchman,Dhiren,Paragon,8,11/12/2014,12.5,13,11.3,12.5,13,13.2,75.5
-820,Powers,Zyler,Paragon,8,11/12/2014,12.2,12.4,10.5,12,10.2,11,68.3
-821,Schiavone,Zachary,Paragon,8,13-Up,12,10.4,11.8,11.7,12.3,11.9,70.1
-721,Ilgenfritz,Ben,Prestige,7,12-Up,7,8.4,8.4,10.5,9.8,7.8,51.9
-822,Swope,Aaron,Prestive,8,13-Up,11.5,11.8,8.3,11.8,11.2,10.9,65.6
-823,Trammell,Kyle,Rebounders,8,11/12/2014,10.6,10.9,8,11.5,11.3,7.5,59.8
-824,Christopher,Gavin,Rebounders,8,11/12/2014,11.4,11.3,10.1,11.6,9.5,8.6,62.5
-825,Leonard,Cameron,Rebounders,8,13-Up,0,7.6,10.4,0,10.9,9.6,0
-826,Rudie,Paul,Rebounders,8,11/12/2014,11.7,11.2,8,11.6,11.6,7.6,61.7
-827,Rutz,Sebastian,Rebounders,8,11/12/2014,11.4,10.2,10.7,11.4,11.3,9.6,64.6
-724,Davis,Dimitry,Top Flight,7,11-Un,8.7,10,9.7,11.7,10,8.8,58.9
-828,Byers,Noah,Top Flight,8,11/12/2014,11,9.7,11.3,10.8,12.1,12,66.9
-829,Mohabir,Matthew,Top Flight,8,11/12/2014,11.3,10.4,11,11.9,11.7,11.8,68.1
-725,Stearn,Finley,Twisters,7,11-Un,11.1,10,9.8,12.5,11,10.6,65
-726,Sexton,Matthew,United,7,11-Un,8.7,8.1,9.2,12.6,8.7,6.7,54
-727,Lambert,Alex,Upper Merion,7,11-Un,7.4,10.2,9,11.5,9.1,7.4,54.6
-728,Neal,Karsten,Upper Merion,7,12-Up,7.4,8.7,8.6,11.1,9.4,6.7,51.9
-830,Peterson,Jalen,Youth Sports,8,11/12/2014,11.9,12.3,9.3,12.6,10.2,10.3,66.6
+compno,lastname,firstname,gym,levelid,agediv,startevent,fe,ph,sr,vt,pb,hb
+701,Dorris,Anthony,ASAP,7,12-Up,fe,8.1,9.1,8.8,12,9.9,10.5
+702,Marino,Christian,ASAP,7,12-Up,ph,5.9,9.5,8,11.6,7,4.5
+703,Van Etten,Sawyer,ASAP,7,12-Up,sr,8.2,9.2,8.4,12.2,8,8.4
+704,Zellers,Brandon,ASAP,7,12-Up,vt,6.8,8.9,10.3,10.9,8.6,7.5
+801,Clingman,Chase,Apex,8,11/12/2014,pb,12.3,13.7,11.5,11.5,12.7,12.6
+831,Armstrong,Elliott,Apex,8,13-Up,hb,10.6,10.7,8.4,10.8,10.3,0
+705,Liberto,Alexander,Columbia,7,11-Un,fe,8,9.8,10,11,10.5,6.1
+802,Donovan,Caleb,Columbia,8,11/12/2014,fe,10.8,12.3,8.6,11.4,12.3,10.6
+803,Keller,Kyle,Columbia,8,11/12/2014,ph,10.7,11.1,10.6,11.2,11,11
+804,Fong,James,Docksiders,8,11/12/2014,sr,10,10.5,0,11.4,0,0
+707,Foster,Elliot,Excalibur,7,11-Un,vt,9.6,9.7,8.5,11.6,8.1,10.1
+708,Levy,Paden,Excalibur,7,11-Un,pb,9.1,9.1,8.3,11.8,10.4,10.9
+709,Micklos,Connor,Excalibur,7,11-Un,hb,9.2,9.5,9.5,11.9,9.3,9.3
+710,Smith,Samuel,Excalibur,7,11-Un,ph,9.4,10,11.4,12.9,10,10.4
+805,Postell,Ahmir,Excalibur,8,11/12/2014,fe,11.7,11,10.4,11.5,11.6,11.9
+711,Hewitt,Donovan,Fairland,7,11-Un,ph,9.5,10.1,9.5,12.3,10.4,9.8
+712,Louloudes,Nicholas,Fairland,7,11-Un,sr,7.5,10,8.8,11.7,8.5,6.2
+713,Henry-Price,Joshua,Fairland,7,11-Un,vt,9.5,11.1,9.4,11.8,7.5,8.6
+714,Singleton,Brandon,Fairland,7,11-Un,pb,8.8,9.4,8.3,12.6,7.6,8.8
+806,Jarrell,Pierce,Fairland,8,11/12/2014,hb,11.1,10,10.3,11.5,10.4,10.6
+807,Jobst,Andre,Fairland,8,11/12/2014,sr,11.6,11.4,10.6,11.6,11.2,9.5
+808,Trinh,Brian,Fairland,8,11/12/2014,fe,11.1,11.9,9.4,12,12,10.2
+809,Dittman,David,GymLand/Arena,8,11/12/2014,ph,11.1,10.4,8.2,9.8,10.7,9
+810,Hill,Cameron,GymLand/Arena,8,11/12/2014,sr,11.3,11.2,10.8,10.9,11.6,8.1
+811,Padki,Kedar,GymLand/Arena,8,11/12/2014,vt,10.8,10,7.8,10.6,11.5,9.6
+812,Smith,Brendan,GymLand/Arena,8,13-Up,pb,12.2,13,11.6,11.3,12,11.1
+813,Bachman,Liam,KMC,8,11/12/2014,hb,11.9,11.3,11,11.9,12.8,10.4
+814,Cunane,Collin,KMC,8,11/12/2014,vt,12,12.4,11.4,10.9,12.9,11.7
+815,Murdocca,Kieran,KMC,8,11/12/2014,fe,10.7,13.2,10.4,10.5,12,11.6
+817,Scheck,Jackson,KMC,8,11/12/2014,ph,10.9,11,10.2,11.4,11.1,10.1
+715,Eades,Wesley,Loudon,7,11-Un,sr,10.5,10,7,11.4,10.5,9.8
+716,Dev,Vijay,Paragon,7,12-Up,vt,7.4,10.1,8.2,10.9,8.1,5.9
+717,Dinmore,Ian,Paragon,7,11-Un,pb,8,10,9.4,11.5,10.3,8.3
+718,Klier,Elijah,Paragon,7,11-Un,hb,6.2,9.6,9.5,11.9,8,8.3
+719,Mateer,Christopher,Paragon,7,11-Un,pb,9.3,10,9.8,11.3,9.3,8.2
+720,Bowling,Brett,Paragon,7,12-Up,fe,8.8,10.1,9.3,12.2,7.5,5.7
+818,Kuzmenchuk,Aleksandr,Paragon,8,11/12/2014,ph,12.6,13.1,12,11,13.2,13
+819,Lutchman,Dhiren,Paragon,8,11/12/2014,sr,12.5,13,11.3,12.5,13,13.2
+820,Powers,Zyler,Paragon,8,11/12/2014,vt,12.2,12.4,10.5,12,10.2,11
+821,Schiavone,Zachary,Paragon,8,13-Up,pb,12,10.4,11.8,11.7,12.3,11.9
+721,Ilgenfritz,Ben,Prestige,7,12-Up,hb,7,8.4,8.4,10.5,9.8,7.8
+822,Swope,Aaron,Prestive,8,13-Up,hb,11.5,11.8,8.3,11.8,11.2,10.9
+823,Trammell,Kyle,Rebounders,8,11/12/2014,fe,10.6,10.9,8,11.5,11.3,7.5
+824,Christopher,Gavin,Rebounders,8,11/12/2014,ph,11.4,11.3,10.1,11.6,9.5,8.6
+825,Leonard,Cameron,Rebounders,8,13-Up,sr,0,7.6,10.4,0,10.9,9.6
+826,Rudie,Paul,Rebounders,8,11/12/2014,vt,11.7,11.2,8,11.6,11.6,7.6
+827,Rutz,Sebastian,Rebounders,8,11/12/2014,pb,11.4,10.2,10.7,11.4,11.3,9.6
+724,Davis,Dimitry,Top Flight,7,11-Un,hb,8.7,10,9.7,11.7,10,8.8
+828,Byers,Noah,Top Flight,8,11/12/2014,fe,11,9.7,11.3,10.8,12.1,12
+829,Mohabir,Matthew,Top Flight,8,11/12/2014,fe,11.3,10.4,11,11.9,11.7,11.8
+725,Stearn,Finley,Twisters,7,11-Un,ph,11.1,10,9.8,12.5,11,10.6
+726,Sexton,Matthew,United,7,11-Un,sr,8.7,8.1,9.2,12.6,8.7,6.7
+727,Lambert,Alex,Upper Merion,7,11-Un,vt,7.4,10.2,9,11.5,9.1,7.4
+728,Neal,Karsten,Upper Merion,7,12-Up,pb,7.4,8.7,8.6,11.1,9.4,6.7
+830,Peterson,Jalen,Youth Sports,8,11/12/2014,hb,11.9,12.3,9.3,12.6,10.2,10.3
