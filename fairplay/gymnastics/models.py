@@ -67,10 +67,18 @@ class TeamAward(models.Model):
         return self.name
 
 
+class TeamAwardRank(models.Model):
+    team = models.ForeignKey(Team)
+    team_award = models.ForeignKey(TeamAward)
+    rank = models.PositiveSmallIntegerField(null=True)
+    score = models.FloatField(null=True)
+
+
 class AthleteEvent(models.Model):
     athlete = models.ForeignKey('Athlete', related_name="events")
     event = models.ForeignKey(Event, related_name="athletes")
     score = models.FloatField(null=True, blank=True)
+    rank = models.PositiveSmallIntegerField(null=True)
 
     class Meta():
         ordering = ['athlete', 'event']
@@ -91,6 +99,8 @@ class Athlete(models.Model):
     group = models.ForeignKey(Group)
     position = models.PositiveSmallIntegerField(default=0)
     starting_event = models.ForeignKey(Event, null=True)
+    overall_score = models.FloatField(null=True)
+    rank = models.PositiveSmallIntegerField(null=True)
 
     class Meta():
         ordering = ['last_name', 'first_name', ]
