@@ -66,11 +66,9 @@
                 } else {
                     introText += "|COLOR_GREEN|";
                 }
-                introText += athlete.id + " " + athlete.first_name + " " + athlete.last_name + "  ";
+                introText += athlete.athlete_id + " " + athlete.first_name + " " + athlete.last_name + "  ";
             }
         }
-
-        console.log(introText.length);
     }
 
     function onChangeMode(event) {
@@ -231,8 +229,9 @@
 
         if (!isNaN(score) && score > 0) {
 
-            var message = "|MODE_ROTATE||COLOR_RED|";
-            message += id + " " + firstName + " " + lastName + " - " + team + " ";
+            var message = "|MODE_ROLL_UP||WIDE_ON||COLOR_GREEN|"+score + "|WIDE_OFF|";
+            message += "|MODE_ROTATE||COLOR_RED|";
+            message += id + " " + firstName + " " + lastName + " - " + team + "     ";
 
             message += "|WIDE_ON||COLOR_GREEN|"+score + "|WIDE_OFF|";
 
