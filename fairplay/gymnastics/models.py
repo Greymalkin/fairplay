@@ -43,7 +43,7 @@ class Group(models.Model):
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta():
-        ordering = ['level', 'age_group', ]
+        ordering = ['level', 'order', ]
 
     def __str__(self):
         return "Level {} ({} years)".format(self.level, self.age_group)
@@ -97,7 +97,7 @@ class Athlete(models.Model):
     last_name = models.CharField(max_length=100)
     first_name = models.CharField(max_length=100)
     team = models.ForeignKey(Team, related_name='athletes')
-    group = models.ForeignKey(Group)
+    group = models.ForeignKey(Group, related_name='athletes')
     position = models.PositiveSmallIntegerField(default=0)
     starting_event = models.ForeignKey(Event, null=True)
     overall_score = models.FloatField(null=True)
