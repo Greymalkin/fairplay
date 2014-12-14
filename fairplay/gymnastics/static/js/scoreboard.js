@@ -195,7 +195,7 @@
 
         var score = parseFloat($(row[5]).children()[0].value);
 
-        if (score > 0 && score <= 20) {
+        if (score >= 0 && score <= 20) {
             var id = tr.attr('data-id');
             $.ajax({
                 url: '/api/athleteevents/' + id,
@@ -226,14 +226,15 @@
         var firstName = $(row[2]).text();
         var team = $(row[3]).text();
         var score = parseFloat($(row[5]).children()[0].value);
+        var scoreText = $(row[5]).children()[0].value;
 
         if (!isNaN(score) && score > 0) {
 
-            var message = "|MODE_ROLL_UP||WIDE_ON||COLOR_GREEN|"+score + "|WIDE_OFF|";
+            var message = "|MODE_ROLL_UP||WIDE_ON||COLOR_GREEN|"+scoreText + "|WIDE_OFF|";
             message += "|MODE_ROTATE||COLOR_RED|";
             message += id + " " + firstName + " " + lastName + " - " + team + "     ";
 
-            message += "|WIDE_ON||COLOR_GREEN|"+score + "|WIDE_OFF|";
+            message += "|WIDE_ON||COLOR_GREEN|"+scoreText + "|WIDE_OFF|";
 
             var data = {
                 "device": currentEvent.sign.device,

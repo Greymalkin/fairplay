@@ -57,10 +57,11 @@ class AthleteEventInlineAdmin(admin.TabularInline):
     fields = ('event', 'score',)
 
 
-class AthleteInlineAdmin(GrappelliSortableHiddenMixin, admin.TabularInline):
+class AthleteInlineAdmin(admin.TabularInline):
     model = Athlete
     extra = 1
-    sortable_field_name = 'position'
+    fields = ('athlete_id', 'last_name', 'first_name', 'starting_event')
+    # sortable_field_name = 'position'
 
 
 class TeamAdmin(admin.ModelAdmin):

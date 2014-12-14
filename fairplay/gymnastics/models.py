@@ -40,6 +40,7 @@ class Event(models.Model):
 class Group(models.Model):
     level = models.PositiveSmallIntegerField()
     age_group = models.CharField(max_length=255)
+    order = models.PositiveSmallIntegerField(default=0)
 
     class Meta():
         ordering = ['level', 'age_group', ]
