@@ -103,22 +103,28 @@ class AthleteAdmin(admin.ModelAdmin):
     def session(self, athlete):
         return Session.objects.get(groups=athlete.group).name
 
+    def get_queryset(self, request):
+        qs = super(AthleteAdmin, self).queryset(request)
+        qs = qs.annotate(aa=Sum('events__score'))
+        return qs
+
     def get_list_display(self, request):
         result = ['athlete_id', 'last_name', 'first_name', 'team', 'group', 'starting_event']
         events = Event.objects.all()
         result += [e.initials for e in events]
-        result += ['aa', ]
+        result += ['all_around', ]
         return result
 
-    def aa(self, athlete):
-        return AthleteEvent.objects.filter(athlete=athlete).aggregate(Sum('score'))['score__sum']
-    aa.short_description = 'AA'
+    def all_around(self, obj):
+        return obj.aa
+    all_around.admin_order_field = 'aa'
+    all_around.short_description = 'AA'
 
     def __getattr__(self, attr):
         event = Event.objects.get(initials=attr)
 
         def get_score(athlete):
-            return AthleteEvent.objects.get(event=event, athlete=athlete).score
+            return athlete.events.get(event=event).score
         get_score.short_description = attr.upper()
 
         return get_score

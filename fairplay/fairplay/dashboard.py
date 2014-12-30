@@ -71,30 +71,37 @@ class CustomIndexDashboard(Dashboard):
             post_content=roster_html
         ))
 
-        leaderboards = [
-        ]
-
         sessions = Session.objects.all()
         for session in sessions:
-            leaderboards.append({
-                'title': "{}".format(session.name),
+            links = []
+            links.append({
+                'title': 'Leaderboard',
                 'url': '/leaderboard/{}'.format(session.id),
                 'external': False,
                 })
+            links.append({
+                'title': 'Individual Report',
+                'url': '/individual_report/{}'.format(session.id),
+                'external': False,
+                })
+            links.append({
+                'title': 'Team Report',
+                'url': '/team_report/{}'.format(session.id),
+                'external': False,
+                })
 
-        # append another link list module for "support".
-        self.children.append(modules.LinkList(
-            _('Leaderboards'),
-            column=2,
-            children=leaderboards,
-        ))
+            self.children.append(modules.LinkList(
+                _(session.name),
+                column=2,
+                children=links,
+            ))
 
         # append a recent actions module
         self.children.append(modules.RecentActions(
             _('Recent Actions'),
             limit=5,
             collapsible=False,
-            column=2,
+            column=3,
         ))
 
 
