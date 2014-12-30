@@ -2,7 +2,7 @@ from django.forms.models import BaseInlineFormSet
 from django.contrib import admin
 from grappelli.forms import GrappelliSortableHiddenMixin
 
-from django.db.models import Count
+from django.db.models import Count, Sum
 
 from .models import (
     Group, Athlete, Event, Team, LEDSign, AthleteEvent, Message, TeamAward,
@@ -107,14 +107,19 @@ class AthleteAdmin(admin.ModelAdmin):
         result = ['athlete_id', 'last_name', 'first_name', 'team', 'group', 'starting_event']
         events = Event.objects.all()
         result += [e.initials for e in events]
+        result += ['aa', ]
         return result
+
+    def aa(self, athlete):
+        return AthleteEvent.objects.filter(athlete=athlete).aggregate(Sum('score'))['score__sum']
+    aa.short_description = 'AA'
 
     def __getattr__(self, attr):
         event = Event.objects.get(initials=attr)
 
         def get_score(athlete):
             return AthleteEvent.objects.get(event=event, athlete=athlete).score
-        get_score.short_description = attr
+        get_score.short_description = attr.upper()
 
         return get_score
 

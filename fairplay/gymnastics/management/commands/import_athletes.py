@@ -6,7 +6,7 @@ from django.conf import settings
 
 class Command(BaseCommand):
     """
-    Go get the data from the a csv file provided by AVC, and parse it.
+    Go get the data from the a csv file provided by Aerial, and parse it.
     * Create Athletes, Teams, Age Groups
     Example: $ ./manage.py import_athletes fairland.4.csv
     """
@@ -38,17 +38,15 @@ class Command(BaseCommand):
                     'last_name': row[settings.IMPORT_ATHLETES_LASTNAME_COL],
                     'first_name': row[settings.IMPORT_ATHLETES_FIRSTNAME_COL],
                     'team': team,
-                    'group': group,
-                    'starting_event': models.Event.objects.get(
-                        initials__iexact=row[settings.IMPORT_ATHLETES_START_EVENT_COL])}
+                    'group': group}
                 )
 
-                for i in range(7, len(row)):
-                    if len(row[i]) > 0:
-                        event = models.Event.objects.get(initials__iexact=header[i])
-                        athlete_event = models.AthleteEvent.objects.get(athlete=athlete, event=event)
-                        athlete_event.score = float(row[i])
-                        athlete_event.save()
+                # for i in range(7, len(row)):
+                #     if len(row[i]) > 0:
+                #         event = models.Event.objects.get(initials__iexact=header[i])
+                #         athlete_event = models.AthleteEvent.objects.get(athlete=athlete, event=event)
+                #         athlete_event.score = float(row[i])
+                #         athlete_event.save()
 
         # Update the athlete positions for all the teams
         for t in models.Team.objects.all():
