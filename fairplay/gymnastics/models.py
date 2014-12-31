@@ -99,9 +99,10 @@ class Athlete(models.Model):
     team = models.ForeignKey(Team, related_name='athletes')
     group = models.ForeignKey(Group, related_name='athletes')
     position = models.PositiveSmallIntegerField(default=0)
-    starting_event = models.ForeignKey(Event, null=True)
+    starting_event = models.ForeignKey(Event, null=True, blank=True)
     overall_score = models.FloatField(null=True)
     rank = models.PositiveSmallIntegerField(null=True)
+    scratched = models.BooleanField(default=False)
 
     class Meta():
         ordering = ['last_name', 'first_name', ]
@@ -129,7 +130,11 @@ def populate_athlete(instance, created, raw, **kwargs):
     instance.save()
 
     for event in Event.objects.all():
-        AthleteEvent.objects.get_or_create(event=event, athlete=instance)
+        ae = AthleteEvent.objects.get_or_create(event=event, athlete=instance)
+        if instance.scratched:
+            ae.score = 0
+            ae.save()
+
 
 
 def populate_event(instance, created, raw, **kwargs):
@@ -140,7 +145,22 @@ def populate_event(instance, created, raw, **kwargs):
     instance.save()
 
     for athlete in Athlete.objects.all():
-        AthleteEvent.objects.get_or_create(event=instance, athlete=athlete)
+        ae = AthleteEvent.objects.get_or_create(event=instance, athlete=athlete)
+        if athlete.scratched:
+            ae.score = 0
+            ae.save()
+
+
+def scratch_athlete(instance, created, raw, **kwargs):
+    if instance.scratched:
+        ae = instance.events.all().exclude(score__isnull=False)
+        ae.update(score=0)
+
+
+models.signals.post_save.connect(
+    scratch_athlete,
+    sender=Athlete,
+    dispatch_uid='scratch_athlete')
 
 
 models.signals.post_save.connect(

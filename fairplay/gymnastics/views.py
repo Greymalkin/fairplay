@@ -43,7 +43,7 @@ def led_sign(request):
 
 @csrf_exempt
 def download_roster(request):
-    athletes = Athlete.objects.all().order_by('group', 'athlete_id')
+    athletes = Athlete.objects.all().order_by('group', 'athlete_id').exclude(scratched=True)
     events = Event.objects.all()
 
     response = HttpResponse(content_type='text/csv')
@@ -145,7 +145,7 @@ def calculate_session_ranking(session):
 
             # make a list of all athletes in this group
             athletes = []
-            for a in Athlete.objects.filter(group=group):
+            for a in Athlete.objects.filter(group=group, scratched=False):
                 athlete = {
                     'athlete_id': a.athlete_id,
                     'last_name': a.last_name,
@@ -251,7 +251,7 @@ class SessionLeaderboardView(TemplateView):
 
             # overall leaderboard for group
             leaderboard = []
-            for a in Athlete.objects.filter(group=group).order_by("rank"):
+            for a in Athlete.objects.filter(group=group, scratched=False).order_by("rank"):
                 leaderboard.append({
                     'athlete_id': a.athlete_id,
                     'last_name': a.last_name,

@@ -92,9 +92,9 @@ class AthleteAdmin(admin.ModelAdmin):
     model = Athlete
     inlines = (AthleteEventInlineAdmin, )
     fields = ('athlete_id', 'last_name', 'first_name',
-              'team', 'group', 'starting_event')
+              'team', 'group', 'starting_event', )
     search_fields = ['athlete_id', 'last_name', 'first_name']
-    list_filter = ('team', 'group', SessionFilter, 'starting_event',)
+    list_filter = ('team', 'group', SessionFilter, 'starting_event', 'scratched')
     list_per_page = 50
 
     def get_actions(self, request):
@@ -104,7 +104,7 @@ class AthleteAdmin(admin.ModelAdmin):
         return Session.objects.get(groups=athlete.group).name
 
     def get_queryset(self, request):
-        qs = super(AthleteAdmin, self).queryset(request)
+        qs = super(AthleteAdmin, self).get_queryset(request)
         qs = qs.annotate(aa=Sum('events__score'))
         return qs
 
