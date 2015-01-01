@@ -1,4 +1,5 @@
 import csv
+import re
 from django.core.management.base import BaseCommand
 from gymnastics import models
 from django.conf import settings
@@ -29,9 +30,11 @@ class Command(BaseCommand):
                 # Is there a team / group in the db?  No? Make it.  Retain object.
                 team, created = models.Team.objects.get_or_create(
                     name=row[settings.IMPORT_ATHLETES_TEAM_COL])
+                # Set default order number for age group based on parsing a number from the file ("6 years", "11 and up")
                 group, created = models.Group.objects.get_or_create(
                     level=int(row[settings.IMPORT_ATHLETES_LEVEL_COL]),
-                    age_group=row[settings.IMPORT_ATHLETES_AGE_GROUP_COL])
+                    age_group=row[settings.IMPORT_ATHLETES_AGE_GROUP_COL],
+                    order=int(re.findall(r'\d+', row[settings.IMPORT_ATHLETES_AGE_GROUP_COL])[0]))
                 # Make the athlete and associate to teams/groups
                 athlete = models.Athlete.objects.create(**{
                     'athlete_id': int(row[settings.IMPORT_ATHLETES_ATHLETE_ID_COL]),
@@ -41,12 +44,6 @@ class Command(BaseCommand):
                     'group': group}
                 )
 
-                # for i in range(7, len(row)):
-                #     if len(row[i]) > 0:
-                #         event = models.Event.objects.get(initials__iexact=header[i])
-                #         athlete_event = models.AthleteEvent.objects.get(athlete=athlete, event=event)
-                #         athlete_event.score = float(row[i])
-                #         athlete_event.save()
 
         # Update the athlete positions for all the teams
         for t in models.Team.objects.all():
@@ -55,5 +52,12 @@ class Command(BaseCommand):
                 gymnast.position = position
                 gymnast.save()
                 position += 1
+
+        # Reset order for the age groups so they increase ordinally from 0
+        counter = 0
+        for g in models.Group.objects.all().order_by('level', 'order'):
+            g.order = counter
+            g.save()
+            counter = counter + 1
 
         print('Import of csv data into cms: Done')

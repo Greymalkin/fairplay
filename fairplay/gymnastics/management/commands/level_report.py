@@ -32,7 +32,7 @@ class Command(BaseCommand):
             for team in models.Team.objects.filter(athletes__group__level=level).order_by('name').distinct('name'):
                 writer.writerow((team.name,))
                 for group in groups:
-                    athletes = models.Athlete.objects.filter(team=team, group=group)
+                    athletes = models.Athlete.objects.filter(team=team, group=group, scratched=False)
                     if len(athletes) > 0:
                         writer.writerow((group.age_group,))
                         for athlete in athletes:
