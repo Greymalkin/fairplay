@@ -150,7 +150,6 @@ def calculate_session_ranking(session):
                 athletes.append(athlete)
 
             athletes = multikeysort(athletes, ('total_score', 'max_score'))
-            athletes.reverse()
 
             # rank them by total_score, and max_score
             rank = 0
@@ -234,7 +233,7 @@ class SessionCeremonyView(TemplateView):
             # group per event leaderboard
             for event in Event.objects.all():
                 leaderboard = []
-                for a in AthleteEvent.objects.filter(event=event, athlete__group=group).order_by("rank"):
+                for a in AthleteEvent.objects.filter(event=event, athlete__group=group, score__isnull=False).order_by("rank"):
                     leaderboard.append({
                         'athlete_id': a.athlete.athlete_id,
                         'last_name': a.athlete.last_name,
@@ -252,7 +251,7 @@ class SessionCeremonyView(TemplateView):
 
             # overall leaderboard for group
             leaderboard = []
-            for a in Athlete.objects.filter(group=group, scratched=False).order_by("rank"):
+            for a in Athlete.objects.filter(group=group, scratched=False, overall_score__isnull=False).order_by("rank"):
                 leaderboard.append({
                     'athlete_id': a.athlete_id,
                     'last_name': a.last_name,
