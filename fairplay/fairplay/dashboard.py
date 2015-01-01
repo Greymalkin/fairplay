@@ -75,8 +75,8 @@ class CustomIndexDashboard(Dashboard):
         for session in sessions:
             links = []
             links.append({
-                'title': 'Leaderboard',
-                'url': '/leaderboard/{}'.format(session.id),
+                'title': 'Awards Ceremony Tool',
+                'url': '/ceremony/{}'.format(session.id),
                 'external': False,
                 })
             links.append({

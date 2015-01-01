@@ -183,15 +183,23 @@ def calculate_session_ranking(session):
         # determine ranking for each team award
         for team_award in TeamAward.objects.all():
             teams = []
-            for t in Team.objects.all():
+            for t in Team.objects.filter(qualified=True):
                 team = {'name': t.name, 'score': 0, 'id': t.id}
                 for event in Event.objects.all():
-                    top_3 = AthleteEvent.objects.filter(event=event, athlete__team=t).filter(athlete__group__in=team_award.groups.all()).order_by("-score")[:3].aggregate(total=Sum('score'))
-                    if top_3['total'] is not None:
-                        team['score'] += top_3['total']
+                    top_3 = AthleteEvent.objects.filter(
+                        event=event,
+                        athlete__team=t
+                    ).filter(
+                        athlete__group__in=team_award.groups.all()
+                    ).order_by("-score")[:3]
+                    if len(top_3) == 3:
+                        score = top_3.aggregate(total=Sum('score'))
+                        if score['total'] is not None:
+                            team['score'] += score['total']
 
-                if team['score'] > 0:
-                    teams.append(team)
+                        if team['score'] > 0:
+                            teams.append(team)
+
             teams = multikeysort(teams, ('score',))
             teams.reverse()
 
@@ -212,23 +220,24 @@ def calculate_session_ranking(session):
                 ta.save()
 
 
-class SessionLeaderboardView(TemplateView):
-    template_name = "session_leaderboard.html"
+class SessionCeremonyView(TemplateView):
+    template_name = "session_ceremony.html"
 
     def get_context_data(self, **kwargs):
-        context = super(SessionLeaderboardView, self).get_context_data(**kwargs)
+        context = super(SessionCeremonyView, self).get_context_data(**kwargs)
         session = Session.objects.get(id=self.kwargs['id'])
 
         # go do the actual math
         calculate_session_ranking(session)
 
         # start populating the context
-        context['groups'] = session.groups.all()
+        context['session'] = session
+        context['groups'] = []
         context['events'] = Event.objects.all()
-
-        leaderboards = []
+        context['rankings'] = {}
 
         for group in session.groups.all():
+            leaderboards = []
 
             # group per event leaderboard
             for event in Event.objects.all():
@@ -266,17 +275,20 @@ class SessionLeaderboardView(TemplateView):
                                  'age_group': group.age_group,
                                  'athletes': leaderboard})
 
-        # individual leaderboards
-        context['individual'] = leaderboards
+            # individual leaderboards
+            info = {}
+            info['group'] = group
+            info['rankings'] = leaderboards
+            context['groups'].append(info)
 
         team_awards = []
-        for team_award in TeamAward.objects.all():
+        for team_award in TeamAward.objects.filter(groups__in=session.groups.all()).distinct():
             tars = TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
             for t in tars:
                 teams.append({'name': t.team.name, 'score': t.score, 'rank': t.rank})
 
-            team_awards.append({'award': team_award.name, 'teams': teams})
+            team_awards.append({'id': team_award.id, 'award': team_award.name, 'teams': teams})
 
         # team leaderboards
         context['teams'] = team_awards
