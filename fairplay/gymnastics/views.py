@@ -66,6 +66,10 @@ def download_roster(request):
     writer.writerow(header)
 
     for athlete in athletes:
+        if athlete.starting_event:
+            starting_event = athlete.starting_event.initials
+        else:
+            starting_event = ""
         row = [
             athlete.first_name,
             athlete.last_name,
@@ -73,7 +77,7 @@ def download_roster(request):
             athlete.group.level,
             athlete.group.age_group,
             athlete.athlete_id,
-            athlete.starting_event.initials]
+            starting_event]
 
         for event in events:
             row.append(AthleteEvent.objects.get(athlete=athlete,
