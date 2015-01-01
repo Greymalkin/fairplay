@@ -89,16 +89,12 @@ def download_roster(request):
 
 
 def multikeysort(items, columns):
-    from operator import itemgetter
-    comparers = [ ((itemgetter(col[1:].strip()), -1) if col.startswith('-') else (itemgetter(col.strip()), 1)) for col in columns]
-    def comparer(left, right):
-        for fn, mult in comparers:
-            result = cmp(fn(left), fn(right))
-            if result:
-                return mult * result
-        else:
-            return 0
-    return sorted(items, cmp=comparer)
+    result = items
+
+    for col in reversed(columns):
+        result = sorted(result, key=lambda x: 0 if x[col] is None else x[col])
+
+    return result
 
 
 def calculate_session_ranking(session):
