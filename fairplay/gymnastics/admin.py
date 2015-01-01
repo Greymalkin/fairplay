@@ -61,7 +61,6 @@ class AthleteInlineAdmin(admin.TabularInline):
     model = Athlete
     extra = 1
     fields = ('athlete_id', 'last_name', 'first_name', 'starting_event')
-    # sortable_field_name = 'position'
 
 
 class TeamAdmin(admin.ModelAdmin):
@@ -91,7 +90,7 @@ class TeamAwardAdmin(admin.ModelAdmin):
 class AthleteAdmin(admin.ModelAdmin):
     model = Athlete
     inlines = (AthleteEventInlineAdmin, )
-    fields = ('athlete_id', 'last_name', 'first_name',
+    fields = ('athlete_id', 'scratched', 'last_name', 'first_name',
               'team', 'group', 'starting_event', )
     search_fields = ['athlete_id', 'last_name', 'first_name']
     list_filter = ('team', 'group', SessionFilter, 'starting_event', 'scratched')
