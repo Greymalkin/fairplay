@@ -4,11 +4,17 @@
 
 .report {
     clear:both;
+    margin-top: 60px;
+    display: none;
 }
 
 .row {
     margin-left: -70px;
     margin-right: -90px;
+}
+
+.h1 {
+    margin-bottom: 10px;
 }
 
 @media print {

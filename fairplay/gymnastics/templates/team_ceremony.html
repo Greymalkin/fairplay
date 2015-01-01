@@ -1,6 +1,4 @@
-<img src="/static/images/bwi_logo.png" class="bwi_logo">
 <h2>Team Award - {{leaderboard.award}}</h2>
-<h3><em>Official Results</em></h3>
 <table class="table table-striped leaderboard">
       <tr>
         <th>Rank</td>
@@ -8,7 +6,7 @@
         <th>Score</td>
       </tr>
     {% for team in leaderboard.teams %}
-      <tr>
+      <tr class="crossable">
         <td style="padding:4px;">{{team.rank}}</td>
         <td style="padding:4px;">{{team.name}}</td>
         <td style="padding:4px;">{{team.score}}</td>
