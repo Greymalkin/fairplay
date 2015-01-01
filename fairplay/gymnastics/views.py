@@ -92,7 +92,7 @@ def multikeysort(items, columns):
     result = items
 
     for col in reversed(columns):
-        result = sorted(result, key=lambda x: 0 if x[col] is None else x[col])
+        result = sorted(result, key=lambda x: 0 if x[col] is None else x[col], reverse=True)
 
     return result
 
@@ -101,26 +101,22 @@ def calculate_session_ranking(session):
 
         for group in session.groups.all():
 
-            for event in Event.objects.all():
+            group_athletes = AthleteEvent.objects.filter(athlete__group=group).annotate(total_score=Sum('score'), max_score=Max('score'))
 
-                # make a list of all athletes in the event
+            for event in Event.objects.all():
                 athletes = []
-                for a in AthleteEvent.objects.filter(event=event, athlete__group=group):
+                for a in group_athletes.filter(event=event).order_by('-score', '-total_score', '-max_score'):
                     athlete = {
                         'athlete_id': a.athlete.athlete_id,
                         'last_name': a.athlete.last_name,
                         'first_name': a.athlete.first_name,
                         'team': a.athlete.team.name,
                         'score': a.score,
+                        'total_score': a.total_score,
+                        'max_score': a.max_score,
+                        'athlete_event': a
                     }
-                    info = AthleteEvent.objects.filter(athlete=a.athlete).aggregate(total_score=Sum('score'), max_score=Max('score'))
-                    athlete['total_score'] = info['total_score']
-                    athlete['max_score'] = info['max_score']
                     athletes.append(athlete)
-
-                # rank them by score, total_score, and max_score
-                athletes = multikeysort(athletes, ('score', 'total_score', 'max_score'))
-                athletes.reverse()
 
                 rank = 0
                 last_score = None
@@ -136,12 +132,8 @@ def calculate_session_ranking(session):
                     last_max_score = athlete['max_score']
                     athlete['rank'] = rank
 
-                    # save rank/score data for event
-                    a = AthleteEvent.objects.get(
-                        event=event,
-                        athlete__athlete_id=athlete['athlete_id'])
-                    a.rank = athlete['rank']
-                    a.save()
+                    athlete['athlete_event'].rank = athlete['rank']
+                    athlete['athlete_event'].save()
 
             # make a list of all athletes in this group
             athletes = []

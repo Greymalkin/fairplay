@@ -11,9 +11,15 @@ from .models import (
 
 from django.utils.translation import ugettext_lazy as _
 
+
 def make_event_action(event):
     name = 'mark_%s' % event
-    action = lambda modeladmin, req, qset: qset.update(starting_event=event)
+
+    def action(modeladmin, req, qset):
+        for item in qset:
+            item.starting_event = event
+            item.save()
+
     return (name, (action, name, "Set starting event to {}".format(event)))
 
 
