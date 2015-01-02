@@ -101,6 +101,7 @@ def calculate_session_ranking(session):
 
         for group in session.groups.all():
 
+            #TODO FIX ME!
             group_athletes = AthleteEvent.objects.filter(athlete__group=group).annotate(total_score=Sum('score'), max_score=Max('score'))
 
             for event in Event.objects.all():
@@ -125,6 +126,7 @@ def calculate_session_ranking(session):
                 for athlete in athletes:
                     if athlete['score'] == last_score and athlete['total_score'] == last_total_score and athlete['max_score'] == last_max_score:
                         pass
+                        print("FUCK {} {} {}".format(last_score, last_total_score, last_max_score))
                     else:
                         rank += 1
                     last_score = athlete['score']

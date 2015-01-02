@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from grappelli.dashboard import modules, Dashboard
 from grappelli.dashboard.utils import get_admin_site_name
 
-from gymnastics.models import Session
+from gymnastics.models import Session, Event, Athlete
 
 roster_html = """
 <script src="/static/js/jquery.ocupload-min.js"></script>
@@ -55,7 +55,7 @@ class CustomIndexDashboard(Dashboard):
 
         self.children.append(modules.LinkList(
             _('Tools'),
-            column=2,
+            column=3,
             children=[
                 {
                     'title': _('Scoreboard Control'),
@@ -75,7 +75,7 @@ class CustomIndexDashboard(Dashboard):
         for session in sessions:
             links = []
             links.append({
-                'title': 'Awards Ceremony Tool',
+                'title': 'Awards Ceremony',
                 'url': '/ceremony/{}'.format(session.id),
                 'external': False,
                 })
@@ -90,10 +90,19 @@ class CustomIndexDashboard(Dashboard):
                 'external': False,
                 })
 
+            header = ""
+            counts = ""
+            for event in Event.objects.all():
+                count = Athlete.objects.filter(group__session__id=session.id, starting_event=event).count()
+                header += '<th>{}</th>'.format(event.initials)
+                link = '/admin/gymnastics/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
+                counts += '<td><a href="{}">{}</a></td>'.format(link, count)
+
             self.children.append(modules.LinkList(
                 _(session.name),
                 column=2,
                 children=links,
+                post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
             ))
 
         # append a recent actions module
