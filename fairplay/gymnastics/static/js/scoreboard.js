@@ -4,6 +4,7 @@
     var eventTable = {};
     var currentEvent = null;
     var currentSession = null;
+    var currentAthletes = null;
     var introText = "";
 
     // using jQuery
@@ -122,6 +123,8 @@
 
         var athletes = currentSession.events[currentEvent.id][rotation];
 
+        currentAthletes = athletes;
+
         for (var i=0; i<athletes.length; ++i) {
             var athlete = athletes[i];
             var score = null;
@@ -137,24 +140,21 @@
             row.append('<td>' + athlete.athlete.last_name+'</td>');
             row.append('<td>' + athlete.athlete.first_name+'</td>');
             row.append('<td>' + athlete.athlete.team+'</td>');
-            row.append('<td><button type="button" class="btn btn-warning next-button">Up Next</button></td>');
             if (score === null) {
-                scoreInput = $('<input class="form-control"  size="4"></input>');
+                scoreInput = $('<input class="form-control"  size="4" data-index="'+i+'"></input>');
             } else {
-                scoreInput = $('<input class="form-control alert-success" size="4" value="'+score+'"></input>');
+                scoreInput = $('<input class="form-control alert-success" size="4" value="'+score+'" data-index="'+i+'"></input>');
             }
             scoreInput.keypress(onScoreKey);
             scoreCol = $("<td></td>");
             scoreCol.append(scoreInput);
             row.append(scoreCol);
             row.append('<td><button "type="button" class="btn btn-primary save-button">Save</button></td>');
-            row.append('<td><button type="button" class="btn btn-success show-button">Show</button></td>');
             $("#scoreboard").append(row);
         }
 
         $(".next-button").click(showNextAthlete);
         $(".save-button").click(saveAthlete);
-        $(".show-button").click(showAthleteScore);
     }
 
     function onScoreKey(event) {
@@ -193,7 +193,7 @@
         var tr = $(event.target).parent().parent();
         var row = tr.find("td");
 
-        var score = parseFloat($(row[5]).children()[0].value);
+        var score = parseFloat($(row[4]).children()[0].value);
 
         if (score >= 0 && score <= 20) {
             var id = tr.attr('data-id');
@@ -205,8 +205,16 @@
             })
             .success(function(data) {
                 tr.fadeTo(100, 0.2, function() { tr.fadeTo(100, 1); });
-                var button = $($(row[5]).children()[0]);
-                button.addClass("alert-success");
+                var input = $($(row[4]).children()[0]);
+                input.addClass("alert-success");
+
+                // put the score back into the data
+                var athlete = currentAthletes[parseInt(input.attr('data-index'))];
+                for (var j=0; j<athlete.athlete.events.length; ++j) {
+                    if (athlete.athlete.events[j].event == currentEvent.id) {
+                        athlete.athlete.events[j].score = score;
+                    }
+                }
             })
             .error(function(data) {
                 console.log("FAILURE");
@@ -216,17 +224,11 @@
             $(row[5]).children()[0].value = "";
         }
 
-    }
-
-    function showAthleteScore(event) {
-        var row = $(event.target).parent().parent().find("td");
-
         var id = $(row[0]).text();
         var lastName = $(row[1]).text();
         var firstName = $(row[2]).text();
         var team = $(row[3]).text();
-        var score = parseFloat($(row[5]).children()[0].value);
-        var scoreText = $(row[5]).children()[0].value;
+        var scoreText = $(row[4]).children()[0].value;
 
         if (!isNaN(score) && score > 0) {
 
@@ -340,6 +342,8 @@
     }
 
     function processTeams(data) {
+        var warnings = [];
+
         for (var i=0; i<data.length; ++i) {
             var team = data[i];
 
@@ -354,25 +358,38 @@
                     }
                     session.teams[team.name].push(athlete);
 
-                    var eventIDs = getEventList(athlete.starting_event);
 
-                    for (var k=0; k<eventIDs.length; ++k) {
-                        var eventID = eventIDs[k];
-                        var athleteEventID = null;
 
-                        for (var q=0; q<athlete.events.length; ++q) {
-                            if (athlete.events[q].event === eventID) {
-                                athleteEventID = athlete.events[q].id;
+                    if (athlete.starting_event === null) {
+                        warnings.push(athlete.first_name + " " + athlete.last_name + " ("+athlete.team+")");
+
+                    } else {
+                        var eventIDs = getEventList(athlete.starting_event);
+
+                        for (var k=0; k<eventIDs.length; ++k) {
+                            var eventID = eventIDs[k];
+                            var athleteEventID = null;
+
+                            for (var q=0; q<athlete.events.length; ++q) {
+                                if (athlete.events[q].event === eventID) {
+                                    athleteEventID = athlete.events[q].id;
+                                }
                             }
-                        }
 
-                        session.events[eventID][k].push({
-                            "athlete":athlete,
-                            "athleteEventID": athleteEventID
-                        });
+                            session.events[eventID][k].push({
+                                "athlete":athlete,
+                                "athleteEventID": athleteEventID
+                            });
+                        }
                     }
                 }
             }
+        }
+
+        if (warnings.length > 0) {
+            warningText = "WARNING! The following athletes to not have a starting event specificied:\n";
+            warningText += warnings.join(", ");
+            alert(warningText);
         }
 
         onChangeSession(null);

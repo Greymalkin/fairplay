@@ -12,10 +12,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         level = int(args[0])
+        meet_settings = models.MeetSettings.objects.get()
 
         with open(args[1], 'w') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(('BWI 2014',))
+            writer.writerow((meet_settings.name,))
             writer.writerow(('Level {}'.format(level),))
             writer.writerow(())
 

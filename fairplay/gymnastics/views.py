@@ -1,11 +1,13 @@
 import json
 from datetime import datetime
 import csv
+import math
+import logging
 
 from django.views.generic import TemplateView
 
 from rest_framework import viewsets
-from .models import Event, Team, Athlete, AthleteEvent, Message, Session, TeamAward, TeamAwardRank
+from .models import Event, Team, Athlete, AthleteEvent, Message, Session, TeamAward, TeamAwardRank, MeetSettings
 from .serializers import (
     EventSerializer,
     TeamSerializer,
@@ -102,7 +104,7 @@ def calculate_session_ranking(session):
         for group in session.groups.all():
 
             #TODO FIX ME!
-            group_athletes = AthleteEvent.objects.filter(athlete__group=group).annotate(total_score=Sum('score'), max_score=Max('score'))
+            group_athletes = AthleteEvent.objects.filter(athlete__group=group).annotate(total_score=Sum('athlete__events__score'), max_score=Max('athlete__events__score'))
 
             for event in Event.objects.all():
                 athletes = []
@@ -124,18 +126,26 @@ def calculate_session_ranking(session):
                 last_total_score = None
                 last_max_score = None
                 for athlete in athletes:
-                    if athlete['score'] == last_score and athlete['total_score'] == last_total_score and athlete['max_score'] == last_max_score:
-                        pass
-                        print("FUCK {} {} {}".format(last_score, last_total_score, last_max_score))
-                    else:
-                        rank += 1
-                    last_score = athlete['score']
-                    last_total_score = athlete['total_score']
-                    last_max_score = athlete['max_score']
-                    athlete['rank'] = rank
+                    if athlete['score'] is not None:
+                        if athlete['score'] == last_score and athlete['total_score'] == last_total_score and athlete['max_score'] == last_max_score:
+                            pass
+                        else:
+                            rank += 1
+                        last_score = athlete['score']
+                        last_total_score = athlete['total_score']
+                        last_max_score = athlete['max_score']
+                        athlete['rank'] = rank
 
-                    athlete['athlete_event'].rank = athlete['rank']
-                    athlete['athlete_event'].save()
+                        athlete['athlete_event'].rank = athlete['rank']
+                        athlete['athlete_event'].save()
+
+                # rank all of the no-shows last
+                rank += 1
+                for athlete in athletes:
+                    if athlete['score'] is None:
+                        athlete['athlete_event'].rank = rank
+                        athlete['athlete_event'].save()
+
 
             # make a list of all athletes in this group
             athletes = []
@@ -219,6 +229,7 @@ class SessionCeremonyView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SessionCeremonyView, self).get_context_data(**kwargs)
         session = Session.objects.get(id=self.kwargs['id'])
+        meet_settings = MeetSettings.objects.get()
 
         # go do the actual math
         calculate_session_ranking(session)
@@ -235,15 +246,24 @@ class SessionCeremonyView(TemplateView):
             # group per event leaderboard
             for event in Event.objects.all():
                 leaderboard = []
-                for a in AthleteEvent.objects.filter(event=event, athlete__group=group, score__isnull=False).order_by("rank"):
-                    leaderboard.append({
-                        'athlete_id': a.athlete.athlete_id,
-                        'last_name': a.athlete.last_name,
-                        'first_name': a.athlete.first_name,
-                        'team': a.athlete.team.name,
-                        'score': a.score,
-                        'rank': a.rank
-                    })
+                athlete_events = AthleteEvent.objects.filter(event=event, athlete__group=group, athlete__scratched=False).order_by("rank")
+                total_count = len(athlete_events)
+                award_count = math.ceil(total_count * meet_settings.event_award_percentage)
+                if total_count == 2:
+                    award_count = 1
+
+                print('{} {} rankings for {} places out of {} total'.format(group, event.name, award_count, total_count))
+
+                for a in athlete_events[:award_count]:
+                    if a.score is not None and a.score != 0:
+                        leaderboard.append({
+                            'athlete_id': a.athlete.athlete_id,
+                            'last_name': a.athlete.last_name,
+                            'first_name': a.athlete.first_name,
+                            'team': a.athlete.team.name,
+                            'score': a.score,
+                            'rank': a.rank
+                        })
 
                 leaderboards.append({'event': event.name,
                                      'initials': event.initials,
@@ -253,15 +273,25 @@ class SessionCeremonyView(TemplateView):
 
             # overall leaderboard for group
             leaderboard = []
-            for a in Athlete.objects.filter(group=group, scratched=False, overall_score__isnull=False).order_by("rank"):
-                leaderboard.append({
-                    'athlete_id': a.athlete_id,
-                    'last_name': a.last_name,
-                    'first_name': a.first_name,
-                    'team': a.team.name,
-                    'score': a.overall_score,
-                    'rank': a.rank
-                })
+            athletes = Athlete.objects.filter(group=group, scratched=False, overall_score__isnull=False).order_by("rank")
+            total_count = len(athletes)
+            award_count = math.ceil(total_count * meet_settings.all_around_award_percentage)
+
+            if total_count == 2:
+                award_count = 1
+
+            print('{} All-Around rankings for {} places out of {} total'.format(group, award_count, total_count))
+
+            for a in athletes[:award_count]:
+                if a.overall_score is not None and a.overall_score != 0:
+                    leaderboard.append({
+                        'athlete_id': a.athlete_id,
+                        'last_name': a.last_name,
+                        'first_name': a.first_name,
+                        'team': a.team.name,
+                        'score': a.overall_score,
+                        'rank': a.rank
+                    })
             leaderboards.append({'event': 'Overall',
                                  'initials': "overall",
                                  'level': group.level,
@@ -278,7 +308,7 @@ class SessionCeremonyView(TemplateView):
         for team_award in TeamAward.objects.filter(groups__in=session.groups.all()).distinct():
             tars = TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
-            for t in tars:
+            for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
                 teams.append({'name': t.team.name, 'score': t.score, 'rank': t.rank})
 
             team_awards.append({'id': team_award.id, 'award': team_award.name, 'teams': teams})

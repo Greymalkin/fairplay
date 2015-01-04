@@ -50,7 +50,10 @@ class CustomIndexDashboard(Dashboard):
             css_classes=('grp-closed',),
             column=1,
             collapsible=True,
-            models=('django.contrib.*', 'gymnastics.models.LEDSign'),
+            models=(
+                'django.contrib.*',
+                'gymnastics.models.LEDSign',
+                'gymnastics.models.MeetSettings',),
         ))
 
         self.children.append(modules.LinkList(

@@ -6,7 +6,7 @@ from django.db.models import Count, Sum
 
 from .models import (
     Group, Athlete, Event, Team, LEDSign, AthleteEvent, Message, TeamAward,
-    Session,
+    Session, MeetSettings
 )
 
 from django.utils.translation import ugettext_lazy as _
@@ -159,6 +159,11 @@ class SessionAdmin(admin.ModelAdmin):
     list_display = ('name',)
     filter_horizontal = ('groups',)
 
+
+class MeetSettingsAdmin(admin.ModelAdmin):
+    model = MeetSettings
+
+admin.site.register(MeetSettings, MeetSettingsAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(LEDSign, LEDSignAdmin)
