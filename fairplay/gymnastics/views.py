@@ -90,6 +90,8 @@ def download_roster(request):
     return response
 
 
+# Sort the Athletes multiple times by their max score, overall score, and event score
+# This is how you get the ranked Athletes, including all the tie-breaking rules
 def multikeysort(items, columns):
     result = items
 
@@ -103,11 +105,12 @@ def calculate_session_ranking(session):
 
         for group in session.groups.all():
 
-            #TODO FIX ME!
+            # All athletes in group (age division), including their event score, overall score, and max score
             group_athletes = AthleteEvent.objects.filter(athlete__group=group).annotate(total_score=Sum('athlete__events__score'), max_score=Max('athlete__events__score'))
 
             for event in Event.objects.all():
                 athletes = []
+                # Sub Select for athletes in a single event. 
                 for a in group_athletes.filter(event=event).order_by('-score', '-total_score', '-max_score'):
                     athlete = {
                         'athlete_id': a.athlete.athlete_id,
@@ -125,6 +128,7 @@ def calculate_session_ranking(session):
                 last_score = None
                 last_total_score = None
                 last_max_score = None
+                # Set ranks, break ties.
                 for athlete in athletes:
                     if athlete['score'] is not None:
                         if athlete['score'] == last_score and athlete['total_score'] == last_total_score and athlete['max_score'] == last_max_score:
