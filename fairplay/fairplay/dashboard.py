@@ -79,17 +79,17 @@ class CustomIndexDashboard(Dashboard):
             links = []
             links.append({
                 'title': 'Awards Ceremony',
-                'url': '/ceremony/{}'.format(session.id),
+                'url': '/results/ceremony/{}'.format(session.id),
                 'external': False,
                 })
             links.append({
-                'title': 'Individual Report',
-                'url': '/individual_report/{}'.format(session.id),
+                'title': 'Individual Results',
+                'url': '/results/individual/{}'.format(session.id),
                 'external': False,
                 })
             links.append({
-                'title': 'Team Report',
-                'url': '/team_report/{}'.format(session.id),
+                'title': 'Team Results',
+                'url': '/results/team/{}'.format(session.id),
                 'external': False,
                 })
 
