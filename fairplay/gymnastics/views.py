@@ -322,120 +322,27 @@ class SessionCeremonyView(TemplateView):
 
         return context
 
-    # def get_context_data_old(self, **kwargs):
-    #     context = super(SessionLeaderboardView, self).get_context_data(**kwargs)
 
-    #     session = Session.objects.get(id=self.kwargs['id'])
-    #     leaderboards = []
+class SessionIndividualView(TemplateView):
+    template_name = "individual.html"
 
-    #     for group in session.groups.all():
+    def get_context_data(self, **kwargs):
+        context = super(SessionIndividualView, self).get_context_data(**kwargs)
+        context['meet'] = MeetSettings.objects.get()
+        context['session'] = Session.objects.get(id=self.kwargs['id'])
+        context['events'] = Event.objects.all()
+        context['groups'] = []
+        for group in context['session'].groups.all():
+            athletes = []
+            for athlete in group.athletes.all().order_by('rank'):
+                events = []
+                for athlete_event in AthleteEvent.objects.filter(athlete=athlete).order_by('event__order'):
+                    events.append({'score': athlete_event.score, 'rank':athlete_event.rank})
 
-    #         for event in Event.objects.all():
-    #             athletes = []
-    #             for a in AthleteEvent.objects.filter(event=event, athlete__group=group):
-    #                 athlete = {
-    #                     'athlete_id': a.athlete.athlete_id,
-    #                     'last_name': a.athlete.last_name,
-    #                     'first_name': a.athlete.first_name,
-    #                     'team': a.athlete.team.name,
-    #                     'score': a.score,
-    #                 }
-    #                 info = AthleteEvent.objects.filter(athlete=a.athlete).aggregate(total_score=Sum('score'), max_score=Max('score'))
-    #                 athlete['total_score'] = info['total_score']
-    #                 athlete['max_score'] = info['max_score']
-    #                 athletes.append(athlete)
+                athletes.append({'info': athlete, 'events': events})
+            context['groups'].append({'info': group, 'athletes': athletes})
 
-    #             athletes = multikeysort(athletes, ('score', 'total_score', 'max_score'))
-    #             athletes.reverse()
-    #             rank = 0
-    #             last_score = None
-    #             last_total_score = None
-    #             last_max_score = None
-    #             for athlete in athletes:
-    #                 if athlete['score'] == last_score and athlete['total_score'] == last_total_score and athlete['max_score'] == last_max_score:
-    #                     pass
-    #                 else:
-    #                     rank += 1
-    #                 last_score = athlete['score']
-    #                 last_total_score = athlete['total_score']
-    #                 last_max_score = athlete['max_score']
-    #                 athlete['rank'] = rank
-
-    #             leaderboards.append({'event': event.name,
-    #                                  'initials': event.initials,
-    #                                  'level': group.level,
-    #                                  'age_group': group.age_group,
-    #                                  'athletes': athletes})
-
-    #         athletes = []
-    #         for a in Athlete.objects.filter(group=group):
-    #             athlete = {
-    #                 'athlete_id': a.athlete_id,
-    #                 'last_name': a.last_name,
-    #                 'first_name': a.first_name,
-    #                 'team': a.team.name,
-    #             }
-    #             info = AthleteEvent.objects.filter(athlete=a).aggregate(total_score=Sum('score'), max_score=Max('score'))
-    #             athlete['total_score'] = info['total_score']
-    #             athlete['max_score'] = info['max_score']
-    #             athletes.append(athlete)
-
-    #         athletes = multikeysort(athletes, ('total_score', 'max_score'))
-    #         athletes.reverse()
-
-    #         rank = 0
-    #         last_total_score = None
-    #         last_max_score = None
-    #         for athlete in athletes:
-    #             if athlete['total_score'] == last_total_score and athlete['max_score'] == last_max_score:
-    #                 pass
-    #             else:
-    #                 rank += 1
-    #             last_total_score = athlete['total_score']
-    #             last_max_score = athlete['max_score']
-    #             athlete['rank'] = rank
-    #             athlete['score'] = athlete['total_score']
-
-    #         leaderboards.append({'event': 'Overall',
-    #                              'initials': "overall",
-    #                              'level': group.level,
-    #                              'age_group': group.age_group,
-    #                              'athletes': athletes})
-
-    #     context['groups'] = session.groups.all()
-    #     context['events'] = Event.objects.all()
-    #     context['individual'] = leaderboards
-
-    #     team_awards = []
-    #     for team_award in TeamAward.objects.all():
-    #         teams = []
-    #         for t in Team.objects.all():
-    #             team = {'name': t.name, 'score': 0}
-    #             for event in Event.objects.all():
-    #                 top_3 = AthleteEvent.objects.filter(event=event, athlete__team=t).filter(athlete__group__in=team_award.groups.all()).order_by("-score")[:3].aggregate(total=Sum('score'))
-    #                 if top_3['total'] is not None:
-    #                     team['score'] += top_3['total']
-
-    #             if team['score'] > 0:
-    #                 teams.append(team)
-    #         teams = multikeysort(teams, ('score',))
-    #         teams.reverse()
-
-    #         rank = 0
-    #         last_score = None
-    #         for team in teams:
-    #             if team['score'] == last_score:
-    #                 pass
-    #             else:
-    #                 rank += 1
-    #             last_score = team['score']
-    #             team['rank'] = rank
-
-    #         team_awards.append({'award': team_award.name, 'teams': teams})
-
-    #     context['teams'] = team_awards
-
-    #     return context
+        return context
 
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):

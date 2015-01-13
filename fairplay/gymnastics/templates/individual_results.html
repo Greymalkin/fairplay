@@ -1,0 +1,27 @@
+<strong>{{group.info}}</strong>
+<table class="table table-striped leaderboard">
+<tr>
+    <th style="padding:1px;">#</th>
+    <th style="padding:1px;">Team</th>
+    <th style="padding:1px;">Gymnast</th>
+    {% for event in events %}
+    <th style="padding:1px;padding:1px;padding:1px;padding:1px;text-align:center;">{{event.initials|upper}}</th>
+    <th style="padding:1px;padding:1px;padding:1px;text-align:center;">R</th>
+    {% endfor %}
+    <th style="padding:1px;padding:1px;text-align:center;">AA</th>
+    <th style="padding:1px;text-align:center;">R</th>
+</tr>
+{% for athlete in group.athletes %}
+<tr>
+    <td style="padding:1px;">{{athlete.info.athlete_id}}</td>
+    <td style="padding:1px;">{{athlete.info.team}}</td>
+    <td style="padding:1px;">{{athlete.info.first_name}} {{athlete.info.last_name}}</td>
+    {% for event in athlete.events %}
+    <td style="padding:1px;text-align:center;">{{event.score}}</td>
+    <td style="padding:1px;background-color:#eee;text-align:center;">{{event.rank}}</td>
+    {% endfor %}
+    <td style="padding:1px;text-align:center;">{{athlete.info.overall_score}}</td>
+    <td style="padding:1px;background-color:#eee;text-align:center;">{{athlete.info.rank}}</td>
+<tr>
+{% endfor %}
+</table>

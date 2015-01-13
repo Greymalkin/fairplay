@@ -19,5 +19,6 @@ urlpatterns = patterns(
     url(r'^api/', include(router.urls)),
     url(r'^ledsign/', gymnastics.views.led_sign),
     url(r'^roster/', gymnastics.views.download_roster),
-    url(r'^ceremony/(?P<id>\d+)/$', gymnastics.views.SessionCeremonyView.as_view()),
+    url(r'^results/ceremony/(?P<id>\d+)/$', gymnastics.views.SessionCeremonyView.as_view()),
+    url(r'^results/individual/(?P<id>\d+)/$', gymnastics.views.SessionIndividualView.as_view()),
 )
