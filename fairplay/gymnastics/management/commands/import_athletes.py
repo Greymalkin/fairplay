@@ -19,6 +19,7 @@ class Command(BaseCommand):
         models.Athlete.objects.all().delete()
         models.Team.objects.all().delete()
         models.Group.objects.all().delete()
+        models.Session.objects.all().delete()
 
         with open(args[0], 'r') as csvfile:
             unitreader = csv.reader(csvfile)
