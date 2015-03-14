@@ -48,7 +48,7 @@ class Event(models.Model):
 
 
 class Group(models.Model):
-    level = models.PositiveSmallIntegerField()
+    level = models.CharField(max_length=20)
     age_group = models.CharField(max_length=255)
     order = models.PositiveSmallIntegerField(default=0)
 

@@ -32,7 +32,7 @@ class Command(BaseCommand):
                     name=row[settings.IMPORT_ATHLETES_TEAM_COL])
                 # Set default order number for age group based on parsing a number from the file ("6 years", "11 and up")
                 group, created = models.Group.objects.get_or_create(
-                    level=int(row[settings.IMPORT_ATHLETES_LEVEL_COL]),
+                    level=row[settings.IMPORT_ATHLETES_LEVEL_COL],
                     age_group=row[settings.IMPORT_ATHLETES_AGE_GROUP_COL],
                     order=int(re.findall(r'\d+', row[settings.IMPORT_ATHLETES_AGE_GROUP_COL])[0]))
                 # Make the athlete and associate to teams/groups
