@@ -78,7 +78,7 @@ class TeamAdmin(admin.ModelAdmin):
     list_filter = ('qualified',)
 
     def queryset(self, request):
-        qs = super(TeamAdmin, self).queryset(request)
+        qs = super(TeamAdmin, self).get_queryset(request)
         qs = qs.annotate(Count('athletes'))
         return qs
 
