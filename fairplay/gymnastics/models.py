@@ -104,9 +104,11 @@ class AthleteEvent(models.Model):
 
 
 class Athlete(models.Model):
-    athlete_id = models.PositiveSmallIntegerField(unique=True)
+    usag_id = models.CharField(max_length=20, unique=True, blank=True, null=True, verbose_name='USAG ID')
+    athlete_id = models.PositiveSmallIntegerField(unique=True, verbose_name='Athlete ID')
     last_name = models.CharField(max_length=100)
     first_name = models.CharField(max_length=100)
+    birth_date = models.DateField(null=True, blank=True)
     team = models.ForeignKey(Team, related_name='athletes')
     group = models.ForeignKey(Group, related_name='athletes')
     position = models.PositiveSmallIntegerField(default=0)

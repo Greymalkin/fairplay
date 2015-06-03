@@ -96,8 +96,8 @@ class TeamAwardAdmin(admin.ModelAdmin):
 class AthleteAdmin(admin.ModelAdmin):
     model = Athlete
     inlines = (AthleteEventInlineAdmin, )
-    fields = ('athlete_id', 'scratched', 'last_name', 'first_name',
-              'team', 'group', 'starting_event', )
+    fields = ('usag_id', 'athlete_id', 'scratched', 'last_name', 'first_name',
+              'birth_date', 'team', 'group', 'starting_event', )
     search_fields = ['athlete_id', 'last_name', 'first_name']
     list_filter = ('team', 'group', SessionFilter, 'starting_event', 'scratched')
     list_per_page = 50
