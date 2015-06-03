@@ -1,0 +1,15 @@
+<strong>{{award.name}}</strong>
+<table class="table table-striped leaderboard">
+<tr>
+    <th style="padding:1px;">Rank</th>
+    <th style="padding:1px;">Team</th>
+    <th style="padding:1px;">Score</th>
+</tr>
+{% for team in award.teams %}
+<tr>
+    <td style="padding:1px;">{{team.rank}}</td>
+    <td style="padding:1px;">{{team.name}}</td>
+    <td style="padding:1px;">{{team.score}}</td>
+<tr>
+{% endfor %}
+</table>

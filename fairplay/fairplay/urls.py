@@ -21,4 +21,5 @@ urlpatterns = patterns(
     url(r'^roster/', gymnastics.views.download_roster),
     url(r'^results/ceremony/(?P<id>\d+)/$', gymnastics.views.SessionCeremonyView.as_view()),
     url(r'^results/individual/(?P<id>\d+)/$', gymnastics.views.SessionIndividualView.as_view()),
+    url(r'^results/team/(?P<id>\d+)/$', gymnastics.views.SessionTeamView.as_view()),
 )
