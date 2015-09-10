@@ -137,6 +137,9 @@ class AthleteAdmin(admin.ModelAdmin):
 
 class GroupAdmin(admin.ModelAdmin):
     model = Group
+    list_display = ('__str__', 'order')
+    list_editable = ('order',)
+    ordering = ('order',)
 
 
 class LEDSignAdmin(admin.ModelAdmin):

@@ -46,6 +46,15 @@ class CustomIndexDashboard(Dashboard):
 
         # append an app list module for "Administration"
         self.children.append(modules.ModelList(
+            _('Registration'),
+            column=1,
+            collapsible=False,
+            models=(
+                'registration.models.*',),
+        ))
+
+        # append an app list module for "Administration"
+        self.children.append(modules.ModelList(
             _('Administration'),
             css_classes=('grp-closed',),
             column=1,
@@ -115,5 +124,3 @@ class CustomIndexDashboard(Dashboard):
             collapsible=False,
             column=3,
         ))
-
-
