@@ -85,7 +85,7 @@ class GymnastInline(admin.StackedInline):
 
 
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('gym', 'usag', 'contact_name', 'num_gymnasts')
+    list_display = ('gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full')
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost', 'show_per_level_cost')
     filter_horizontal = ('levels',)
     inlines = [CoachInline, GymnastInline]
