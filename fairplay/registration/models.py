@@ -61,7 +61,7 @@ class Team(models.Model):
         return self.level_cost
 
     def calc_gymnast_cost(self):
-        num_gymnasts = self.gymnasts.count()
+        num_gymnasts = self.gymnasts.filter(is_scratched=False).count()
         if num_gymnasts > 0:
             self.gymnast_cost = int(self.per_gymnast_cost) * num_gymnasts
         else:
@@ -76,6 +76,7 @@ class Person(models.Model):
     first_name = models.CharField('First Name', max_length=100)
     last_name = models.CharField('Last Name', max_length=100)
     usag = models.CharField('USAG #', max_length=225, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
 
     class Meta:
         abstract = True
@@ -109,7 +110,7 @@ class Coach(Person):
 class Gymnast(Person):
     team = models.ForeignKey(Team, related_name="gymnasts")
     dob = models.DateField(blank=True, null=True)
-    age = models.PositiveSmallIntegerField('Age', help_text='Competitive Age (as of 9/1)')
+    age = models.PositiveSmallIntegerField('Age', blank=True, help_text='Competitive Age (as of 9/1)')
     is_us_citizen = models.BooleanField('US Citizen?', default=False)
     XSMALL = 'Extra Small (Youth)'
     SMALL = 'Small (Youth)'
@@ -128,13 +129,15 @@ class Gymnast(Person):
     )
     tshirt = models.CharField('T-Shirt Size', max_length=20, blank=True, null=True, choices=TSHIRT_SIZES)
     level = models.ForeignKey('Level', blank=True, null=True)
+    is_scratched = models.BooleanField('Scratched?', default=False)
 
     class Meta:
         verbose_name_plural = 'Gymnasts'
         verbose_name = 'Gymnast'
 
     def __str__(self):
-        return "{1}, {0} (L{2})".format(self.first_name, self.last_name, self.level)
+        scratched = 'SCRATCHED ' if self.is_scratched else ''
+        return "{3}{1}, {0} (L{2})".format(self.first_name, self.last_name, self.level, scratched)
 
 
 class Level(models.Model):

@@ -57,6 +57,7 @@ class LevelAdmin(admin.ModelAdmin):
 class CoachAdmin(admin.ModelAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag')
     list_filter = (CoachMissingUsagFilter, 'team')
+    search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
     autocomplete_lookup_fields = {'fk': ['team']}
 
@@ -70,23 +71,28 @@ class CoachAdmin(admin.ModelAdmin):
 
 
 class GymnastAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'usag', 'team', 'level', 'age', 'tshirt')
-    list_filter = [GymnastMissingUsagFilter, 'team', 'level']
+    list_display = ('last_name', 'first_name', 'usag', 'team', 'level', 'age', 'tshirt', 'is_scratched')
+    list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'team', 'level']
+    search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
     autocomplete_lookup_fields = {'fk': ['team']}
 
 
 class CoachInline(admin.TabularInline):
     model = models.Coach
+    exclude = ('notes', )
 
 
 class GymnastInline(admin.StackedInline):
     model = models.Gymnast
+    ordering = ('is_scratched', 'level', 'last_name', 'first_name')
+    fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'tshirt', 'level', 'is_scratched', 'notes')
 
 
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full')
+    list_display = ('gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'notes')
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost', 'show_per_level_cost')
+    search_fields = ('gym', 'first_name', 'last_name')
     filter_horizontal = ('levels',)
     inlines = [CoachInline, GymnastInline]
     fieldsets = ((None, {'fields': ('gym', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),
@@ -105,7 +111,7 @@ class TeamAdmin(admin.ModelAdmin):
     show_per_level_cost.short_description = 'Per Level Cost'
 
     def num_gymnasts(self, obj):
-        return obj.gymnasts.count()
+        return obj.gymnasts.filter(is_scratched=False).count()
     num_gymnasts.short_description = '# Gymnasts'
 
 
