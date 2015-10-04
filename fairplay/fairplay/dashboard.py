@@ -118,9 +118,26 @@ class CustomIndexDashboard(Dashboard):
             ))
 
         # append a recent actions module
-        self.children.append(modules.RecentActions(
-            _('Recent Actions'),
-            limit=5,
-            collapsible=False,
-            column=3,
-        ))
+        self.children.append(
+            modules.Group(
+                _('Logging'),
+                column=3,
+                collapsible=True,
+                exclude=('django.contrib.*',),
+                children=[
+                    modules.ModelList(
+                        column=1,
+                        collapsible=False,
+                        models=(
+                            'django.contrib.admin.models.LogEntry',
+                        ),
+                    ),
+                    modules.RecentActions(
+                        _('Recent Actions'),
+                        limit=5,
+                        collapsible=False,
+                        column=1,
+                    )
+                ],
+            ),
+        )        

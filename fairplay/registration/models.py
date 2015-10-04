@@ -4,7 +4,8 @@ from django.dispatch import receiver
 
 
 class Team(models.Model):
-    gym = models.CharField(max_length=100)
+    gym = models.CharField(max_length=100, help_text="ex. Fairland Boys Gymnastics")
+    team = models.CharField(max_length=100, blank=True, default="", help_text="ex. Fairland")
     address_1 = models.CharField('Address 1', max_length=100, blank=True, null=True)
     address_2 = models.CharField('Address 2', max_length=100, blank=True, null=True)
     city = models.CharField('City', max_length=100, blank=True, null=True)
@@ -110,7 +111,7 @@ class Coach(Person):
 class Gymnast(Person):
     team = models.ForeignKey(Team, related_name="gymnasts")
     dob = models.DateField(blank=True, null=True)
-    age = models.PositiveSmallIntegerField('Age', blank=True, help_text='Competitive Age (as of 9/1)')
+    age = models.PositiveSmallIntegerField('Age', blank=True, null=True, help_text='Competitive Age (as of 9/1)')
     is_us_citizen = models.BooleanField('US Citizen?', default=False)
     XSMALL = 'Extra Small (Youth)'
     SMALL = 'Small (Youth)'
