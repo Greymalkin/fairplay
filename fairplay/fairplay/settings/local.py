@@ -14,7 +14,6 @@ DATABASES = {
         'PASSWORD': 'dbmaster',
         'HOST': 'localhost',
         'OPTIONS': {
-            'autocommit': True,
         }
     }
 }
