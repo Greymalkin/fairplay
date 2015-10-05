@@ -89,6 +89,9 @@ class GymnastInline(admin.StackedInline):
     ordering = ('is_scratched', 'level', 'last_name', 'first_name')
     fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'tshirt', 'level', 'is_scratched', 'notes')
 
+    class Media:
+        js = ('/static/js/competitionAge.js','/static/js/moment.min.js')
+
 
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'notes')
@@ -96,7 +99,7 @@ class TeamAdmin(admin.ModelAdmin):
     search_fields = ('gym', 'first_name', 'last_name')
     filter_horizontal = ('levels',)
     inlines = [CoachInline, GymnastInline]
-    fieldsets = ((None, {'fields': ('gym', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),
+    fieldsets = ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),
                  ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),
                  ('Registration', {'fields': ('per_gymnast_cost', 'show_per_level_cost', 'levels', ), }),
                  ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost', 'payment_postmark', 'registration_complete'), }),
@@ -106,6 +109,7 @@ class TeamAdmin(admin.ModelAdmin):
         css = {
             "all": ("{}css/filter-horizontal-adjustment.css".format(settings.STATIC_URL),)
         }
+        # js = ('/static/js/competitionAge.js',)
 
     def show_per_level_cost(self, obj):
         return '${} per level'.format(obj.PER_LEVEL_COST)
