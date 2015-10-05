@@ -435,3 +435,23 @@ class SessionViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Session.objects.all()
     serializer_class = SessionSerializer
+
+
+class ScorecardView(TemplateView):
+    pass
+
+
+class CompetitionRosterView(TemplateView):
+    pass
+
+
+class WarmupScheduleView(TemplateView):
+    pass
+
+
+class SignInSheetView(TemplateView):
+    pass
+
+
+class CompetitionOrder(TemplateView):
+    pass
