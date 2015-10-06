@@ -1,3 +1,5 @@
+from . import ranking
+
 from django.db import models
 
 
@@ -149,7 +151,6 @@ def populate_athlete(instance, created, raw, **kwargs):
             ae.save()
 
 
-
 def populate_event(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.
     if not created or raw:
@@ -170,6 +171,12 @@ def scratch_athlete(instance, created, raw, **kwargs):
         ae.update(score=0)
 
 
+def update_rankings(sender, instance, created, raw, using, update_fields, **kwargs):
+    if update_fields is None or 'rank' not in update_fields:
+        ranking.update_group_ranking(instance.athlete.group)
+        ranking.update_team_ranking()
+
+
 models.signals.post_save.connect(
     scratch_athlete,
     sender=Athlete,
@@ -185,3 +192,8 @@ models.signals.post_save.connect(
     populate_event,
     sender=Event,
     dispatch_uid='populate_event')
+
+models.signals.post_save.connect(
+    update_rankings,
+    sender=AthleteEvent,
+    dispatch_uid='update_rankings')
