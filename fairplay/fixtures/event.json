@@ -1,0 +1,62 @@
+[
+{
+  "model": "gymnastics.event",
+  "fields": {
+    "order": 1,
+    "sign": 1,
+    "initials": "fe",
+    "name": "Floor"
+  },
+  "pk": 1
+},
+{
+  "model": "gymnastics.event",
+  "fields": {
+    "order": 2,
+    "sign": 2,
+    "initials": "sr",
+    "name": "Rings"
+  },
+  "pk": 2
+},
+{
+  "model": "gymnastics.event",
+  "fields": {
+    "order": 3,
+    "sign": 3,
+    "initials": "ph",
+    "name": "Pommel Horse"
+  },
+  "pk": 3
+},
+{
+  "model": "gymnastics.event",
+  "fields": {
+    "order": 4,
+    "sign": 4,
+    "initials": "vt",
+    "name": "Vault"
+  },
+  "pk": 4
+},
+{
+  "model": "gymnastics.event",
+  "fields": {
+    "order": 5,
+    "sign": 5,
+    "initials": "pb",
+    "name": "Parallel Bars"
+  },
+  "pk": 5
+},
+{
+  "model": "gymnastics.event",
+  "fields": {
+    "order": 6,
+    "sign": 6,
+    "initials": "hb",
+    "name": "High Bar"
+  },
+  "pk": 6
+}
+]

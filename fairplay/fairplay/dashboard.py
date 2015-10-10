@@ -30,7 +30,26 @@ class CustomIndexDashboard(Dashboard):
 
         # append an app list module for "Administration"
         self.children.append(modules.ModelList(
-            _('Meet Configuration'),
+            _('Meet Settings'),
+            column=1,
+            collapsible=False,
+            models=(
+                'meet.models.Meet',
+                ),
+        ))
+
+        # append an app list module for "Administration"
+        self.children.append(modules.ModelList(
+            _('Registration'),
+            column=1,
+            collapsible=False,
+            models=(
+                'registration.models.*',),
+        ))
+
+        # append an app list module for "Administration"
+        self.children.append(modules.ModelList(
+            _('Competition'),
             column=1,
             collapsible=False,
             models=(
@@ -46,15 +65,6 @@ class CustomIndexDashboard(Dashboard):
 
         # append an app list module for "Administration"
         self.children.append(modules.ModelList(
-            _('Registration'),
-            column=1,
-            collapsible=False,
-            models=(
-                'registration.models.*',),
-        ))
-
-        # append an app list module for "Administration"
-        self.children.append(modules.ModelList(
             _('Administration'),
             css_classes=('grp-closed',),
             column=1,
@@ -62,7 +72,7 @@ class CustomIndexDashboard(Dashboard):
             models=(
                 'django.contrib.*',
                 'gymnastics.models.LEDSign',
-                'gymnastics.models.MeetSettings',),
+                'gymnastics.models.Meet',),
         ))
 
         self.children.append(modules.LinkList(

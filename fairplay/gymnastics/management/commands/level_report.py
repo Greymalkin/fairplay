@@ -1,6 +1,7 @@
 import csv
 from django.core.management.base import BaseCommand
 from gymnastics import models
+from meet import models as meetconfig
 from django.conf import settings
 
 
@@ -12,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         level = int(args[0])
-        meet_settings = models.MeetSettings.objects.get()
+        meet_settings = meetconfig.Meet.objects.get()
 
         with open(args[1], 'w') as csvfile:
             writer = csv.writer(csvfile)

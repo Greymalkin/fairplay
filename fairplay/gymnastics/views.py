@@ -7,15 +7,10 @@ import logging
 from django.views.generic import TemplateView
 
 from rest_framework import viewsets
-from .models import Event, Team, Athlete, AthleteEvent, Message, Session, TeamAward, TeamAwardRank, MeetSettings
-from .serializers import (
-    EventSerializer,
-    TeamSerializer,
-    AthleteSerializer,
-    AthleteEventSerializer,
-    MessageSerializer,
-    SessionSerializer,
-)
+from . import models
+from meet import models as meetconfig
+
+from . import serializers
 
 from ledsign.bigdot import BigDot
 
@@ -44,8 +39,8 @@ def led_sign(request):
 
 @csrf_exempt
 def download_roster(request):
-    athletes = Athlete.objects.all().order_by('group', 'athlete_id').exclude(scratched=True)
-    events = Event.objects.all()
+    athletes = models.Athlete.objects.all().order_by('group', 'athlete_id').exclude(scratched=True)
+    events = models.Event.objects.all()
 
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
@@ -81,7 +76,7 @@ def download_roster(request):
             starting_event]
 
         for event in events:
-            row.append(AthleteEvent.objects.get(athlete=athlete,
+            row.append(models.AthleteEvent.objects.get(athlete=athlete,
                                                 event=event).score)
 
         writer.writerow(row)
@@ -94,8 +89,8 @@ class SessionCeremonyView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionCeremonyView, self).get_context_data(**kwargs)
-        session = Session.objects.get(id=self.kwargs['id'])
-        meet_settings = MeetSettings.objects.get()
+        session = models.Session.objects.get(id=self.kwargs['id'])
+        meet_settings = meetconfig.Meet.objects.get()
 
         # go do the actual math
         # calculate_session_ranking(session)
@@ -103,16 +98,16 @@ class SessionCeremonyView(TemplateView):
         # start populating the context
         context['session'] = session
         context['groups'] = []
-        context['events'] = Event.objects.all()
+        context['events'] = models.Event.objects.all()
         context['rankings'] = {}
 
         for group in session.groups.all().order_by('order'):
             leaderboards = []
 
             # group per event leaderboard
-            for event in Event.objects.all():
+            for event in models.Event.objects.all():
                 leaderboard = []
-                athlete_events = AthleteEvent.objects.filter(event=event, athlete__group=group).order_by("rank")
+                athlete_events = models.AthleteEvent.objects.filter(event=event, athlete__group=group).order_by("rank")
                 total_count = len(athlete_events)
                 award_count = math.ceil(total_count * meet_settings.event_award_percentage)
                 if total_count == 2:
@@ -139,7 +134,7 @@ class SessionCeremonyView(TemplateView):
 
             # overall leaderboard for group
             leaderboard = []
-            athletes = Athlete.objects.filter(group=group, scratched=False, overall_score__isnull=False).order_by("rank")
+            athletes = models.Athlete.objects.filter(group=group, scratched=False, overall_score__isnull=False).order_by("rank")
             total_count = len(athletes)
             award_count = math.ceil(total_count * meet_settings.all_around_award_percentage)
 
@@ -171,8 +166,8 @@ class SessionCeremonyView(TemplateView):
             context['groups'].append(info)
 
         team_awards = []
-        for team_award in TeamAward.objects.filter(groups__in=session.groups.all()).distinct():
-            tars = TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
+        for team_award in models.TeamAward.objects.filter(groups__in=session.groups.all()).distinct():
+            tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
             for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
                 teams.append({'name': t.team.name, 'score': t.score, 'rank': t.rank})
@@ -190,18 +185,18 @@ class SessionIndividualView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionIndividualView, self).get_context_data(**kwargs)
-        context['meet'] = MeetSettings.objects.get()
-        context['session'] = Session.objects.get(id=self.kwargs['id'])
+        context['meet'] = meetconfig.Meet.objects.get()
+        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         # calculate_session_ranking(context['session'])
 
-        context['events'] = Event.objects.all()
+        context['events'] = models.Event.objects.all()
         context['groups'] = []
         for group in context['session'].groups.all().order_by('order'):
             athletes = []
             for athlete in group.athletes.filter(rank__gt=0).order_by('rank'):
                 events = []
-                for athlete_event in AthleteEvent.objects.filter(athlete=athlete).order_by('event__order'):
+                for athlete_event in models.AthleteEvent.objects.filter(athlete=athlete).order_by('event__order'):
                     score = athlete_event.score
                     if score is None:
                         score = 0.0
@@ -218,14 +213,14 @@ class SessionTeamView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionTeamView, self).get_context_data(**kwargs)
-        context['meet'] = MeetSettings.objects.get()
-        context['session'] = Session.objects.get(id=self.kwargs['id'])
+        context['meet'] = meetconfig.Meet.objects.get()
+        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         # calculate_session_ranking(context['session'])
 
         team_awards = []
-        for team_award in TeamAward.objects.filter(groups__in=context['session'].groups.all()).distinct():
-            tars = TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
+        for team_award in models.TeamAward.objects.filter(groups__in=context['session'].groups.all()).distinct():
+            tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
             for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
                 teams.append({'name': t.team.name, 'score': t.score, 'rank': t.rank})
@@ -242,48 +237,48 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = Event.objects.all()
-    serializer_class = EventSerializer
+    queryset = models.Event.objects.all()
+    serializer_class = serializers.EventSerializer
 
 
 class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
+    queryset = models.Team.objects.all()
+    serializer_class = serializers.TeamSerializer
 
 
 class AthleteViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = Athlete.objects.all()
-    serializer_class = AthleteSerializer
+    queryset = models.Athlete.objects.all()
+    serializer_class = serializers.AthleteSerializer
 
 
 class AthleteEventViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = AthleteEvent.objects.all()
-    serializer_class = AthleteEventSerializer
+    queryset = models.AthleteEvent.objects.all()
+    serializer_class = serializers.AthleteEventSerializer
 
 
 class MessageViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = Message.objects.all()
-    serializer_class = MessageSerializer
+    queryset = models.Message.objects.all()
+    serializer_class = serializers.MessageSerializer
 
 
 class SessionViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = Session.objects.all()
-    serializer_class = SessionSerializer
+    queryset = models.Session.objects.all()
+    serializer_class = serializers.SessionSerializer
 
 
 class ScorecardView(TemplateView):

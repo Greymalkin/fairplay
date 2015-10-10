@@ -4,10 +4,7 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 
 from django.db.models import Count, Sum
 
-from .models import (
-    Group, Athlete, Event, Team, LEDSign, AthleteEvent, Message, TeamAward,
-    Session, MeetSettings
-)
+from . import models
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -42,7 +39,6 @@ class SessionFilter(admin.SimpleListFilter):
 
 
 class AthleteEventAdmin(admin.ModelAdmin):
-    model = AthleteEvent
     fields = ('athlete', 'event', 'score',)
     list_display = ('athlete', 'event', 'score',)
     search_fields = ['athlete', 'id', ]
@@ -55,7 +51,7 @@ class AthleteEventInlineFormset(BaseInlineFormSet):
 
 
 class AthleteEventInlineAdmin(admin.TabularInline):
-    model = AthleteEvent
+    model = models.AthleteEvent
     formset = AthleteEventInlineFormset
     extra = 0
     max_num = 0
@@ -64,13 +60,12 @@ class AthleteEventInlineAdmin(admin.TabularInline):
 
 
 class AthleteInlineAdmin(admin.TabularInline):
-    model = Athlete
+    model = models.Athlete
     extra = 1
     fields = ('athlete_id', 'last_name', 'first_name', 'starting_event')
 
 
 class TeamAdmin(admin.ModelAdmin):
-    model = Team
     inlines = (AthleteInlineAdmin,)
     list_display = ('name', 'team_size', 'qualified')
     list_display = ('name', 'team_size')
@@ -88,13 +83,11 @@ class TeamAdmin(admin.ModelAdmin):
 
 
 class TeamAwardAdmin(admin.ModelAdmin):
-    model = TeamAward
     list_display = ('name', )
     filter_horizontal = ('groups',)
 
 
 class AthleteAdmin(admin.ModelAdmin):
-    model = Athlete
     inlines = (AthleteEventInlineAdmin, )
     fields = ('usag_id', 'athlete_id', 'scratched', 'last_name', 'first_name',
               'birth_date', 'team', 'group', 'starting_event', )
@@ -103,10 +96,10 @@ class AthleteAdmin(admin.ModelAdmin):
     list_per_page = 50
 
     def get_actions(self, request):
-        return dict([make_event_action(q) for q in Event.objects.all()])
+        return dict([make_event_action(q) for q in models.Event.objects.all()])
 
     def session(self, athlete):
-        return Session.objects.get(groups=athlete.group).name
+        return models.Session.objects.get(groups=athlete.group).name
 
     def get_queryset(self, request):
         qs = super(AthleteAdmin, self).get_queryset(request)
@@ -115,7 +108,7 @@ class AthleteAdmin(admin.ModelAdmin):
 
     def get_list_display(self, request):
         result = ['athlete_id', 'last_name', 'first_name', 'team', 'group', 'starting_event']
-        events = Event.objects.all()
+        events = models.Event.objects.all()
         result += [e.initials for e in events]
         result += ['all_around', ]
         return result
@@ -126,7 +119,7 @@ class AthleteAdmin(admin.ModelAdmin):
     all_around.short_description = 'AA'
 
     def __getattr__(self, attr):
-        event = Event.objects.get(initials=attr)
+        event = models.Event.objects.get(initials=attr)
 
         def get_score(athlete):
             return athlete.events.get(event=event).score
@@ -136,43 +129,35 @@ class AthleteAdmin(admin.ModelAdmin):
 
 
 class GroupAdmin(admin.ModelAdmin):
-    model = Group
     list_display = ('__str__', 'order')
     list_editable = ('order',)
     ordering = ('order',)
 
 
 class LEDSignAdmin(admin.ModelAdmin):
-    model = LEDSign
     list_display = ('sign_id', 'device', )
 
 
 class EventAdmin(admin.ModelAdmin):
-    model = Event
     list_display = ('name', 'initials', 'order',)
 
 
 class MessageAdmin(admin.ModelAdmin):
-    model = Message
     list_display = ('name', 'message', )
 
 
 class SessionAdmin(admin.ModelAdmin):
-    model = Session
     list_display = ('name',)
     filter_horizontal = ('groups',)
 
 
-class MeetSettingsAdmin(admin.ModelAdmin):
-    model = MeetSettings
 
-admin.site.register(MeetSettings, MeetSettingsAdmin)
-admin.site.register(Group, GroupAdmin)
-admin.site.register(Team, TeamAdmin)
-admin.site.register(LEDSign, LEDSignAdmin)
-admin.site.register(Event, EventAdmin)
-admin.site.register(AthleteEvent, AthleteEventAdmin)
-admin.site.register(Athlete, AthleteAdmin)
-admin.site.register(Message, MessageAdmin)
-admin.site.register(TeamAward, TeamAwardAdmin)
-admin.site.register(Session, SessionAdmin)
+admin.site.register(models.Group, GroupAdmin)
+admin.site.register(models.Team, TeamAdmin)
+admin.site.register(models.LEDSign, LEDSignAdmin)
+admin.site.register(models.Event, EventAdmin)
+admin.site.register(models.AthleteEvent, AthleteEventAdmin)
+admin.site.register(models.Athlete, AthleteAdmin)
+admin.site.register(models.Message, MessageAdmin)
+admin.site.register(models.TeamAward, TeamAwardAdmin)
+admin.site.register(models.Session, SessionAdmin)

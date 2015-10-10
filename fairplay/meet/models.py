@@ -1,16 +1,17 @@
+import datetime
 from django.db import models
+
 
 
 class Meet(models.Model):
     name = models.CharField(max_length=200, blank=False, null=False)
     short_name = models.CharField(max_length=100, blank=False, null=False)
     host = models.CharField(max_length=200, blank=False, null=False)
-    compete_date = models.DateField()
-    created = models.DateTimeField(auto_now_add=True)
-    division_medals_percentage = models.IntegerField(
-        "Division Medals %age"
-        default=0,
-        help_text="How many medals we are going to give. This is a percentage value and applies to all divisions in the entire meet.")
+    date = models.DateField()
+    event_award_percentage = models.FloatField('Event %age', default=0.5, help_text="How many medals we are going to give. This is a percentage value and applies to all divisions in the entire meet.")
+    all_around_award_percentage = models.FloatField('AA %age', default=0.5)
+    is_current_meet = models.BooleanField('Current Meet?', default=False)
+
     max_sessions_per_day = models.IntegerField(
         "Max Sessions",
         default=3,
@@ -25,6 +26,9 @@ class Meet(models.Model):
         help_text="Just because the maxiumum number has been met doesn't mean we'll absolutely stop registering gymnasts, but we should know we are in a situation. We might do want to stop registration for this level/division, depending on how other numbers look.")
 
     class Meta:
-        verbose_name = 'Meet Configuration'
-        verbose_name_plural = 'Meet Configurations'
-        ordering = ('-compete_date', 'name')
+        verbose_name = 'Meet'
+        verbose_name_plural = 'Meets'
+        ordering = ('is_current_meet', '-date', 'name')
+
+    def __str__(self):
+        return '{} {}'.format(self.short_name, self.date.strftime('%Y-%m-%d'))

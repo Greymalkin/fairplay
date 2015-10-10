@@ -1,11 +1,14 @@
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from grappelli.forms import GrappelliSortableHiddenMixin
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.models import LogEntry
+from django.shortcuts import render
+
 
 from django.db.models import Count, Sum
 from . import models
+from . import forms as actionforms
 
 
 ### Filters
@@ -56,7 +59,7 @@ class LevelAdmin(admin.ModelAdmin):
 
 
 class CoachAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag')
+    list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag', 'is_verified')
     list_filter = (CoachMissingUsagFilter, 'team')
     search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
@@ -72,22 +75,50 @@ class CoachAdmin(admin.ModelAdmin):
 
 
 class GymnastAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'usag', 'team', 'level', 'age', 'tshirt', 'is_scratched')
-    list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'team', 'level']
+    list_display = ('last_name', 'first_name', 'usag', 'team', 'level', 'age', 'dob', 'tshirt', 'is_scratched', 'is_flagged', 'is_verified')
+    list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
     search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
     autocomplete_lookup_fields = {'fk': ['team']}
+    actions = ['set_tshirt_action', 'set_verified']
+
+    def set_tshirt_action(self, request, queryset):
+        if 'do_action' in request.POST:
+            form = actionforms.ShirtChoiceForm(request.POST)
+            if form.is_valid():
+                tshirt = form.cleaned_data.get('tshirt')
+                updated = queryset.update(tshirt=tshirt)
+                messages.success(request, '{} gymnasts were updated'.format(updated))
+                return
+        else:
+            form = actionforms.ShirtChoiceForm()
+
+        return render(request, 'admin/registration/action_tshirt.html',
+            {'title': u'Choose tshirt size',
+                'objects': queryset,
+                'form': form
+            })
+    set_tshirt_action.short_description = u'Update tshirt size of selected gymnast'
+
+    def set_verified(self, request, queryset):
+        rows_updated = queryset.update(is_verified=True)
+        if rows_updated == 1:
+            message_bit = '1 gymnast was'
+        else:
+            message_bit = '%s gymnasts were' % rows_updated
+        messages.success(request, '%s verified' % message_bit)
+    set_verified.short_description = "Mark selected gymnasts as verified"
+
 
 
 class CoachInline(admin.TabularInline):
     model = models.Coach
-    exclude = ('notes', )
-
+    exclude = ('notes', 'is_flagged', 'is_verified')
 
 class GymnastInline(admin.StackedInline):
     model = models.Gymnast
     ordering = ('is_scratched', 'level', 'last_name', 'first_name')
-    fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'tshirt', 'level', 'is_scratched', 'notes')
+    fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'tshirt', 'level', 'is_scratched', 'is_flagged', 'is_verified', 'notes')
 
     class Media:
         js = ('/static/js/competitionAge.js','/static/js/moment.min.js')

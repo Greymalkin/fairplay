@@ -3,16 +3,6 @@ from . import ranking
 from django.db import models
 
 
-class MeetSettings(models.Model):
-    name = models.CharField(max_length=255)
-    date = models.DateField()
-    event_award_percentage = models.FloatField(default=0.5)
-    all_around_award_percentage = models.FloatField(default=0.5)
-
-    def __str__(self):
-        return self.name
-
-
 class LEDSign(models.Model):
     sign_id = models.PositiveSmallIntegerField(unique=True)
     device = models.CharField(max_length=255)

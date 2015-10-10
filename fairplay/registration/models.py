@@ -23,7 +23,7 @@ class Team(models.Model):
     )
     per_gymnast_cost = models.CharField('Per Gymnast Cost', max_length=5, null=True, choices=COSTS)
     PER_LEVEL_COST = '50'
-    levels = models.ManyToManyField('Level', blank=True, null=True, related_name='registrations_set', verbose_name="Team Awards Levels")
+    levels = models.ManyToManyField('Level', blank=True, related_name='registrations_set', verbose_name="Team Awards Levels")
     gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
     level_cost = models.DecimalField('Level Cost', decimal_places=2, max_digits=6, default=0)
     total_cost = models.DecimalField('Total Registration Cost', decimal_places=2, max_digits=6, default=0)
@@ -41,11 +41,6 @@ class Team(models.Model):
 
     def __str__(self):
         return '{0}'.format(self.gym)
-
-    def save(self, *args, **kwargs):
-        # custom pre-save
-        super(Team, self).save(*args, **kwargs)
-        # custom post-save
 
     def contact_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
@@ -77,6 +72,8 @@ class Person(models.Model):
     first_name = models.CharField('First Name', max_length=100)
     last_name = models.CharField('Last Name', max_length=100)
     usag = models.CharField('USAG #', max_length=225, blank=True, null=True)
+    is_flagged = models.BooleanField('Flagged!', default=False)
+    is_verified = models.BooleanField('Verified', default=False)
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -112,13 +109,13 @@ class Gymnast(Person):
     team = models.ForeignKey(Team, related_name="gymnasts")
     dob = models.DateField(blank=True, null=True)
     age = models.PositiveSmallIntegerField('Age', blank=True, null=True, help_text='Competitive Age (as of 9/1)')
-    is_us_citizen = models.BooleanField('US Citizen?', default=False)
+    is_us_citizen = models.BooleanField('US Citizen?', default=True)
     XSMALL = 'Extra Small (Youth)'
     SMALL = 'Small (Youth)'
     MEDIUM = 'Medium (Youth)'
     LARGE = 'Large (Youth)'
     XLARGE = 'Extra Large (Youth)'
-    ADULTXSM = 'Exra Small (Adult)'
+    ADULTXSM = 'Extra Small (Adult)'
     ADULTSM = 'Small (Adult)'
     ADULTMD = 'Medium (Adult)'
     ADULTLG = 'Large (Adult)'
@@ -137,8 +134,10 @@ class Gymnast(Person):
         verbose_name = 'Gymnast'
 
     def __str__(self):
-        scratched = 'SCRATCHED ' if self.is_scratched else ''
-        return "{3}{1}, {0} (L{2})".format(self.first_name, self.last_name, self.level, scratched)
+        flagged = 'FLAGGED! ' if self.is_flagged else ''
+        flagged = 'SCRATCHED ' if self.is_scratched else flagged
+        usag = self.usag if self.usag and len(self.usag.strip()) else ''
+        return "{3}{1}, {0} (L{2}) {4}".format(self.first_name, self.last_name, self.level, flagged, usag)
 
 
 class Level(models.Model):
