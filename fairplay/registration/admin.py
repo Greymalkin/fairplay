@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.contrib import admin, messages
 from django.forms.models import BaseInlineFormSet
 from django.contrib.admin import SimpleListFilter
@@ -9,6 +11,7 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 
 
 from django.db.models import Count, Sum
+from meet.models import Meet
 from . import models
 from . import forms as actionforms
 
@@ -78,6 +81,13 @@ class CoachMissingUsagFilter(SimpleListFilter):
 class LevelAdmin(admin.ModelAdmin):
     list_display = ('level', 'order')
     list_editable = ('order',)
+    exclude = ('meet',)
+
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(LevelAdmin, self).get_queryset(request)
+        meet = Meet.objects.filter(is_current_meet=True)
+        return qs.filter(meet=meet)
 
 
 class CoachAdmin(admin.ModelAdmin):
@@ -86,6 +96,13 @@ class CoachAdmin(admin.ModelAdmin):
     search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
     autocomplete_lookup_fields = {'fk': ['team']}
+    exclude = ('meet',)
+
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(CoachAdmin, self).get_queryset(request)
+        meet = Meet.objects.filter(is_current_meet=True)
+        return qs.filter(meet=meet)
 
     def has_usag(self, obj):
         missing = False
@@ -112,40 +129,38 @@ class GymnastEventInlineAdmin(admin.TabularInline):
 
 
 class GymnastAdmin(admin.ModelAdmin):
-    inlines = (GymnastEventInlineAdmin, )
-    list_display = ('last_name', 'first_name', 'usag', 'team', 'level', 'age', 'dob', 'tshirt', 'is_scratched', 'is_flagged', 'is_verified')
+    list_display = ('last_name', 'first_name', 'usag', 'team', 'level', 'age', 'dob', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
     search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
     actions = ['set_tshirt_action', 'set_verified']
     autocomplete_lookup_fields = {'fk': ['team']}
+    actions = ['set_shirt_action', 'set_verified']
+    exclude = ('meet',)
 
-    def get_actions(self, request):
-        actions = super(GymnastAdmin, self).get_actions(request)
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(GymnastAdmin, self).get_queryset(request)
+        meet = Meet.objects.filter(is_current_meet=True)
+        return qs.filter(meet=meet)
 
-        for event in Event.objects.all():
-            action = make_event_action(event)
-            actions[action[1]] = action
-
-        return actions
-
-    def set_tshirt_action(self, request, queryset):
+    def set_shirt_action(self, request, queryset):
         if 'do_action' in request.POST:
             form = actionforms.ShirtChoiceForm(request.POST)
             if form.is_valid():
-                tshirt = form.cleaned_data.get('tshirt')
-                updated = queryset.update(tshirt=tshirt)
+                shirt = form.cleaned_data.get('shirt')
+                updated = queryset.update(shirt=shirt)
                 messages.success(request, '{} gymnasts were updated'.format(updated))
                 return
         else:
             form = actionforms.ShirtChoiceForm()
 
         return render(request, 'admin/registration/action_tshirt.html',
-                      {'title': u'Choose tshirt size',
-                       'objects': queryset,
-                       'form': form})
-
-    set_tshirt_action.short_description = u'Update tshirt size of selected gymnast'
+            {'title': u'Choose tshirt size',
+                'objects': queryset,
+                'form': form
+            })
+    set_shirt_action.short_description = u'Update shirt size of selected gymnast'
 
     def set_verified(self, request, queryset):
         rows_updated = queryset.update(is_verified=True)
@@ -246,12 +261,13 @@ class GymnastAdmin(admin.ModelAdmin):
 
 class CoachInline(admin.TabularInline):
     model = models.Coach
-    exclude = ('notes', 'is_flagged', 'is_verified')
+    exclude = ('notes', 'is_flagged', 'is_verified', 'meet')
+
 
 class GymnastInline(admin.StackedInline):
     model = models.Gymnast
     ordering = ('is_scratched', 'level', 'last_name', 'first_name')
-    fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'tshirt', 'level', 'is_scratched', 'is_flagged', 'is_verified', 'notes')
+    fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'shirt', 'level', 'is_scratched', 'is_flagged', 'is_verified', 'notes')
 
     class Media:
         js = ('/static/js/competitionAge.js','/static/js/moment.min.js')
@@ -259,13 +275,13 @@ class GymnastInline(admin.StackedInline):
 
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'notes')
-    readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost', 'show_per_level_cost')
+    readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
     search_fields = ('gym', 'first_name', 'last_name')
     filter_horizontal = ('levels',)
     inlines = [CoachInline, GymnastInline]
     fieldsets = ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),
                  ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),
-                 ('Registration', {'fields': ('per_gymnast_cost', 'show_per_level_cost', 'levels', ), }),
+                 ('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'levels', ), }),
                  ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost', 'payment_postmark', 'registration_complete'), }),
                  )
 
@@ -275,9 +291,12 @@ class TeamAdmin(admin.ModelAdmin):
         }
         # js = ('/static/js/competitionAge.js',)
 
-    def show_per_level_cost(self, obj):
-        return '${} per level'.format(obj.PER_LEVEL_COST)
-    show_per_level_cost.short_description = 'Per Level Cost'
+
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(TeamAdmin, self).get_queryset(request)
+        meet = Meet.objects.filter(is_current_meet=True)
+        return qs.filter(meet=meet)
 
     def num_gymnasts(self, obj):
         return obj.gymnasts.filter(is_scratched=False).count()
@@ -307,11 +326,44 @@ LogEntry.is_addition.boolean = True
 LogEntry.is_change.boolean = True
 LogEntry.is_deletion.boolean = True
 
+
+class GymnastPricingAdmin(admin.ModelAdmin):
+    exclude = ('meet',)
+
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(GymnastPricingAdmin, self).get_queryset(request)
+        meet = Meet.objects.filter(is_current_meet=True)
+        return qs.filter(meet=meet)
+
+
+class LevelPricingAdmin(admin.ModelAdmin):
+    exclude = ('meet',)
+
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(LevelPricingAdmin, self).get_queryset(request)
+        meet = Meet.objects.filter(is_current_meet=True)
+        return qs.filter(meet=meet)
+
+
 admin.site.register(LogEntry, LogAdmin)
 admin.site.register(models.Gymnast, GymnastAdmin)
 admin.site.register(models.Level, LevelAdmin)
 admin.site.register(models.Coach, CoachAdmin)
 admin.site.register(models.Team, TeamAdmin)
-admin.site.register(models.GymnastPricing)
-admin.site.register(models.LevelPricing)
+admin.site.register(models.GymnastPricing, GymnastPricingAdmin)
+admin.site.register(models.LevelPricing, LevelPricingAdmin)
 admin.site.register(models.ShirtSize)
+
+
+@receiver(pre_save, sender=models.Level)
+@receiver(pre_save, sender=models.Team)
+@receiver(pre_save, sender=models.Gymnast)
+@receiver(pre_save, sender=models.Coach)
+@receiver(pre_save, sender=models.LevelPricing)
+@receiver(pre_save, sender=models.GymnastPricing)
+def save_current_meet(sender, instance, **kwargs):
+    meet = Meet.objects.get(is_current_meet=True)
+    instance.meet = meet
+

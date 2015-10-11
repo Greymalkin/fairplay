@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from meet.models import Meet
-# from competition.models import Division
 
 
 class Team(models.Model):
@@ -19,13 +18,8 @@ class Team(models.Model):
     last_name = models.CharField('Last Name', max_length=100)
     email = models.CharField('Email', max_length=225, blank=True, null=True)
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
-    EARLY = '80'
-    NORMAL = '90'
-    COSTS = (
-        (EARLY, '$80 per gymnast'), (NORMAL, '$90 per gymnast')
-    )
-    per_gymnast_cost = models.CharField('Per Gymnast Cost', max_length=5, null=True, choices=COSTS)
-    PER_LEVEL_COST = '50'
+    per_level_cost = models.ForeignKey('LevelPricing', null=True, default=1)
+    per_gymnast_cost = models.ForeignKey('GymnastPricing', null=True, default=1)
     levels = models.ManyToManyField('Level', blank=True, related_name='registrations_set', verbose_name="Team Awards Levels")
     gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
     level_cost = models.DecimalField('Level Cost', decimal_places=2, max_digits=6, default=0)
@@ -54,9 +48,9 @@ class Team(models.Model):
         num_levels = self.levels.count()
         # levels 9,10 are priced as one single 9/10 level
         if self.levels.filter(level__exact=10).count() == 1 and self.levels.filter(level__exact=9).count() == 1:
-            self.level_cost = int(self.PER_LEVEL_COST) * (num_levels - 1)
+            self.level_cost = self.per_level_cost.price * (num_levels - 1)
         elif num_levels > 0:
-            self.level_cost = int(self.PER_LEVEL_COST) * num_levels
+            self.level_cost = self.per_level_cost * num_levels
         else:
             self.level_cost = 0
         return self.level_cost
@@ -64,7 +58,7 @@ class Team(models.Model):
     def calc_gymnast_cost(self):
         num_gymnasts = self.gymnasts.filter(is_scratched=False).count()
         if num_gymnasts > 0:
-            self.gymnast_cost = int(self.per_gymnast_cost) * num_gymnasts
+            self.gymnast_cost = self.per_gymnast_cost.price * num_gymnasts
         else:
             self.gymnast_cost = 0
         return self.gymnast_cost
@@ -117,28 +111,13 @@ class Gymnast(Person):
     dob = models.DateField(blank=True, null=True)
     age = models.PositiveSmallIntegerField('Age', blank=True, null=True, help_text='Competitive Age (as of 9/1)')
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
-    XSMALL = 'Extra Small (Youth)'
-    SMALL = 'Small (Youth)'
-    MEDIUM = 'Medium (Youth)'
-    LARGE = 'Large (Youth)'
-    XLARGE = 'Extra Large (Youth)'
-    ADULTXSM = 'Extra Small (Adult)'
-    ADULTSM = 'Small (Adult)'
-    ADULTMD = 'Medium (Adult)'
-    ADULTLG = 'Large (Adult)'
-    ADULTXLG = 'Extra Large (Adult)'
-    TSHIRT_SIZES = (
-        (XSMALL, XSMALL), (SMALL, SMALL), (MEDIUM, MEDIUM),
-        (LARGE, LARGE), (XLARGE, XLARGE), (ADULTXSM, ADULTXSM),
-        (ADULTSM, ADULTSM), (ADULTMD, ADULTMD), (ADULTLG, ADULTLG), (ADULTXLG, ADULTXLG)
-    )
-    tshirt = models.CharField('T-Shirt Size', max_length=20, blank=True, null=True, choices=TSHIRT_SIZES)
+    shirt = models.ForeignKey('ShirtSize', blank=True, null=True)
     level = models.ForeignKey('Level', blank=True, null=True)
     is_scratched = models.BooleanField('Scratched?', default=False)
     division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True)
     starting_event = models.ForeignKey('competition.Event', null=True, blank=True)
-    overall_score = models.FloatField(null=True)
-    rank = models.PositiveSmallIntegerField(null=True)
+    overall_score = models.FloatField(null=True, blank=True)
+    rank = models.PositiveSmallIntegerField(null=True, blank=True)
     athlete_id = models.PositiveSmallIntegerField(unique=True, blank=True, null=True, verbose_name='Athlete ID', help_text='For use during competition')
 
 
@@ -177,40 +156,40 @@ class Level(models.Model):
 
 class GymnastPricing(models.Model):
     meet = models.ForeignKey(Meet, related_name='gymnast_pricing')
-    price = models.PositiveSmallIntegerField(primary_key=True)
+    price = models.PositiveSmallIntegerField(default=0)
     name = models.CharField(max_length=100)
 
     class Meta:
-        verbose_name = 'Pricing'
-        verbose_name_plural = 'Pricing'
+        verbose_name = 'Gymnast Pricing'
+        verbose_name_plural = 'Gymnast Pricing'
         ordering = ['name']
 
     def __str__(self):
-        return name
+        return self.name
 
 
 class LevelPricing(models.Model):
     meet = models.ForeignKey(Meet, related_name='level_pricing')
-    price = models.PositiveSmallIntegerField(primary_key=True)
+    price = models.PositiveSmallIntegerField(default=0)
     name = models.CharField(max_length=100)
 
     class Meta:
-        verbose_name = 'Pricing'
-        verbose_name_plural = 'Pricing'
+        verbose_name = 'Level Pricing'
+        verbose_name_plural = 'Level Pricing'
         ordering = ['name']
 
     def __str__(self):
-        return name
+        return self.name
 
 
 class ShirtSize(models.Model):
-    abbr = models.CharField(max_length=10, primary_key=True)
     name = models.CharField(max_length=50)
+    order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         verbose_name = 'Shirt Size'
         verbose_name_plural = 'Shirt Sizes'
-
+        ordering = ['order']
 
     def __str__(self):
         return self.name

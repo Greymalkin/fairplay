@@ -1,8 +1,9 @@
 from django.forms.models import BaseInlineFormSet
 from django.contrib import admin
-from grappelli.forms import GrappelliSortableHiddenMixin
-
+from django.db.models.signals import pre_save
 from django.db.models import Count, Sum
+from django.dispatch import receiver
+from grappelli.forms import GrappelliSortableHiddenMixin
 
 from . import models
 
@@ -43,28 +44,55 @@ class GymnastEventAdmin(admin.ModelAdmin):
     list_display = ('gymnast', 'event', 'score',)
     search_fields = ['gymnast', 'id', ]
 
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(AthleteEventAdmin, self).get_queryset(request)
+        meet = models.Meet.objects.filter(is_current_meet=True)
+        return qs.filter(event__meet=meet)
 
 class DivisionAdmin(admin.ModelAdmin):
     list_display = ('name', 'level', 'min_age', 'max_age')
     list_editable = ('min_age', 'max_age')
     ordering = ('level', 'min_age')
+    exclude = ('meet',)
+
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(DivisionAdmin, self).get_queryset(request)
+        meet = models.Meet.objects.filter(is_current_meet=True)
+        return qs.filter(meet=meet)
+
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('name', 'initials', 'order',)
+    exclude = ('meet',)
+
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(EventAdmin, self).get_queryset(request)
+        meet = models.Meet.objects.filter(is_current_meet=True)
+        return qs.filter(meet=meet)
+
+
+class SessionAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    filter_horizontal = ('divisions',)
+    exclude = ('meet',)
+
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(SessionAdmin, self).get_queryset(request)
+        meet = models.Meet.objects.filter(is_current_meet=True)
+        return qs.filter(meet=meet)
 
 
 class LEDSignAdmin(admin.ModelAdmin):
     list_display = ('sign_id', 'device', )
 
 
-class EventAdmin(admin.ModelAdmin):
-    list_display = ('name', 'initials', 'order',)
-
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'message', )
 
-
-class SessionAdmin(admin.ModelAdmin):
-    list_display = ('name',)
-    filter_horizontal = ('divisions',)
 
 
 admin.site.register(models.Division, DivisionAdmin)
@@ -73,3 +101,11 @@ admin.site.register(models.Event, EventAdmin)
 admin.site.register(models.GymnastEvent, GymnastEventAdmin)
 admin.site.register(models.Message, MessageAdmin)
 admin.site.register(models.Session, SessionAdmin)
+
+@receiver(pre_save, sender=models.Division)
+@receiver(pre_save, sender=models.Event)
+@receiver(pre_save, sender=models.Session)
+@receiver(pre_save, sender=models.TeamAward)
+def save_current_meet(sender, instance, **kwargs):
+    meet = models.Meet.objects.get(is_current_meet=True)
+    instance.meet = meet
