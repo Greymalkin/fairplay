@@ -9,3 +9,11 @@ class ShirtChoiceForm(forms.ModelForm):
         model = models.Gymnast
         fields = ('shirt',)
 
+
+class AgeForm(forms.ModelForm):
+    pass
+
+    class Meta:
+        model = models.Gymnast
+        fields = ('age',)
+

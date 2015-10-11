@@ -50,7 +50,7 @@ class Team(models.Model):
         if self.levels.filter(level__exact=10).count() == 1 and self.levels.filter(level__exact=9).count() == 1:
             self.level_cost = self.per_level_cost.price * (num_levels - 1)
         elif num_levels > 0:
-            self.level_cost = self.per_level_cost * num_levels
+            self.level_cost = self.per_level_cost.price * num_levels
         else:
             self.level_cost = 0
         return self.level_cost

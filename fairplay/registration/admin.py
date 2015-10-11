@@ -135,7 +135,7 @@ class GymnastAdmin(admin.ModelAdmin):
     raw_id_fields = ('team',)
     actions = ['set_tshirt_action', 'set_verified']
     autocomplete_lookup_fields = {'fk': ['team']}
-    actions = ['set_shirt_action', 'set_verified']
+    actions = ['set_shirt_action', 'set_age_action', 'set_verified']
     exclude = ('meet',)
 
     def get_queryset(self, request):
@@ -161,6 +161,24 @@ class GymnastAdmin(admin.ModelAdmin):
                 'form': form
             })
     set_shirt_action.short_description = u'Update shirt size of selected gymnast'
+
+    def set_age_action(self, request, queryset):
+        if 'do_action' in request.POST:
+            form = actionforms.AgeForm(request.POST)
+            if form.is_valid():
+                age = form.cleaned_data.get('age')
+                updated = queryset.update(age=age)
+                messages.success(request, '{} gymnasts were updated'.format(updated))
+                return
+        else:
+            form = actionforms.AgeForm()
+
+        return render(request, 'admin/registration/action_age.html',
+            {'title': u'Set age',
+                'objects': queryset,
+                'form': form
+            })
+    set_age_action.short_description = u'Update competition age of selected gymnast'
 
     def set_verified(self, request, queryset):
         rows_updated = queryset.update(is_verified=True)
