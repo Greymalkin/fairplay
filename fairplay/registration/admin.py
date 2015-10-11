@@ -55,7 +55,7 @@ class CoachMissingUsagFilter(SimpleListFilter):
 
 class LevelAdmin(admin.ModelAdmin):
     list_display = ('level', 'order')
-    list_editable = ('level', 'order')
+    list_editable = ('order',)
 
 
 class CoachAdmin(admin.ModelAdmin):

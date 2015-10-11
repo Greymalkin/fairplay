@@ -13,7 +13,7 @@ from grappelli.dashboard import modules, Dashboard
 from grappelli.dashboard.utils import get_admin_site_name
 
 from competition.models import Session, Event
-from registration.models import Gymnast
+from registration.models import Gymnast, Level
 
 roster_html = """
 <script src="/static/js/jquery.ocupload-min.js"></script>
@@ -73,7 +73,7 @@ class CustomIndexDashboard(Dashboard):
             models=(
                 'django.contrib.*',
                 'competition.models.LEDSign',
-                'competition.models.Meet',),
+                'meet.models.Meet',),
         ))
 
         self.children.append(modules.LinkList(
@@ -94,39 +94,54 @@ class CustomIndexDashboard(Dashboard):
             post_content=roster_html
         ))
 
-        sessions = Session.objects.all()
-        for session in sessions:
-            links = []
-            links.append({
-                'title': 'Awards Ceremony',
-                'url': '/results/ceremony/{}'.format(session.id),
+        levels = []
+        for level in Level.objects.all():
+            level_count = Gymnast.objects.filter(level=level).count()
+            levels.append({
+                'title': 'Level {} ({} athletes)'.format(level.level, level_count),
+                'url': 'registration/gymnast/?level__id__exact={}'.format(level.id),
                 'external': False,
-                })
-            links.append({
-                'title': 'Individual Results',
-                'url': '/results/individual/{}'.format(session.id),
-                'external': False,
-                })
-            links.append({
-                'title': 'Team Results',
-                'url': '/results/team/{}'.format(session.id),
-                'external': False,
-                })
+            })
 
-            header = ""
-            counts = ""
-            for event in Event.objects.all():
-                count = Athlete.objects.filter(group__session__id=session.id, starting_event=event).count()
-                header += '<th>{}</th>'.format(event.initials)
-                link = '/admin/competition/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
-                counts += '<td><a href="{}">{}</a></td>'.format(link, count)
+        self.children.append(modules.LinkList(
+            _('Registrants'),
+            column=3,
+            children=levels,
+        ))
 
-            self.children.append(modules.LinkList(
-                _(session.name),
-                column=2,
-                children=links,
-                post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
-            ))
+        # sessions = Session.objects.all()
+        # for session in sessions:
+        #     links = []
+        #     links.append({
+        #         'title': 'Awards Ceremony',
+        #         'url': '/results/ceremony/{}'.format(session.id),
+        #         'external': False,
+        #         })
+        #     links.append({
+        #         'title': 'Individual Results',
+        #         'url': '/results/individual/{}'.format(session.id),
+        #         'external': False,
+        #         })
+        #     links.append({
+        #         'title': 'Team Results',
+        #         'url': '/results/team/{}'.format(session.id),
+        #         'external': False,
+        #         })
+
+        #     header = ""
+        #     counts = ""
+        #     for event in Event.objects.all():
+        #         count = Gymnast.objects.filter(group__session__id=session.id, starting_event=event).count()
+        #         header += '<th>{}</th>'.format(event.initials)
+        #         link = '/admin/gymnastics/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
+        #         counts += '<td><a href="{}">{}</a></td>'.format(link, count)
+
+        #     self.children.append(modules.LinkList(
+        #         _(session.name),
+        #         column=2,
+        #         children=links,
+        #         post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
+        #     ))
 
         # append a recent actions module
         self.children.append(
@@ -151,4 +166,4 @@ class CustomIndexDashboard(Dashboard):
                     )
                 ],
             ),
-        )        
+        )
