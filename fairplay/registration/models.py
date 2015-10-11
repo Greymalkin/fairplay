@@ -197,15 +197,15 @@ class ShirtSize(models.Model):
 
 ### Receivers
 
-@receiver(m2m_changed, sender=Team.levels.through)
-def level_costs(sender, instance, **kwargs):
-    instance.level_cost = instance.calc_level_cost()
-    instance.total_cost = instance.level_cost + instance.gymnast_cost
-    instance.save()
+# @receiver(m2m_changed, sender=Team.levels.through)
+# def level_costs(sender, instance, **kwargs):
+#     instance.level_cost = instance.calc_level_cost()
+#     instance.total_cost = instance.level_cost + instance.gymnast_cost
+#     instance.save()
 
 
-@receiver(post_save, sender=Gymnast)
-def gymnast_costs(sender, instance, **kwargs):
-    instance.team.gymnast_cost = instance.team.calc_gymnast_cost()
-    instance.team.total_cost = instance.team.level_cost + instance.team.gymnast_cost
-    instance.team.save()
+# @receiver(post_save, sender=Gymnast)
+# def gymnast_costs(sender, instance, **kwargs):
+#     instance.team.gymnast_cost = instance.team.calc_gymnast_cost()
+#     instance.team.total_cost = instance.team.level_cost + instance.team.gymnast_cost
+#     instance.team.save()

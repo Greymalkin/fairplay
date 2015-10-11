@@ -9,6 +9,8 @@ from django.shortcuts import render
 
 from grappelli.forms import GrappelliSortableHiddenMixin
 
+from datetime import date, timedelta
+
 
 from django.db.models import Count, Sum
 from meet.models import Meet
@@ -133,9 +135,8 @@ class GymnastAdmin(admin.ModelAdmin):
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
     search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
-    actions = ['set_tshirt_action', 'set_verified']
+    actions = ['update_age', 'set_shirt_action', 'set_verified']
     autocomplete_lookup_fields = {'fk': ['team']}
-    actions = ['set_shirt_action', 'set_verified']
     exclude = ('meet',)
 
     def get_queryset(self, request):
@@ -155,11 +156,13 @@ class GymnastAdmin(admin.ModelAdmin):
         else:
             form = actionforms.ShirtChoiceForm()
 
-        return render(request, 'admin/registration/action_tshirt.html',
+        return render(
+            request,
+            'admin/registration/action_tshirt.html',
             {'title': u'Choose tshirt size',
                 'objects': queryset,
-                'form': form
-            })
+                'form': form})
+
     set_shirt_action.short_description = u'Update shirt size of selected gymnast'
 
     def set_verified(self, request, queryset):
@@ -167,10 +170,38 @@ class GymnastAdmin(admin.ModelAdmin):
         if rows_updated == 1:
             message_bit = '1 gymnast was'
         else:
-            message_bit = '%s gymnasts were' % rows_updated
-        messages.success(request, '%s verified' % message_bit)
+            message_bit = '{} gymnasts were'.format(rows_updated)
+        messages.success(request, '{} verified'.format(message_bit))
+
     set_verified.short_description = "Mark selected gymnasts as verified"
 
+    def update_age(self, request, queryset):
+        rows_updated = 0
+        # try:
+        meet = Meet.objects.get(is_current_meet=True)
+
+        if meet.date.month > 8:
+            year = meet.date.year
+        else:
+            year = meet.date.year - 1
+
+        cutoff = date(year, settings.COMPETITION_MONTH, settings.COMPETITION_DATE)
+
+        for gymnast in queryset:
+            if gymnast.dob is not None:
+                gymnast.age = (cutoff - gymnast.dob) // timedelta(days=365.2425)
+                gymnast.save()
+                rows_updated += 1
+
+        if rows_updated == 1:
+            message_bit = '1 gymnast was'
+        else:
+            message_bit = '{} gymnasts were'.format(rows_updated)
+        messages.success(request, '{} updated'.format(message_bit))
+        # except:
+        #     messages.error("Something bad happened, sorry!")
+
+    update_age.short_description = "Update gymnasts competition age"
 
 # class AthleteAdmin(admin.ModelAdmin):
 #     inlines = (AthleteEventInlineAdmin, )
