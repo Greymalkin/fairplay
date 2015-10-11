@@ -12,7 +12,8 @@ from django.core.urlresolvers import reverse
 from grappelli.dashboard import modules, Dashboard
 from grappelli.dashboard.utils import get_admin_site_name
 
-from gymnastics.models import Session, Event, Athlete
+from competition.models import Session, Event
+from registration.models import Gymnast
 
 roster_html = """
 <script src="/static/js/jquery.ocupload-min.js"></script>
@@ -53,13 +54,13 @@ class CustomIndexDashboard(Dashboard):
             column=1,
             collapsible=False,
             models=(
-                'gymnastics.models.Event',
-                'gymnastics.models.Group',
-                'gymnastics.models.Team',
-                'gymnastics.models.Athlete',
-                'gymnastics.models.TeamAward',
-                'gymnastics.models.Session',
-                'gymnastics.models.Message',
+                'competition.models.Event',
+                'competition.models.Division',
+                # 'competition.models.Team',
+                # 'competition.models.Athlete',
+                'competition.models.TeamAward',
+                'competition.models.Session',
+                'competition.models.Message',
                 ),
         ))
 
@@ -71,8 +72,8 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             models=(
                 'django.contrib.*',
-                'gymnastics.models.LEDSign',
-                'gymnastics.models.Meet',),
+                'competition.models.LEDSign',
+                'competition.models.Meet',),
         ))
 
         self.children.append(modules.LinkList(
@@ -117,7 +118,7 @@ class CustomIndexDashboard(Dashboard):
             for event in Event.objects.all():
                 count = Athlete.objects.filter(group__session__id=session.id, starting_event=event).count()
                 header += '<th>{}</th>'.format(event.initials)
-                link = '/admin/gymnastics/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
+                link = '/admin/competition/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
                 counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
             self.children.append(modules.LinkList(

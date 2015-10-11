@@ -9,7 +9,7 @@ from django.views.generic import TemplateView
 from rest_framework import viewsets
 from . import models
 from meet import models as meetconfig
-
+from registration.models import Gymnast, Team
 from . import serializers
 
 from ledsign.bigdot import BigDot
@@ -39,7 +39,7 @@ def led_sign(request):
 
 @csrf_exempt
 def download_roster(request):
-    athletes = models.Athlete.objects.all().order_by('group', 'athlete_id').exclude(scratched=True)
+    athletes = Athlete.objects.all().order_by('division', 'athlete_id').exclude(scratched=True, athlete_id=None)
     events = models.Event.objects.all()
 
     response = HttpResponse(content_type='text/csv')
@@ -70,8 +70,8 @@ def download_roster(request):
             athlete.first_name,
             athlete.last_name,
             athlete.team.name,
-            athlete.group.level,
-            athlete.group.age_group,
+            athlete.division.level,
+            athlete.division.age_division,
             athlete.athlete_id,
             starting_event]
 
@@ -97,23 +97,23 @@ class SessionCeremonyView(TemplateView):
 
         # start populating the context
         context['session'] = session
-        context['groups'] = []
+        context['divisions'] = []
         context['events'] = models.Event.objects.all()
         context['rankings'] = {}
 
-        for group in session.groups.all().order_by('order'):
+        for division in session.divisions.all().order_by('min_age'):
             leaderboards = []
 
-            # group per event leaderboard
+            # division per event leaderboard
             for event in models.Event.objects.all():
                 leaderboard = []
-                athlete_events = models.AthleteEvent.objects.filter(event=event, athlete__group=group).order_by("rank")
+                athlete_events = models.AthleteEvent.objects.filter(event=event, athlete__division=division).order_by("rank")
                 total_count = len(athlete_events)
                 award_count = math.ceil(total_count * meet_settings.event_award_percentage)
                 if total_count == 2:
                     award_count = 1
 
-                print('{} {} rankings for {} places out of {} total'.format(group, event.name, award_count, total_count))
+                print('{} {} rankings for {} places out of {} total'.format(division, event.name, award_count, total_count))
 
                 for a in athlete_events[:award_count]:
                     if a.score is not None and a.score != 0:
@@ -128,20 +128,20 @@ class SessionCeremonyView(TemplateView):
 
                 leaderboards.append({'event': event.name,
                                      'initials': event.initials,
-                                     'level': group.level,
-                                     'age_group': group.age_group,
+                                     'level': division.level,
+                                     'age_division': division.age_division,
                                      'athletes': leaderboard})
 
-            # overall leaderboard for group
+            # overall leaderboard for division
             leaderboard = []
-            athletes = models.Athlete.objects.filter(group=group, scratched=False, overall_score__isnull=False).order_by("rank")
+            athletes = models.Athlete.objects.filter(division=division, scratched=False, overall_score__isnull=False).order_by("rank")
             total_count = len(athletes)
             award_count = math.ceil(total_count * meet_settings.all_around_award_percentage)
 
             if total_count == 2:
                 award_count = 1
 
-            print('{} All-Around rankings for {} places out of {} total'.format(group, award_count, total_count))
+            print('{} All-Around rankings for {} places out of {} total'.format(division, award_count, total_count))
 
             for a in athletes[:award_count]:
                 if a.overall_score is not None and a.overall_score != 0:
@@ -155,18 +155,18 @@ class SessionCeremonyView(TemplateView):
                     })
             leaderboards.append({'event': 'Overall',
                                  'initials': "overall",
-                                 'level': group.level,
-                                 'age_group': group.age_group,
+                                 'level': division.level,
+                                 'age_division': division.age_division,
                                  'athletes': leaderboard})
 
             # individual leaderboards
             info = {}
-            info['group'] = group
+            info['division'] = division
             info['rankings'] = leaderboards
-            context['groups'].append(info)
+            context['divisions'].append(info)
 
         team_awards = []
-        for team_award in models.TeamAward.objects.filter(groups__in=session.groups.all()).distinct():
+        for team_award in models.TeamAward.objects.filter(divisions__in=session.divisions.all()).distinct():
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
             for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
@@ -191,10 +191,10 @@ class SessionIndividualView(TemplateView):
         # calculate_session_ranking(context['session'])
 
         context['events'] = models.Event.objects.all()
-        context['groups'] = []
-        for group in context['session'].groups.all().order_by('order'):
+        context['divisions'] = []
+        for division in context['session'].divisions.all().order_by('order'):
             athletes = []
-            for athlete in group.athletes.filter(rank__gt=0).order_by('rank'):
+            for athlete in division.athletes.filter(rank__gt=0).order_by('rank'):
                 events = []
                 for athlete_event in models.AthleteEvent.objects.filter(athlete=athlete).order_by('event__order'):
                     score = athlete_event.score
@@ -203,7 +203,7 @@ class SessionIndividualView(TemplateView):
                     events.append({'score': score, 'rank': athlete_event.rank})
 
                 athletes.append({'info': athlete, 'events': events})
-            context['groups'].append({'info': group, 'athletes': athletes})
+            context['divisions'].append({'info': division, 'athletes': athletes})
 
         return context
 
@@ -219,7 +219,7 @@ class SessionTeamView(TemplateView):
         # calculate_session_ranking(context['session'])
 
         team_awards = []
-        for team_award in models.TeamAward.objects.filter(groups__in=context['session'].groups.all()).distinct():
+        for team_award in models.TeamAward.objects.filter(divisions__in=context['session'].divisions.all()).distinct():
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
             for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
@@ -245,7 +245,7 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = models.Team.objects.all()
+    queryset = Team.objects.all()
     serializer_class = serializers.TeamSerializer
 
 
@@ -253,7 +253,7 @@ class AthleteViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = models.Athlete.objects.all()
+    queryset = Gymnast.objects.all()
     serializer_class = serializers.AthleteSerializer
 
 

@@ -12,16 +12,17 @@ def multikeysort(items, columns):
     return result
 
 
-def update_group_ranking(group):
+def update_division_ranking(division):
     from . import models
+    from registration import Gymnast
 
-    # All athletes in group (age division), including their event score, overall score, and max score
-    group_athletes = models.AthleteEvent.objects.filter(athlete__group=group).annotate(total_score=Sum('athlete__events__score'), max_score=Max('athlete__events__score'))
+    # All athletes in division (age division), including their event score, overall score, and max score
+    division_athletes = models.AthleteEvent.objects.filter(athlete__division=division).annotate(total_score=Sum('athlete__events__score'), max_score=Max('athlete__events__score'))
 
     for event in models.Event.objects.all():
         athletes = []
         # Sub Select for athletes in a single event.
-        for a in group_athletes.filter(event=event).order_by('-score', '-total_score', '-max_score'):
+        for a in division_athletes.filter(event=event).order_by('-score', '-total_score', '-max_score'):
             athlete = {
                 'athlete_id': a.athlete.athlete_id,
                 'last_name': a.athlete.last_name,
@@ -65,9 +66,9 @@ def update_group_ranking(group):
                 athlete['athlete_event'].rank = rank
                 athlete['athlete_event'].save(update_fields=('rank', ))
 
-    # make a list of all athletes in this group
+    # make a list of all athletes in this division
     athletes = []
-    for a in models.Athlete.objects.filter(group=group):
+    for a in Gymnast.objects.filter(division=division):
         athlete = {
             'athlete_id': a.athlete_id,
             'last_name': a.last_name,
@@ -96,7 +97,7 @@ def update_group_ranking(group):
         athlete['score'] = athlete['total_score']
 
         # save rank/score data for overall
-        a = models.Athlete.objects.get(athlete_id=athlete['athlete_id'])
+        a = Gymnast.objects.get(athlete_id=athlete['athlete_id'])
         a.overall_score = athlete['score']
         a.rank = athlete['rank']
         a.save()
@@ -117,7 +118,7 @@ def update_team_ranking():
                     event=event,
                     athlete__team=t
                 ).filter(
-                    athlete__group__in=team_award.groups.all(),
+                    athlete__division__in=team_award.divisions.all(),
                     score__isnull=False
                 ).order_by("-score")[:3]
 

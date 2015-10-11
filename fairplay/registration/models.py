@@ -1,9 +1,12 @@
 from django.db import models
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
+from meet.models import Meet
+# from competition.models import Division
 
 
 class Team(models.Model):
+    meet = models.ForeignKey(Meet, related_name='teams')
     gym = models.CharField(max_length=100, help_text="ex. Fairland Boys Gymnastics")
     team = models.CharField(max_length=100, blank=True, default="", help_text="ex. Fairland")
     address_1 = models.CharField('Address 1', max_length=100, blank=True, null=True)
@@ -33,6 +36,8 @@ class Team(models.Model):
     registration_complete = models.DateTimeField('Date Registration Form Completed', blank=True, null=True)
     paid_in_full = models.BooleanField('Paid In Full?', default=False)
     notes = models.TextField(blank=True, null=True)
+    qualified = models.BooleanField(default=True, help_text="Qualifies for team awards")
+
 
     class Meta:
         verbose_name = 'Team'
@@ -95,6 +100,7 @@ class Person(models.Model):
 
 
 class Coach(Person):
+    meet = models.ForeignKey(Meet, related_name='coaches')
     team = models.ForeignKey(Team, related_name="coaches")
     usag_expire_date = models.DateField('USAG Expires', blank=True, null=True)
     safety_expire_date = models.DateField('Safety Expires', blank=True, null=True)
@@ -106,6 +112,7 @@ class Coach(Person):
 
 
 class Gymnast(Person):
+    meet = models.ForeignKey(Meet, related_name='gymnasts')
     team = models.ForeignKey(Team, related_name="gymnasts")
     dob = models.DateField(blank=True, null=True)
     age = models.PositiveSmallIntegerField('Age', blank=True, null=True, help_text='Competitive Age (as of 9/1)')
@@ -128,6 +135,12 @@ class Gymnast(Person):
     tshirt = models.CharField('T-Shirt Size', max_length=20, blank=True, null=True, choices=TSHIRT_SIZES)
     level = models.ForeignKey('Level', blank=True, null=True)
     is_scratched = models.BooleanField('Scratched?', default=False)
+    division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True)
+    starting_event = models.ForeignKey('competition.Event', null=True, blank=True)
+    overall_score = models.FloatField(null=True)
+    rank = models.PositiveSmallIntegerField(null=True)
+    athlete_id = models.PositiveSmallIntegerField(unique=True, blank=True, null=True, verbose_name='Athlete ID', help_text='For use during competition')
+
 
     class Meta:
         verbose_name_plural = 'Gymnasts'
@@ -140,7 +153,16 @@ class Gymnast(Person):
         return "{3}{1}, {0} (L{2}) {4}".format(self.first_name, self.last_name, self.level, flagged, usag)
 
 
+    def session(self):
+        return ""
+
+    # def __str__(self):
+    #     return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
+
+
+
 class Level(models.Model):
+    meet = models.ForeignKey(Meet, related_name='levels')
     level = models.CharField(max_length=5)
     order = models.PositiveSmallIntegerField(default=0)
 
@@ -151,6 +173,47 @@ class Level(models.Model):
 
     def __str__(self):
         return self.level
+
+
+class GymnastPricing(models.Model):
+    meet = models.ForeignKey(Meet, related_name='gymnast_pricing')
+    price = models.PositiveSmallIntegerField(primary_key=True)
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = 'Pricing'
+        verbose_name_plural = 'Pricing'
+        ordering = ['name']
+
+    def __str__(self):
+        return name
+
+
+class LevelPricing(models.Model):
+    meet = models.ForeignKey(Meet, related_name='level_pricing')
+    price = models.PositiveSmallIntegerField(primary_key=True)
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = 'Pricing'
+        verbose_name_plural = 'Pricing'
+        ordering = ['name']
+
+    def __str__(self):
+        return name
+
+
+class ShirtSize(models.Model):
+    abbr = models.CharField(max_length=10, primary_key=True)
+    name = models.CharField(max_length=50)
+
+    class Meta:
+        verbose_name = 'Shirt Size'
+        verbose_name_plural = 'Shirt Sizes'
+
+
+    def __str__(self):
+        return self.name
 
 
 ### Receivers

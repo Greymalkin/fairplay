@@ -1,13 +1,11 @@
 from rest_framework import serializers
-from .models import (
-    LEDSign, Group, Event, Athlete, Team, AthleteEvent, Message,
-    Session
-)
+from . import models
+from competition.models import Gymnast, Team
 
 
 class LEDSignSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LEDSign
+        model = models.LEDSign
         fields = ('sign_id', 'device',)
 
 
@@ -15,41 +13,39 @@ class EventSerializer(serializers.ModelSerializer):
     sign = LEDSignSerializer()
 
     class Meta:
-        model = Event
+        model = models.Event
         fields = ('id', 'name', 'initials', 'sign')
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class DivisionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Group
-        fields = ('id', 'level', 'age_group')
+        model = models.Division
 
 
 class SessionSerializer(serializers.ModelSerializer):
-    groups = GroupSerializer(many=True)
+    divisions = DivisionSerializer(many=True)
 
     class Meta:
-        model = Session
-        fields = ('id', 'name', 'groups',)
+        model = models.Session
 
 
 class AthleteEventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AthleteEvent
+        model = models.AthleteEvent
         fields = ('id', 'event', 'score', )
 
 
 class AthleteSerializer(serializers.ModelSerializer):
-    group = GroupSerializer()
+    division = DivisionSerializer()
     events = AthleteEventSerializer(many=True)
 
     class Meta:
-        model = Athlete
-        fields = ('id', 'athlete_id', 'last_name', 'first_name', 'group', 'events', 'starting_event')
+        model = Gymnast
+        fields = ('id', 'athlete_id', 'last_name', 'first_name', 'division', 'events', 'starting_event')
 
 
 class TeamSerializer(serializers.ModelSerializer):
-    athletes = AthleteSerializer(many=True)
+    athletes = AthleteSerializer(many=True, source='gymnasts')
 
     class Meta:
         model = Team
@@ -58,5 +54,5 @@ class TeamSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Message
+        model = models.Message
         fields = ('id', 'name', 'message')
