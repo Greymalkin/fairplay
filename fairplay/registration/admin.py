@@ -1,17 +1,32 @@
 from django.conf import settings
 from django.contrib import admin, messages
-from grappelli.forms import GrappelliSortableHiddenMixin
+from django.forms.models import BaseInlineFormSet
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.models import LogEntry
 from django.shortcuts import render
+
+from grappelli.forms import GrappelliSortableHiddenMixin
 
 
 from django.db.models import Count, Sum
 from . import models
 from . import forms as actionforms
 
+from competition.models import Event, GymnastEvent
 
-### Filters
+
+def make_event_action(event):
+    name = 'mark_{}'.format(event.initials)
+
+    def action(modeladmin, req, qset):
+        for item in qset:
+            item.starting_event = event
+            item.save()
+
+    return (action, name, "Set starting event to {}".format(event))
+
+# ## Filters
+
 
 class LevelFilter(SimpleListFilter):
     title = ('Level')
@@ -48,10 +63,17 @@ class CoachMissingUsagFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'none':
-            return queryset.filter(usag='') | queryset.filter(usag__isnull=True) | queryset.filter(usag_expire_date='') | queryset.filter(usag_expire_date__isnull=True) | queryset.filter(safety_expire_date='') | queryset.filter(safety_expire_date=True) | queryset.filter(background_expire_date='') | queryset.filter(background_expire_date=True)
+            return (queryset.filter(usag='')
+                    | queryset.filter(usag__isnull=True)
+                    | queryset.filter(usag_expire_date='')
+                    | queryset.filter(usag_expire_date__isnull=True)
+                    | queryset.filter(safety_expire_date='')
+                    | queryset.filter(safety_expire_date=True)
+                    | queryset.filter(background_expire_date='')
+                    | queryset.filter(background_expire_date=True))
 
+# ## Admins
 
-### Admins
 
 class LevelAdmin(admin.ModelAdmin):
     list_display = ('level', 'order')
@@ -74,13 +96,38 @@ class CoachAdmin(admin.ModelAdmin):
     has_usag.boolean = True
 
 
+class GymnastEventInlineFormset(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super(GymnastEventInlineFormset, self).__init__(*args, **kwargs)
+        self.can_delete = False
+
+
+class GymnastEventInlineAdmin(admin.TabularInline):
+    model = GymnastEvent
+    formset = GymnastEventInlineFormset
+    extra = 0
+    max_num = 0
+    readonly_fields = ('event', )
+    fields = ('event', 'score',)
+
+
 class GymnastAdmin(admin.ModelAdmin):
+    inlines = (GymnastEventInlineAdmin, )
     list_display = ('last_name', 'first_name', 'usag', 'team', 'level', 'age', 'dob', 'tshirt', 'is_scratched', 'is_flagged', 'is_verified')
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
     search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
-    autocomplete_lookup_fields = {'fk': ['team']}
     actions = ['set_tshirt_action', 'set_verified']
+    autocomplete_lookup_fields = {'fk': ['team']}
+
+    def get_actions(self, request):
+        actions = super(GymnastAdmin, self).get_actions(request)
+
+        for event in Event.objects.all():
+            action = make_event_action(event)
+            actions[action[1]] = action
+
+        return actions
 
     def set_tshirt_action(self, request, queryset):
         if 'do_action' in request.POST:
@@ -94,10 +141,10 @@ class GymnastAdmin(admin.ModelAdmin):
             form = actionforms.ShirtChoiceForm()
 
         return render(request, 'admin/registration/action_tshirt.html',
-            {'title': u'Choose tshirt size',
-                'objects': queryset,
-                'form': form
-            })
+                      {'title': u'Choose tshirt size',
+                       'objects': queryset,
+                       'form': form})
+
     set_tshirt_action.short_description = u'Update tshirt size of selected gymnast'
 
     def set_verified(self, request, queryset):

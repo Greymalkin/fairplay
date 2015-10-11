@@ -249,20 +249,20 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.TeamSerializer
 
 
-class AthleteViewSet(viewsets.ReadOnlyModelViewSet):
+class GymnastViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
     queryset = Gymnast.objects.all()
-    serializer_class = serializers.AthleteSerializer
+    serializer_class = serializers.GymnastSerializer
 
 
-class AthleteEventViewSet(viewsets.ModelViewSet):
+class GymnastEventViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = models.AthleteEvent.objects.all()
-    serializer_class = serializers.AthleteEventSerializer
+    queryset = models.GymnastEvent.objects.all()
+    serializer_class = serializers.GymnastEventSerializer
 
 
 class MessageViewSet(viewsets.ReadOnlyModelViewSet):

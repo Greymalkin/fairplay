@@ -50,7 +50,7 @@ class Division(models.Model):
         age_division = self.min_age
         if self.min_age != self.max_age:
             age_division = '{}-{}'.format(self.min_age, self.max_age)
-        return age_division        
+        return age_division
 
 
 class Session(models.Model):
@@ -82,19 +82,19 @@ class TeamAwardRank(models.Model):
     score = models.FloatField(null=True)
 
 
-class AthleteEvent(models.Model):
-    athlete = models.ForeignKey(Gymnast, related_name="events")
-    event = models.ForeignKey(Event, related_name="athletes")
+class GymnastEvent(models.Model):
+    gymnast = models.ForeignKey(Gymnast, related_name="events")
+    event = models.ForeignKey(Event, related_name="gymnasts")
     score = models.FloatField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True)
 
     class Meta():
-        ordering = ['athlete', 'event']
-        unique_together = ('athlete', 'event',)
+        ordering = ['gymnast', 'event']
+        unique_together = ('gymnast', 'event',)
 
     def __str__(self):
         return "{} - {} - {}".format(
-            self.athlete,
+            self.gymnast,
             self.event,
             self.score)
 

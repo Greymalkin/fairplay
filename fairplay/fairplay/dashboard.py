@@ -98,7 +98,7 @@ class CustomIndexDashboard(Dashboard):
         for level in Level.objects.all():
             level_count = Gymnast.objects.filter(level=level).count()
             levels.append({
-                'title': 'Level {} ({} athletes)'.format(level.level, level_count),
+                'title': 'Level {} ({} gymnasts)'.format(level.level, level_count),
                 'url': 'registration/gymnast/?level__id__exact={}'.format(level.id),
                 'external': False,
             })
@@ -109,39 +109,39 @@ class CustomIndexDashboard(Dashboard):
             children=levels,
         ))
 
-        # sessions = Session.objects.all()
-        # for session in sessions:
-        #     links = []
-        #     links.append({
-        #         'title': 'Awards Ceremony',
-        #         'url': '/results/ceremony/{}'.format(session.id),
-        #         'external': False,
-        #         })
-        #     links.append({
-        #         'title': 'Individual Results',
-        #         'url': '/results/individual/{}'.format(session.id),
-        #         'external': False,
-        #         })
-        #     links.append({
-        #         'title': 'Team Results',
-        #         'url': '/results/team/{}'.format(session.id),
-        #         'external': False,
-        #         })
+        sessions = Session.objects.all()
+        for session in sessions:
+            links = []
+            links.append({
+                'title': 'Awards Ceremony',
+                'url': '/results/ceremony/{}'.format(session.id),
+                'external': False,
+                })
+            links.append({
+                'title': 'Individual Results',
+                'url': '/results/individual/{}'.format(session.id),
+                'external': False,
+                })
+            links.append({
+                'title': 'Team Results',
+                'url': '/results/team/{}'.format(session.id),
+                'external': False,
+                })
 
-        #     header = ""
-        #     counts = ""
-        #     for event in Event.objects.all():
-        #         count = Gymnast.objects.filter(group__session__id=session.id, starting_event=event).count()
-        #         header += '<th>{}</th>'.format(event.initials)
-        #         link = '/admin/gymnastics/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
-        #         counts += '<td><a href="{}">{}</a></td>'.format(link, count)
+            header = ""
+            counts = ""
+            for event in Event.objects.all():
+                count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event).count()
+                header += '<th>{}</th>'.format(event.initials)
+                link = '/admin/gymnastics/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
+                counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
-        #     self.children.append(modules.LinkList(
-        #         _(session.name),
-        #         column=2,
-        #         children=links,
-        #         post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
-        #     ))
+            self.children.append(modules.LinkList(
+                _(session.name),
+                column=2,
+                children=links,
+                post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
+            ))
 
         # append a recent actions module
         self.children.append(

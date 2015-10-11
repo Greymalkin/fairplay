@@ -38,11 +38,10 @@ class SessionFilter(admin.SimpleListFilter):
             return queryset
 
 
-class AthleteEventAdmin(admin.ModelAdmin):
-    fields = ('athlete', 'event', 'score',)
-    list_display = ('athlete', 'event', 'score',)
-    search_fields = ['athlete', 'id', ]
-
+class GymnastEventAdmin(admin.ModelAdmin):
+    fields = ('gymnast', 'event', 'score',)
+    list_display = ('gymnast', 'event', 'score',)
+    search_fields = ['gymnast', 'id', ]
 
 
 class DivisionAdmin(admin.ModelAdmin):
@@ -68,10 +67,9 @@ class SessionAdmin(admin.ModelAdmin):
     filter_horizontal = ('divisions',)
 
 
-
 admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
 admin.site.register(models.Event, EventAdmin)
-admin.site.register(models.AthleteEvent, AthleteEventAdmin)
+admin.site.register(models.GymnastEvent, GymnastEventAdmin)
 admin.site.register(models.Message, MessageAdmin)
 admin.site.register(models.Session, SessionAdmin)

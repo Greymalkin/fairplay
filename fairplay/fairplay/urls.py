@@ -7,7 +7,7 @@ router = DefaultRouter()
 router.register(r'events', competition.views.EventViewSet)
 # router.register(r'teams', competition.views.TeamViewSet)
 # router.register(r'athletes', competition.views.AthleteViewSet)
-router.register(r'athleteevents', competition.views.AthleteEventViewSet)
+router.register(r'gymnastevents', competition.views.GymnastEventViewSet)
 router.register(r'messages', competition.views.MessageViewSet)
 router.register(r'sessions', competition.views.SessionViewSet)
 
