@@ -1,4 +1,6 @@
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import pre_save
 from meet.models import Meet
 from registration.models import Team, Gymnast, Level
 from . import ranking

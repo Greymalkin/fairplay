@@ -7,5 +7,5 @@ class ShirtChoiceForm(forms.ModelForm):
 
     class Meta:
         model = models.Gymnast
-        fields = ('tshirt',)
+        fields = ('shirt',)
 
