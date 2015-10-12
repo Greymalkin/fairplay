@@ -10,10 +10,3 @@ class ShirtChoiceForm(forms.ModelForm):
         fields = ('shirt',)
 
 
-class AgeForm(forms.ModelForm):
-    pass
-
-    class Meta:
-        model = models.Gymnast
-        fields = ('age',)
-
