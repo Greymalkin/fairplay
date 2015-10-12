@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from grappelli.dashboard import modules, Dashboard
 from grappelli.dashboard.utils import get_admin_site_name
 
+from meet.models import Meet
 from competition.models import Session, Event
 from registration.models import Gymnast, Level
 
@@ -94,20 +95,32 @@ class CustomIndexDashboard(Dashboard):
             post_content=roster_html
         ))
 
-        levels = []
-        for level in Level.objects.all():
-            level_count = Gymnast.objects.filter(level=level).count()
-            levels.append({
-                'title': 'Level {} ({} gymnasts)'.format(level.level, level_count),
-                'url': 'registration/gymnast/?level__id__exact={}'.format(level.id),
-                'external': False,
-            })
+        try:
+            athlete_info = ""
+            for level in Level.objects.all():
+                meet = Meet.objects.get(is_current_meet=True)
+                level_count = Gymnast.objects.filter(meet=meet, level=level).count()
+                athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
+                for age in range(4, 18):
+                    age_count = Gymnast.objects.filter(meet=meet, level=level, age=age).count()
+                    if age_count > 0:
+                        athlete_info += "<li>{}yo ({} athletes)</li>".format(age, age_count)
 
-        self.children.append(modules.LinkList(
-            _('Registrants'),
-            column=3,
-            children=levels,
-        ))
+                age_count = Gymnast.objects.filter(meet=meet, level=level, age=None).count()
+                if age_count > 0:
+                    athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
+                athlete_info += "</ul></p>"
+
+            self.children.append(modules.LinkList(
+                _('Meet Breakdown'),
+                column=3,
+                children=(),
+                post_content=athlete_info,
+                css_classes=('grp-closed',),
+            ))
+        except:
+            # no meet set, whoops
+            pass
 
         sessions = Session.objects.all()
         for session in sessions:
