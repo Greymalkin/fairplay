@@ -8,8 +8,8 @@ class Meet(models.Model):
     short_name = models.CharField(max_length=100, blank=False, null=False)
     host = models.CharField(max_length=200, blank=False, null=False)
     date = models.DateField()
-    event_award_percentage = models.FloatField('Event %age', default=0.5, help_text="How many medals we are going to give. This is a percentage value and applies to all divisions in the entire meet.")
-    all_around_award_percentage = models.FloatField('AA %age', default=0.5)
+    event_award_percentage = models.FloatField('Event Awards', default=0.5, help_text="This is a percentage value and applies to all divisions in the entire meet. How many awards will we give per event?")
+    all_around_award_percentage = models.FloatField('AA Awards', default=0.5, help_text="Percentage value.  How many athletes in All Around will get medals?")
     is_current_meet = models.BooleanField('Current Meet?', default=False)
 
     max_sessions_per_day = models.IntegerField(
@@ -24,6 +24,7 @@ class Meet(models.Model):
         "Session threshold, maximum number",
         default=15,
         help_text="Just because the maxiumum number has been met doesn't mean we'll absolutely stop registering gymnasts, but we should know we are in a situation. We might do want to stop registration for this level/division, depending on how other numbers look.")
+    notes = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Meet'
