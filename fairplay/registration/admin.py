@@ -1,4 +1,8 @@
+import requests
+from datetime import date, timedelta
+from dateutil import parser
 from django.conf import settings
+from django.db.models import Count, Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
@@ -8,19 +12,10 @@ from django.contrib.admin.models import LogEntry
 from django.shortcuts import render
 
 from grappelli.forms import GrappelliSortableHiddenMixin
-
-from datetime import date, timedelta
-
-import requests
-from dateutil import parser
-
-
-from django.db.models import Count, Sum
 from meet.models import Meet
+from competition.models import Event, GymnastEvent
 from . import models
 from . import forms as actionforms
-
-from competition.models import Event, GymnastEvent
 
 
 def make_event_action(event):
@@ -98,7 +93,7 @@ class LevelAdmin(admin.ModelAdmin):
 class CoachAdmin(admin.ModelAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag', 'is_verified')
     list_filter = (CoachMissingUsagFilter, 'team')
-    search_fields = ('last_name', 'first_name')
+    search_fields = ('last_name', 'first_name', 'usag')
     raw_id_fields = ('team',)
     autocomplete_lookup_fields = {'fk': ['team']}
     exclude = ('meet',)
@@ -136,7 +131,7 @@ class GymnastEventInlineAdmin(admin.TabularInline):
 class GymnastAdmin(admin.ModelAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'show_team', 'level', 'age', 'dob', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
-    search_fields = ('last_name', 'first_name')
+    search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     raw_id_fields = ('team',)
     actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified']
     autocomplete_lookup_fields = {'fk': ['team']}
@@ -159,7 +154,7 @@ class GymnastAdmin(admin.ModelAdmin):
             if form.is_valid():
                 shirt = form.cleaned_data.get('shirt')
                 updated = queryset.update(shirt=shirt)
-                messages.success(request, '{} gymnasts were updated'.format(updated))
+                messages.success(request, '{} gymnasts\' shirt sizes were updated'.format(updated))
                 return
         else:
             form = actionforms.ShirtChoiceForm()
@@ -288,11 +283,11 @@ class GymnastAdmin(admin.ModelAdmin):
                 rows_updated += 1
 
         if rows_updated == 1:
-            message_bit = '1 gymnast was'
+            message_bit = '1 gymnast\'s competition age was'
         else:
-            message_bit = '{} gymnasts were'.format(rows_updated)
+            message_bit = '{} gymnasts\' competition ages were'.format(rows_updated)
         messages.success(request, '{} updated'.format(message_bit))
-    update_age.short_description = "Update gymnasts competition age"
+    update_age.short_description = "Update gymnast competition age"
 
 # class AthleteAdmin(admin.ModelAdmin):
 #     inlines = (AthleteEventInlineAdmin, )
@@ -396,9 +391,9 @@ class GymnastInline(admin.StackedInline):
 
 
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'notes')
+    list_display = ('team', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'notes')
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
-    search_fields = ('gym', 'first_name', 'last_name')
+    search_fields = ('gym', 'team', 'usag')
     filter_horizontal = ('levels',)
     inlines = [CoachInline, GymnastInline]
     fieldsets = ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),
