@@ -11,6 +11,9 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 
 from datetime import date, timedelta
 
+import requests
+from dateutil import parser
+
 
 from django.db.models import Count, Sum
 from meet.models import Meet
@@ -135,7 +138,7 @@ class GymnastAdmin(admin.ModelAdmin):
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
     search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
-    actions = ['update_age', 'set_shirt_action', 'set_verified']
+    actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified']
     autocomplete_lookup_fields = {'fk': ['team']}
     exclude = ('meet',)
 
@@ -164,6 +167,93 @@ class GymnastAdmin(admin.ModelAdmin):
                 'form': form})
 
     set_shirt_action.short_description = u'Update shirt size of selected gymnast'
+
+    def verify_with_usag(self, request, queryset):
+        credentials = {
+            'user': settings.USAG_USER,
+            'pass': settings.USAG_PASS
+        }
+
+        members = []
+
+        for member in queryset:
+            members.append(member.usag)
+
+        usag_max = settings.USAG_MAX_VERIFY
+        chunks = [members[x:x+usag_max] for x in range(0, len(members), usag_max)]
+
+        verified_count = 0
+        failed_count = 0
+
+        with requests.Session() as s:
+            login = s.post(settings.USAG_LOGIN_URL, credentials)
+
+            if login.status_code == 200:
+                for chunk in chunks:
+
+                    member_data = settings.USAG_VERIFY_DATA.copy()
+                    member_data['memNumbers'] = ','.join(chunk)
+
+                    r = s.post(settings.UASG_VERIFY_URL, member_data)
+                    s.headers.update({'Accept': 'application/json, text/javascript, */*;'})
+
+                    try:
+                        rows = r.json()['aaData']
+
+                        for row in rows:
+                            (usag_id, last_name, first_name, dob, level, club_id, club, status) = row
+
+                            try:
+                                level = int(level[6:])
+                            except:
+                                level = None
+
+                            dob = parser.parse(dob).date()
+
+                            try:
+                                gymnast = models.Gymnast.objects.get(usag=usag_id)
+
+                                notes = ""
+
+                                valid = True
+
+                                if last_name.lower() != gymnast.last_name.lower():
+                                    valid = False
+                                    notes += "Last name does not match USAG last name (USAG: {})\n".format(last_name)
+
+                                if dob != gymnast.dob:
+                                    valid = False
+                                    notes += "Date of birth does not match USAG date of birth (USAG: {})\n".format(dob)
+
+                                if level != int(gymnast.level.level):
+                                    valid = False
+                                    notes += "Level does not match USAG level (USAG: {})\n".format(level)
+
+                                if status.lower() != 'active':
+                                    valid = False
+                                    notes += "USAG member is not active (USAG: {})\n".format(status)
+
+                                gymnast.notes = notes
+                                gymnast.is_verified = valid
+                                gymnast.is_flagged = not valid
+                                gymnast.save()
+
+                                if (valid):
+                                    verified_count += 1
+                                else:
+                                    failed_count += 1
+
+                            except:
+                                failed_count += 1
+
+                    except:
+                        messages.error(request, 'Could not parse data from USAG verification service!')
+
+                messages.success(request, 'Verified {} gymnasts, flagged {} gymnasts for review'.format(verified_count, failed_count))
+            else:
+                messages.error(request, 'Could not connect with USAG verification service. Check credentials.')
+
+    verify_with_usag.short_description = "Verify selected gymnasts with USAG"
 
     def set_verified(self, request, queryset):
         rows_updated = queryset.update(is_verified=True)
