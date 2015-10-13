@@ -1,4 +1,7 @@
+from datetime import date, timedelta
+
 from django.conf import settings
+from django.db.models import Count, Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
@@ -8,16 +11,10 @@ from django.contrib.admin.models import LogEntry
 from django.shortcuts import render
 
 from grappelli.forms import GrappelliSortableHiddenMixin
-
-from datetime import date, timedelta
-
-
-from django.db.models import Count, Sum
 from meet.models import Meet
+from competition.models import Event, GymnastEvent
 from . import models
 from . import forms as actionforms
-
-from competition.models import Event, GymnastEvent
 
 
 def make_event_action(event):
@@ -156,7 +153,7 @@ class GymnastAdmin(admin.ModelAdmin):
             if form.is_valid():
                 shirt = form.cleaned_data.get('shirt')
                 updated = queryset.update(shirt=shirt)
-                messages.success(request, '{} gymnasts were updated'.format(updated))
+                messages.success(request, '{} gymnasts\' shirt sizes were updated'.format(updated))
                 return
         else:
             form = actionforms.ShirtChoiceForm()
@@ -198,11 +195,11 @@ class GymnastAdmin(admin.ModelAdmin):
                 rows_updated += 1
 
         if rows_updated == 1:
-            message_bit = '1 gymnast was'
+            message_bit = '1 gymnast\'s competition age was'
         else:
-            message_bit = '{} gymnasts were'.format(rows_updated)
+            message_bit = '{} gymnasts\' competition ages were'.format(rows_updated)
         messages.success(request, '{} updated'.format(message_bit))
-    update_age.short_description = "Update gymnasts competition age"
+    update_age.short_description = "Update gymnasts' competition age"
 
 # class AthleteAdmin(admin.ModelAdmin):
 #     inlines = (AthleteEventInlineAdmin, )
