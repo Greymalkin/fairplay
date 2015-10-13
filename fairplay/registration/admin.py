@@ -134,7 +134,7 @@ class GymnastEventInlineAdmin(admin.TabularInline):
 
 
 class GymnastAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'usag', 'team', 'level', 'age', 'dob', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
+    list_display = ('last_name', 'first_name', 'usag', 'show_team', 'level', 'age', 'dob', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
     search_fields = ('last_name', 'first_name')
     raw_id_fields = ('team',)
@@ -147,6 +147,11 @@ class GymnastAdmin(admin.ModelAdmin):
         qs = super(GymnastAdmin, self).get_queryset(request)
         meet = Meet.objects.filter(is_current_meet=True)
         return qs.filter(meet=meet)
+
+    def show_team(self, obj):
+        return obj.team.team
+    show_team.short_description = "Team"
+    show_team.admin_order_field = 'team__team'
 
     def set_shirt_action(self, request, queryset):
         if 'do_action' in request.POST:
@@ -267,7 +272,6 @@ class GymnastAdmin(admin.ModelAdmin):
 
     def update_age(self, request, queryset):
         rows_updated = 0
-        # try:
         meet = Meet.objects.get(is_current_meet=True)
 
         if meet.date.month > 8:
@@ -288,9 +292,6 @@ class GymnastAdmin(admin.ModelAdmin):
         else:
             message_bit = '{} gymnasts were'.format(rows_updated)
         messages.success(request, '{} updated'.format(message_bit))
-        # except:
-        #     messages.error("Something bad happened, sorry!")
-
     update_age.short_description = "Update gymnasts competition age"
 
 # class AthleteAdmin(admin.ModelAdmin):

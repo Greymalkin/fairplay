@@ -9,3 +9,4 @@ class ShirtChoiceForm(forms.ModelForm):
         model = models.Gymnast
         fields = ('shirt',)
 
+

@@ -50,7 +50,7 @@ class Team(models.Model):
         if self.levels.filter(level__exact=10).count() == 1 and self.levels.filter(level__exact=9).count() == 1:
             self.level_cost = self.per_level_cost.price * (num_levels - 1)
         elif num_levels > 0:
-            self.level_cost = self.per_level_cost * num_levels
+            self.level_cost = self.per_level_cost.price * num_levels
         else:
             self.level_cost = 0
         return self.level_cost
@@ -197,15 +197,15 @@ class ShirtSize(models.Model):
 
 ### Receivers
 
-# @receiver(m2m_changed, sender=Team.levels.through)
-# def level_costs(sender, instance, **kwargs):
-#     instance.level_cost = instance.calc_level_cost()
-#     instance.total_cost = instance.level_cost + instance.gymnast_cost
-#     instance.save()
+@receiver(m2m_changed, sender=Team.levels.through)
+def level_costs(sender, instance, **kwargs):
+    instance.level_cost = instance.calc_level_cost()
+    instance.total_cost = instance.level_cost + instance.gymnast_cost
+    instance.save()
 
 
-# @receiver(post_save, sender=Gymnast)
-# def gymnast_costs(sender, instance, **kwargs):
-#     instance.team.gymnast_cost = instance.team.calc_gymnast_cost()
-#     instance.team.total_cost = instance.team.level_cost + instance.team.gymnast_cost
-#     instance.team.save()
+@receiver(post_save, sender=Gymnast)
+def gymnast_costs(sender, instance, **kwargs):
+    instance.team.gymnast_cost = instance.team.calc_gymnast_cost()
+    instance.team.total_cost = instance.team.level_cost + instance.team.gymnast_cost
+    instance.team.save()
