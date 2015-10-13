@@ -1,14 +1,17 @@
 import requests
+import csv
+
 from datetime import date, timedelta
 from dateutil import parser
 from django.conf import settings
+from django.contrib.admin import SimpleListFilter
+from django.contrib.admin.models import LogEntry
 from django.db.models import Count, Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
 from django.forms.models import BaseInlineFormSet
-from django.contrib.admin import SimpleListFilter
-from django.contrib.admin.models import LogEntry
+from django.http import HttpResponse
 from django.shortcuts import render
 
 from grappelli.forms import GrappelliSortableHiddenMixin
@@ -133,7 +136,7 @@ class GymnastAdmin(admin.ModelAdmin):
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     raw_id_fields = ('team',)
-    actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified']
+    actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified', 'export_as_csv']
     autocomplete_lookup_fields = {'fk': ['team']}
     exclude = ('meet',)
 
@@ -154,7 +157,7 @@ class GymnastAdmin(admin.ModelAdmin):
             if form.is_valid():
                 shirt = form.cleaned_data.get('shirt')
                 updated = queryset.update(shirt=shirt)
-                messages.success(request, '{} gymnasts\' shirt sizes were updated'.format(updated))
+                messages.success(request, '{} gymnasts shirt sizes were updated'.format(updated))
                 return
         else:
             form = actionforms.ShirtChoiceForm()
@@ -252,7 +255,6 @@ class GymnastAdmin(admin.ModelAdmin):
                 messages.success(request, 'Verified {} gymnasts, flagged {} gymnasts for review'.format(verified_count, failed_count))
             else:
                 messages.error(request, 'Could not connect with USAG verification service. Check credentials.')
-
     verify_with_usag.short_description = "Verify selected gymnasts with USAG"
 
     def set_verified(self, request, queryset):
@@ -262,7 +264,6 @@ class GymnastAdmin(admin.ModelAdmin):
         else:
             message_bit = '{} gymnasts were'.format(rows_updated)
         messages.success(request, '{} verified'.format(message_bit))
-
     set_verified.short_description = "Mark selected gymnasts as verified"
 
     def update_age(self, request, queryset):
@@ -285,9 +286,25 @@ class GymnastAdmin(admin.ModelAdmin):
         if rows_updated == 1:
             message_bit = '1 gymnast\'s competition age was'
         else:
-            message_bit = '{} gymnasts\' competition ages were'.format(rows_updated)
+            message_bit = '{} gymnast\'s competition ages were'.format(rows_updated)
         messages.success(request, '{} updated'.format(message_bit))
     update_age.short_description = "Update gymnast competition age"
+
+
+    def export_as_csv(self, request, queryset):
+        """ Generic csv export admin action. """
+        opts = self.model._meta
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(str(opts).replace('.', '_'))
+        writer = csv.writer(response)
+        field_names = [field.name for field in opts.fields]
+        # Write a first row with header information
+        writer.writerow(field_names)
+        # Write data rows
+        for obj in queryset:
+            writer.writerow([getattr(obj, field) for field in field_names])
+        return response
+    export_as_csv.short_description = "Export selected objects as csv file"
 
 # class AthleteAdmin(admin.ModelAdmin):
 #     inlines = (AthleteEventInlineAdmin, )
