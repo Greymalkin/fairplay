@@ -95,7 +95,7 @@ class LevelAdmin(admin.ModelAdmin):
 class CoachAdmin(admin.ModelAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag', 'is_verified')
     list_filter = (CoachMissingUsagFilter, 'team')
-    search_fields = ('last_name', 'first_name')
+    search_fields = ('last_name', 'first_name', 'usag')
     raw_id_fields = ('team',)
     autocomplete_lookup_fields = {'fk': ['team']}
     exclude = ('meet',)
@@ -133,7 +133,7 @@ class GymnastEventInlineAdmin(admin.TabularInline):
 class GymnastAdmin(admin.ModelAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'show_team', 'level', 'age', 'dob', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
-    search_fields = ('last_name', 'first_name')
+    search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     raw_id_fields = ('team',)
     actions = ['update_age', 'set_shirt_action', 'set_verified']
     autocomplete_lookup_fields = {'fk': ['team']}
@@ -306,9 +306,9 @@ class GymnastInline(admin.StackedInline):
 
 
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'notes')
+    list_display = ('team', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'notes')
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
-    search_fields = ('gym', 'first_name', 'last_name')
+    search_fields = ('gym', 'team', 'usag')
     filter_horizontal = ('levels',)
     inlines = [CoachInline, GymnastInline]
     fieldsets = ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),

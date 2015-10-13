@@ -39,7 +39,7 @@ def led_sign(request):
 
 @csrf_exempt
 def download_roster(request):
-    athletes = Athlete.objects.all().order_by('division', 'athlete_id').exclude(scratched=True, athlete_id=None)
+    athletes = models.Gymnast.objects.all().order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
     events = models.Event.objects.all()
 
     response = HttpResponse(content_type='text/csv')
@@ -69,14 +69,14 @@ def download_roster(request):
         row = [
             athlete.first_name,
             athlete.last_name,
-            athlete.team.name,
-            athlete.division.level,
-            athlete.division.age_division,
+            athlete.team.team,
+            '' if not athlete.division else athlete.division.level,
+            '' if not athlete.division else athlete.division.age_division,
             athlete.athlete_id,
             starting_event]
 
         for event in events:
-            row.append(models.AthleteEvent.objects.get(athlete=athlete,
+            row.append(models.GymnastEvent.objects.get(gymnast=athlete,
                                                 event=event).score)
 
         writer.writerow(row)
