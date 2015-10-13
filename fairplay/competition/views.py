@@ -76,7 +76,7 @@ def download_roster(request):
             starting_event]
 
         for event in events:
-            row.append(models.GymnastEvent.objects.get(gymnast=athlete,
+            row.append(models.AthleteEvent.objects.get(gymnast=athlete,
                                                 event=event).score)
 
         writer.writerow(row)
@@ -257,12 +257,12 @@ class GymnastViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.GymnastSerializer
 
 
-class GymnastEventViewSet(viewsets.ModelViewSet):
+class AthleteEventViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = models.GymnastEvent.objects.all()
-    serializer_class = serializers.GymnastEventSerializer
+    queryset = models.AthleteEvent.objects.all()
+    serializer_class = serializers.AthleteEventSerializer
 
 
 class MessageViewSet(viewsets.ReadOnlyModelViewSet):

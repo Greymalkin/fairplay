@@ -84,8 +84,8 @@ class TeamAwardRank(models.Model):
     score = models.FloatField(null=True)
 
 
-class GymnastEvent(models.Model):
-    gymnast = models.ForeignKey(Gymnast, related_name="events")
+class AthleteEvent(models.Model):
+    gymnast = models.ForeignKey('Athlete', related_name="events")
     event = models.ForeignKey(Event, related_name="gymnasts")
     score = models.FloatField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True)
@@ -100,29 +100,30 @@ class GymnastEvent(models.Model):
             self.event,
             self.score)
 
+class AthleteManager(models.Manager):
+    def get_queryset(self):
+        return super(AthleteManager, self).get_queryset().filter(is_scratched=False)  #, athlete_id__isnull=False
 
-# class Athlete(models.Model):
-#     usag_id = models.CharField(max_length=20, unique=True, blank=True, null=True, verbose_name='USAG ID')
-#     athlete_id = models.PositiveSmallIntegerField(unique=True, verbose_name='Athlete ID')
-#     last_name = models.CharField(max_length=100)
-#     first_name = models.CharField(max_length=100)
-#     birth_date = models.DateField(null=True, blank=True)
-#     team = models.ForeignKey(Team, related_name='athletes')
-#     group = models.ForeignKey(Group, related_name='athletes')
-#     position = models.PositiveSmallIntegerField(default=0)
-#     starting_event = models.ForeignKey(Event, null=True, blank=True)
-#     overall_score = models.FloatField(null=True)
-#     rank = models.PositiveSmallIntegerField(null=True)
-#     scratched = models.BooleanField(default=False)
 
-#     class Meta():
-#         ordering = ['last_name', 'first_name', ]
+class Athlete(Gymnast):
+    objects = AthleteManager()
 
-#     def session(self):
-#         return ""
+    class Meta:
+        proxy = True
+        ordering = ['last_name', 'first_name', ]
 
-#     def __str__(self):
-#         return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
+    def __str__(self):
+        return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
+
+    def session(self):
+        return ""
+
+
+class Team(Team):
+    pass
+
+    class Meta:
+        proxy=True
 
 
 class Message(models.Model):

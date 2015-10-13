@@ -30,7 +30,7 @@ class SessionFilter(admin.SimpleListFilter):
     parameter_name = 'session'
 
     def lookups(self, request, model_admin):
-        return [(s.id, s.name) for s in Session.objects.all()]
+        return [(s.id, s.name) for s in models.Session.objects.all()]
 
     def queryset(self, request, queryset):
         if self.value() is not None:
@@ -39,7 +39,100 @@ class SessionFilter(admin.SimpleListFilter):
             return queryset
 
 
-class GymnastEventAdmin(admin.ModelAdmin):
+class AthleteEventInlineFormset(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super(AthleteEventInlineFormset, self).__init__(*args, **kwargs)
+        self.can_delete = False
+
+
+class AthleteEventInlineAdmin(admin.TabularInline):
+    model = models.AthleteEvent
+    formset = AthleteEventInlineFormset
+    extra = 0
+    max_num = 0
+    readonly_fields = ('event', )
+    fields = ('event', 'score',)
+
+
+class AthleteAdmin(admin.ModelAdmin):
+    search_fields = ['athlete_id', 'last_name', 'first_name']
+    inlines = (AthleteEventInlineAdmin, )
+    fields = ('usag_id', 'athlete_id', 'is_scratched', 'last_name', 'first_name',
+              'dob', 'team', 'division', 'starting_event', )
+    list_filter = ('team', 'division', SessionFilter, 'starting_event', 'is_scratched')
+    list_per_page = 50
+
+    def get_actions(self, request):
+        return dict([make_event_action(q) for q in models.Event.objects.all()])
+
+    def session(self, athlete):
+        return models.Session.objects.get(divisions=athlete.division).name
+
+    def get_queryset(self, request):
+        qs = super(AthleteAdmin, self).get_queryset(request)
+        qs = qs.annotate(aa=Sum('events__score'))
+        return qs
+
+    def get_list_display(self, request):
+        result = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'starting_event']
+        events = models.Event.objects.all()
+        result += [e.initials for e in events]
+        result += ['all_around', ]
+        return result
+
+    def all_around(self, obj):
+        return obj.aa
+    all_around.admin_order_field = 'aa'
+    all_around.short_description = 'AA'
+
+    def __getattr__(self, attr):
+        event = models.Event.objects.get(initials=attr)
+
+        def get_score(athlete):
+            return athlete.events.get(event=event).score
+        get_score.short_description = attr.upper()
+        return get_score
+
+    def show_team(self, obj):
+        return obj.team.team
+    show_team.short_description = "Team"
+    show_team.admin_order_field = 'team__team'
+
+
+
+
+class AthleteInlineAdmin(admin.TabularInline):
+    model = models.Athlete
+    extra = 1
+    fields = ('athlete_id', 'last_name', 'first_name', 'starting_event')
+
+
+# class TeamAdmin(admin.ModelAdmin):
+#     inlines = (AthleteInlineAdmin,)
+#     list_display = ('team', 'team_size', 'qualified')
+#     list_display = ('team', 'team_size')
+#     search_fields = ['name', 'id', ]
+#     list_filter = ('qualified',)
+
+#     def queryset(self, request):
+#         qs = super(TeamAdmin, self).get_queryset(request)
+#         qs = qs.annotate(Count('gymnasts'))
+#         return qs
+
+#     def team_size(self, obj):
+#         return obj.gymnasts.all().count()
+#     team_size.admin_order_field = 'team_size'
+
+
+class TeamAwardAdmin(admin.ModelAdmin):
+    list_display = ('name', )
+    filter_horizontal = ('divisions',)
+
+
+
+
+
+class AthleteEventAdmin(admin.ModelAdmin):
     fields = ('gymnast', 'event', 'score',)
     list_display = ('gymnast', 'event', 'score',)
     search_fields = ['gymnast', 'id', ]
@@ -49,6 +142,7 @@ class GymnastEventAdmin(admin.ModelAdmin):
         qs = super(AthleteEventAdmin, self).get_queryset(request)
         meet = models.Meet.objects.filter(is_current_meet=True)
         return qs.filter(event__meet=meet)
+
 
 class DivisionAdmin(admin.ModelAdmin):
     list_display = ('name', 'level', 'min_age', 'max_age')
@@ -61,6 +155,7 @@ class DivisionAdmin(admin.ModelAdmin):
         qs = super(DivisionAdmin, self).get_queryset(request)
         meet = models.Meet.objects.filter(is_current_meet=True)
         return qs.filter(meet=meet)
+
 
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'initials', 'order',)
@@ -98,9 +193,12 @@ class MessageAdmin(admin.ModelAdmin):
 admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
 admin.site.register(models.Event, EventAdmin)
-admin.site.register(models.GymnastEvent, GymnastEventAdmin)
+admin.site.register(models.AthleteEvent, AthleteEventAdmin)
 admin.site.register(models.Message, MessageAdmin)
 admin.site.register(models.Session, SessionAdmin)
+admin.site.register(models.Athlete, AthleteAdmin)
+admin.site.register(models.TeamAward, TeamAwardAdmin)
+
 
 @receiver(pre_save, sender=models.Division)
 @receiver(pre_save, sender=models.Event)

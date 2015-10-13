@@ -1,7 +1,8 @@
 [
 {
-  "model": "gymnastics.event",
+  "model": "competition.event",
   "fields": {
+    "meet": 1,
     "order": 1,
     "sign": 1,
     "initials": "fe",
@@ -10,8 +11,9 @@
   "pk": 1
 },
 {
-  "model": "gymnastics.event",
+  "model": "competition.event",
   "fields": {
+    "meet": 1,
     "order": 2,
     "sign": 2,
     "initials": "sr",
@@ -20,8 +22,9 @@
   "pk": 2
 },
 {
-  "model": "gymnastics.event",
+  "model": "competition.event",
   "fields": {
+    "meet": 1,
     "order": 3,
     "sign": 3,
     "initials": "ph",
@@ -30,8 +33,9 @@
   "pk": 3
 },
 {
-  "model": "gymnastics.event",
+  "model": "competition.event",
   "fields": {
+    "meet": 1,
     "order": 4,
     "sign": 4,
     "initials": "vt",
@@ -40,8 +44,9 @@
   "pk": 4
 },
 {
-  "model": "gymnastics.event",
+  "model": "competition.event",
   "fields": {
+    "meet": 1,
     "order": 5,
     "sign": 5,
     "initials": "pb",
@@ -50,8 +55,9 @@
   "pk": 5
 },
 {
-  "model": "gymnastics.event",
+  "model": "competition.event",
   "fields": {
+    "meet": 1,
     "order": 6,
     "sign": 6,
     "initials": "hb",

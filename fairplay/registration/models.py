@@ -120,7 +120,6 @@ class Gymnast(Person):
     rank = models.PositiveSmallIntegerField(null=True, blank=True)
     athlete_id = models.PositiveSmallIntegerField(unique=True, blank=True, null=True, verbose_name='Athlete ID', help_text='For use during competition')
 
-
     class Meta:
         verbose_name_plural = 'Gymnasts'
         verbose_name = 'Gymnast'
@@ -130,14 +129,6 @@ class Gymnast(Person):
         flagged = 'SCRATCHED ' if self.is_scratched else flagged
         usag = self.usag if self.usag and len(self.usag.strip()) else ''
         return "{3}{1}, {0} (L{2}) {4}".format(self.first_name, self.last_name, self.level, flagged, usag)
-
-
-    def session(self):
-        return ""
-
-    # def __str__(self):
-    #     return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
-
 
 
 class Level(models.Model):

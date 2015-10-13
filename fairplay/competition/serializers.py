@@ -29,15 +29,15 @@ class SessionSerializer(serializers.ModelSerializer):
         model = models.Session
 
 
-class GymnastEventSerializer(serializers.ModelSerializer):
+class AthleteEventSerializer(serializers.ModelSerializer):
     class Meta:
-        model = models.GymnastEvent
+        model = models.AthleteEvent
         fields = ('id', 'event', 'score', )
 
 
 class GymnastSerializer(serializers.ModelSerializer):
     division = DivisionSerializer()
-    events = GymnastEventSerializer(many=True)
+    events = AthleteEventSerializer(many=True)
 
     class Meta:
         model = Gymnast

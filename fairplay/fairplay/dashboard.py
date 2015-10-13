@@ -46,7 +46,14 @@ class CustomIndexDashboard(Dashboard):
             column=1,
             collapsible=False,
             models=(
-                'registration.models.*',),
+                'registration.models.Team',
+                'registration.models.Coach',
+                'registration.models.Gymnast',
+                'registration.models.LevelPricing',
+                'registration.models.GymnastPricing',
+                'registration.models.Level',
+                'registration.models.ShirtSize',
+                ),
         ))
 
         # append an app list module for "Administration"
@@ -55,13 +62,12 @@ class CustomIndexDashboard(Dashboard):
             column=1,
             collapsible=False,
             models=(
-                'competition.models.Event',
+                'competition.models.Athlete',
                 'competition.models.Division',
-                # 'competition.models.Team',
-                # 'competition.models.Athlete',
-                'competition.models.TeamAward',
                 'competition.models.Session',
+                'competition.models.Event',
                 'competition.models.Message',
+                'competition.models.TeamAward',
                 ),
         ))
 

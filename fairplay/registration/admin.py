@@ -16,7 +16,7 @@ from django.shortcuts import render
 
 from grappelli.forms import GrappelliSortableHiddenMixin
 from meet.models import Meet
-from competition.models import Event, GymnastEvent
+from competition.models import Event, AthleteEvent
 from . import models
 from . import forms as actionforms
 
@@ -114,21 +114,6 @@ class CoachAdmin(admin.ModelAdmin):
         return missing
     has_usag.short_description = "USAG?"
     has_usag.boolean = True
-
-
-class GymnastEventInlineFormset(BaseInlineFormSet):
-    def __init__(self, *args, **kwargs):
-        super(GymnastEventInlineFormset, self).__init__(*args, **kwargs)
-        self.can_delete = False
-
-
-class GymnastEventInlineAdmin(admin.TabularInline):
-    model = GymnastEvent
-    formset = GymnastEventInlineFormset
-    extra = 0
-    max_num = 0
-    readonly_fields = ('event', )
-    fields = ('event', 'score',)
 
 
 class GymnastAdmin(admin.ModelAdmin):
