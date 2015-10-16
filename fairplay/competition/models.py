@@ -71,7 +71,13 @@ class TeamAward(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_awards')
     name = models.CharField(max_length=255)
     award_percentage = models.FloatField(default=0.66)
-    divisions = models.ManyToManyField(Division)
+    divisions = models.ManyToManyField(Division, blank=True)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "Team Award"
+        verbose_name_plural = "Team Awards"
+        ordering = ['order']
 
     def __str__(self):
         return self.name
@@ -100,7 +106,9 @@ class AthleteEvent(models.Model):
             self.event,
             self.score)
 
+
 class AthleteManager(models.Manager):
+    #TODO  put back athlete_id restriction
     def get_queryset(self):
         return super(AthleteManager, self).get_queryset().filter(is_scratched=False)  #, athlete_id__isnull=False
 
@@ -174,23 +182,23 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
         ranking.update_team_ranking()
 
 
-# models.signals.post_save.connect(
-#     scratch_athlete,
-#     sender=Athlete,
-#     dispatch_uid='scratch_athlete')
+models.signals.post_save.connect(
+    scratch_athlete,
+    sender=Athlete,
+    dispatch_uid='scratch_athlete')
 
 
-# models.signals.post_save.connect(
-#     populate_athlete,
-#     sender=Athlete,
-#     dispatch_uid='populate_athlete')
+models.signals.post_save.connect(
+    populate_athlete,
+    sender=Athlete,
+    dispatch_uid='populate_athlete')
 
-# models.signals.post_save.connect(
-#     populate_event,
-#     sender=Event,
-#     dispatch_uid='populate_event')
+models.signals.post_save.connect(
+    populate_event,
+    sender=Event,
+    dispatch_uid='populate_event')
 
-# models.signals.post_save.connect(
-#     update_rankings,
-#     sender=AthleteEvent,
-#     dispatch_uid='update_rankings')
+models.signals.post_save.connect(
+    update_rankings,
+    sender=AthleteEvent,
+    dispatch_uid='update_rankings')

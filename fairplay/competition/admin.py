@@ -1,5 +1,6 @@
 from django.forms.models import BaseInlineFormSet
 from django.contrib import admin
+from django.conf import settings
 from django.db.models.signals import pre_save
 from django.db.models import Count, Sum
 from django.dispatch import receiver
@@ -57,7 +58,7 @@ class AthleteEventInlineAdmin(admin.TabularInline):
 class AthleteAdmin(admin.ModelAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (AthleteEventInlineAdmin, )
-    fields = ('usag_id', 'athlete_id', 'is_scratched', 'last_name', 'first_name',
+    fields = ('usag', 'athlete_id', 'is_scratched', 'last_name', 'first_name',
               'dob', 'team', 'division', 'starting_event', )
     list_filter = ('team', 'division', SessionFilter, 'starting_event', 'is_scratched')
     list_per_page = 50
@@ -99,37 +100,22 @@ class AthleteAdmin(admin.ModelAdmin):
     show_team.admin_order_field = 'team__team'
 
 
-
-
 class AthleteInlineAdmin(admin.TabularInline):
     model = models.Athlete
     extra = 1
     fields = ('athlete_id', 'last_name', 'first_name', 'starting_event')
 
 
-# class TeamAdmin(admin.ModelAdmin):
-#     inlines = (AthleteInlineAdmin,)
-#     list_display = ('team', 'team_size', 'qualified')
-#     list_display = ('team', 'team_size')
-#     search_fields = ['name', 'id', ]
-#     list_filter = ('qualified',)
-
-#     def queryset(self, request):
-#         qs = super(TeamAdmin, self).get_queryset(request)
-#         qs = qs.annotate(Count('gymnasts'))
-#         return qs
-
-#     def team_size(self, obj):
-#         return obj.gymnasts.all().count()
-#     team_size.admin_order_field = 'team_size'
-
-
 class TeamAwardAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+    list_display = ('name', 'order')
     filter_horizontal = ('divisions',)
+    exclude = ('meet',)
+    list_editable = ('order',)
 
-
-
+    class Media:
+        css = {
+            "all": ("{}css/filter-horizontal-adjustment.css".format(settings.STATIC_URL),)
+        }
 
 
 class AthleteEventAdmin(admin.ModelAdmin):
@@ -184,7 +170,6 @@ class LEDSignAdmin(admin.ModelAdmin):
     list_display = ('sign_id', 'device', )
 
 
-
 class MessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'message', )
 
@@ -198,8 +183,10 @@ admin.site.register(models.Message, MessageAdmin)
 admin.site.register(models.Session, SessionAdmin)
 admin.site.register(models.Athlete, AthleteAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)
+admin.site.register(models.TeamAwardRank)
 
 
+@receiver(pre_save, sender=models.TeamAward)
 @receiver(pre_save, sender=models.Division)
 @receiver(pre_save, sender=models.Event)
 @receiver(pre_save, sender=models.Session)

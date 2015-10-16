@@ -291,92 +291,6 @@ class GymnastAdmin(admin.ModelAdmin):
         return response
     export_as_csv.short_description = "Export selected objects as csv file"
 
-# class AthleteAdmin(admin.ModelAdmin):
-#     inlines = (AthleteEventInlineAdmin, )
-#     fields = ('usag_id', 'athlete_id', 'scratched', 'last_name', 'first_name',
-#               'birth_date', 'team', 'division', 'starting_event', )
-#     search_fields = ['athlete_id', 'last_name', 'first_name']
-#     list_filter = ('team', 'group', SessionFilter, 'starting_event', 'scratched')
-#     list_per_page = 50
-
-#     def get_actions(self, request):
-#         return dict([make_event_action(q) for q in models.Event.objects.all()])
-
-#     def session(self, athlete):
-#         return models.Session.objects.get(divisions=athlete.division).name
-
-#     def get_queryset(self, request):
-#         qs = super(AthleteAdmin, self).get_queryset(request)
-#         qs = qs.annotate(aa=Sum('events__score'))
-#         return qs
-
-#     def get_list_display(self, request):
-#         result = ['athlete_id', 'last_name', 'first_name', 'team', 'group', 'starting_event']
-#         events = models.Event.objects.all()
-#         result += [e.initials for e in events]
-#         result += ['all_around', ]
-#         return result
-
-#     def all_around(self, obj):
-#         return obj.aa
-#     all_around.admin_order_field = 'aa'
-#     all_around.short_description = 'AA'
-
-#     def __getattr__(self, attr):
-#         event = models.Event.objects.get(initials=attr)
-
-#         def get_score(athlete):
-#             return athlete.events.get(event=event).score
-#         get_score.short_description = attr.upper()
-
-#         return get_score
-
-# class AthleteEventInlineFormset(BaseInlineFormSet):
-#     def __init__(self, *args, **kwargs):
-#         super(AthleteEventInlineFormset, self).__init__(*args, **kwargs)
-#         self.can_delete = False
-
-
-# class AthleteEventInlineAdmin(admin.TabularInline):
-#     model = models.AthleteEvent
-#     formset = AthleteEventInlineFormset
-#     extra = 0
-#     max_num = 0
-#     readonly_fields = ('event', )
-#     fields = ('event', 'score',)
-
-
-# class AthleteInlineAdmin(admin.TabularInline):
-#     model = models.Athlete
-#     extra = 1
-#     fields = ('athlete_id', 'last_name', 'first_name', 'starting_event')
-
-
-# class TeamAdmin(admin.ModelAdmin):
-#     inlines = (AthleteInlineAdmin,)
-#     list_display = ('name', 'team_size', 'qualified')
-#     list_display = ('name', 'team_size')
-#     search_fields = ['name', 'id', ]
-#     list_filter = ('qualified',)
-
-#     def queryset(self, request):
-#         qs = super(TeamAdmin, self).get_queryset(request)
-#         qs = qs.annotate(Count('athletes'))
-#         return qs
-
-#     def team_size(self, obj):
-#         return obj.athletes__count
-#     team_size.admin_order_field = 'team_size'
-
-
-# class TeamAwardAdmin(admin.ModelAdmin):
-#     list_display = ('name', )
-#     filter_horizontal = ('divisions',)
-
-
-
-
-
 
 class CoachInline(admin.TabularInline):
     model = models.Coach
@@ -394,13 +308,14 @@ class GymnastInline(admin.StackedInline):
 
 class TeamAdmin(admin.ModelAdmin):
     list_display = ('team', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'notes')
+    list_filter = ('qualified','team_awards')
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
     search_fields = ('gym', 'team', 'usag')
-    filter_horizontal = ('levels',)
+    filter_horizontal = ('levels', 'team_awards')
     inlines = [CoachInline, GymnastInline]
     fieldsets = ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),
                  ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),
-                 ('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'levels', ), }),
+                 ('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
                  ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost', 'payment_postmark', 'registration_complete'), }),
                  )
 
@@ -415,11 +330,12 @@ class TeamAdmin(admin.ModelAdmin):
         """ Restrict display of items in the admin by those belonging to the current Meet """
         qs = super(TeamAdmin, self).get_queryset(request)
         meet = Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet)
+        return qs.filter(meet=meet).annotate(num_gymnasts=Count('gymnasts'))
 
     def num_gymnasts(self, obj):
         return obj.gymnasts.filter(is_scratched=False).count()
-    num_gymnasts.short_description = '# Gymnasts'
+    num_gymnasts.short_description = 'Team Size'
+    num_gymnasts.admin_order_field = 'num_gymnasts'
 
 
 class LogAdmin(admin.ModelAdmin):

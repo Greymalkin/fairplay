@@ -18,9 +18,11 @@ class Team(models.Model):
     last_name = models.CharField('Last Name', max_length=100)
     email = models.CharField('Email', max_length=225, blank=True, null=True)
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
-    per_level_cost = models.ForeignKey('LevelPricing', null=True, default=1)
-    per_gymnast_cost = models.ForeignKey('GymnastPricing', null=True, default=1)
+    per_level_cost = models.ForeignKey('LevelPricing', null=True, blank=False)
+    per_gymnast_cost = models.ForeignKey('GymnastPricing', null=True, blank=False)
+    #TBD Delete levels from model
     levels = models.ManyToManyField('Level', blank=True, related_name='registrations_set', verbose_name="Team Awards Levels")
+    team_awards = models.ManyToManyField('competition.TeamAward', blank=True, related_name='teams', verbose_name="Team Awards Levels")
     gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
     level_cost = models.DecimalField('Level Cost', decimal_places=2, max_digits=6, default=0)
     total_cost = models.DecimalField('Total Registration Cost', decimal_places=2, max_digits=6, default=0)
@@ -45,11 +47,8 @@ class Team(models.Model):
         return '{} {}'.format(self.first_name, self.last_name)
 
     def calc_level_cost(self):
-        num_levels = self.levels.count()
-        # levels 9,10 are priced as one single 9/10 level
-        if self.levels.filter(level__exact=10).count() == 1 and self.levels.filter(level__exact=9).count() == 1:
-            self.level_cost = self.per_level_cost.price * (num_levels - 1)
-        elif num_levels > 0:
+        num_levels = self.team_awards.count()
+        if num_levels > 0:
             self.level_cost = self.per_level_cost.price * num_levels
         else:
             self.level_cost = 0
@@ -188,7 +187,7 @@ class ShirtSize(models.Model):
 
 ### Receivers
 
-@receiver(m2m_changed, sender=Team.levels.through)
+@receiver(m2m_changed, sender=Team.team_awards.through)
 def level_costs(sender, instance, **kwargs):
     instance.level_cost = instance.calc_level_cost()
     instance.total_cost = instance.level_cost + instance.gymnast_cost

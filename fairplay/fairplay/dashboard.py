@@ -68,6 +68,7 @@ class CustomIndexDashboard(Dashboard):
                 'competition.models.Event',
                 'competition.models.Message',
                 'competition.models.TeamAward',
+                'competition.models.TeamAwardRank',
                 ),
         ))
 
@@ -105,14 +106,14 @@ class CustomIndexDashboard(Dashboard):
             athlete_info = ""
             for level in Level.objects.all():
                 meet = Meet.objects.get(is_current_meet=True)
-                level_count = Gymnast.objects.filter(meet=meet, level=level).count()
+                level_count = Gymnast.objects.filter(meet=meet, level=level, is_scratched=False).count()
                 athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
                 for age in range(4, 18):
-                    age_count = Gymnast.objects.filter(meet=meet, level=level, age=age).count()
+                    age_count = Gymnast.objects.filter(meet=meet, level=level, age=age, is_scratched=False).count()
                     if age_count > 0:
                         athlete_info += "<li>{}yo ({} athletes)</li>".format(age, age_count)
 
-                age_count = Gymnast.objects.filter(meet=meet, level=level, age=None).count()
+                age_count = Gymnast.objects.filter(meet=meet, level=level, age=None, is_scratched=False).count()
                 if age_count > 0:
                     athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
                 athlete_info += "</ul></p>"
@@ -150,7 +151,7 @@ class CustomIndexDashboard(Dashboard):
             header = ""
             counts = ""
             for event in Event.objects.all():
-                count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event).count()
+                count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                 header += '<th>{}</th>'.format(event.initials)
                 link = '/admin/gymnastics/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
                 counts += '<td><a href="{}">{}</a></td>'.format(link, count)
