@@ -16,7 +16,7 @@ from django.shortcuts import render
 
 from grappelli.forms import GrappelliSortableHiddenMixin
 from meet.models import Meet
-from competition.models import Event, AthleteEvent
+from competition.models import Event, AthleteEvent, TeamAward
 from . import models
 from . import forms as actionforms
 
@@ -78,6 +78,7 @@ class CoachMissingUsagFilter(SimpleListFilter):
                     | queryset.filter(background_expire_date='')
                     | queryset.filter(background_expire_date=True))
 
+
 # ## Admins
 
 
@@ -118,7 +119,7 @@ class CoachAdmin(admin.ModelAdmin):
 
 class GymnastAdmin(admin.ModelAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'show_team', 'level', 'age', 'dob', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
-    list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level']
+    list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     raw_id_fields = ('team',)
     actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified', 'export_as_csv']
