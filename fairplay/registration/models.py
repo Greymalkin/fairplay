@@ -20,8 +20,6 @@ class Team(models.Model):
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
     per_level_cost = models.ForeignKey('LevelPricing', null=True, blank=False)
     per_gymnast_cost = models.ForeignKey('GymnastPricing', null=True, blank=False)
-    #TBD Delete levels from model
-    levels = models.ManyToManyField('Level', blank=True, related_name='registrations_set', verbose_name="Team Awards Levels")
     team_awards = models.ManyToManyField('competition.TeamAward', blank=True, related_name='teams', verbose_name="Team Awards Levels")
     gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
     level_cost = models.DecimalField('Level Cost', decimal_places=2, max_digits=6, default=0)

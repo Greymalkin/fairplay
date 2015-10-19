@@ -59,6 +59,7 @@ class Session(models.Model):
     meet = models.ForeignKey(Meet, related_name='sessions')
     name = models.CharField(max_length=255, help_text="Session name")
     divisions = models.ManyToManyField(Division, related_name='session')
+    #??? Should we change the linkage to .levels, as with TeamAward?  
 
     def __str__(self):
         return self.name
@@ -71,7 +72,9 @@ class TeamAward(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_awards')
     name = models.CharField(max_length=255)
     award_percentage = models.FloatField(default=0.66)
+    #TODO Delete divisions
     divisions = models.ManyToManyField(Division, blank=True)
+    levels = models.ManyToManyField(Level)
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:

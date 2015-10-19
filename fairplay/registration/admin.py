@@ -312,7 +312,7 @@ class TeamAdmin(admin.ModelAdmin):
     list_filter = ('qualified','team_awards')
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
     search_fields = ('gym', 'team', 'usag')
-    filter_horizontal = ('levels', 'team_awards')
+    filter_horizontal = ('team_awards',)
     inlines = [CoachInline, GymnastInline]
     fieldsets = ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),
                  ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),

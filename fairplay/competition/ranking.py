@@ -118,7 +118,7 @@ def update_team_ranking():
                     event=event,
                     athlete__team=t
                 ).filter(
-                    athlete__division__in=team_award.divisions.all(),
+                    athlete__division__in=team_award.divisions.all(),  #TODO: UPDATE to team_award.levels.all().divisions.all()
                     score__isnull=False
                 ).order_by("-score")[:3]
 

@@ -107,8 +107,8 @@ class AthleteInlineAdmin(admin.TabularInline):
 
 
 class TeamAwardAdmin(admin.ModelAdmin):
-    list_display = ('name', 'order')
-    filter_horizontal = ('divisions',)
+    list_display = ('name', 'order', )
+    filter_horizontal = ('divisions', 'levels')
     exclude = ('meet',)
     list_editable = ('order',)
 
