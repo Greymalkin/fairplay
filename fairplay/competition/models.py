@@ -59,20 +59,20 @@ class Session(models.Model):
     meet = models.ForeignKey(Meet, related_name='sessions')
     name = models.CharField(max_length=255, help_text="Session name")
     divisions = models.ManyToManyField(Division, related_name='session')
-    #??? Should we change the linkage to .levels, as with TeamAward?  
 
     def __str__(self):
         return self.name
 
     class Meta():
         ordering = ['name', ]
+        verbose_name = "Session"
+        verbose_name_plural = "Sessions"
 
 
 class TeamAward(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_awards')
     name = models.CharField(max_length=255)
     award_percentage = models.FloatField(default=0.66)
-    #TODO Delete divisions
     divisions = models.ManyToManyField(Division, blank=True)
     levels = models.ManyToManyField(Level)
     order = models.PositiveSmallIntegerField(default=0)
@@ -153,8 +153,8 @@ def populate_athlete(instance, created, raw, **kwargs):
     instance.save()
 
     for event in Event.objects.all():
-        ae = AthleteEvent.objects.get_or_create(event=event, athlete=instance)
-        if instance.scratched:
+        ae = AthleteEvent.objects.get_or_create(event=event, gymnast=instance)
+        if instance.is_scratched:
             ae.score = 0
             ae.save()
 
@@ -167,21 +167,21 @@ def populate_event(instance, created, raw, **kwargs):
     instance.save()
 
     for athlete in Athlete.objects.all():
-        ae = AthleteEvent.objects.get_or_create(event=instance, athlete=athlete)
-        if athlete.scratched:
+        ae = AthleteEvent.objects.get_or_create(event=instance, gymnast=athlete)
+        if athlete.is_scratched:
             ae.score = 0
             ae.save()
 
 
 def scratch_athlete(instance, created, raw, **kwargs):
-    if instance.scratched:
+    if instance.is_scratched:
         ae = instance.events.all().exclude(score__isnull=False)
         ae.update(score=0)
 
 
 def update_rankings(sender, instance, created, raw, using, update_fields, **kwargs):
     if update_fields is None or 'rank' not in update_fields:
-        ranking.update_group_ranking(instance.athlete.group)
+        ranking.update_division_ranking(instance.gymnast.division)
         ranking.update_team_ranking()
 
 

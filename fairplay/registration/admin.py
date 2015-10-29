@@ -122,7 +122,7 @@ class GymnastAdmin(admin.ModelAdmin):
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     raw_id_fields = ('team',)
-    actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified', 'export_as_csv']
+    actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'export_as_csv']
     autocomplete_lookup_fields = {'fk': ['team']}
     exclude = ('meet',)
 
@@ -242,15 +242,6 @@ class GymnastAdmin(admin.ModelAdmin):
             else:
                 messages.error(request, 'Could not connect with USAG verification service. Check credentials.')
     verify_with_usag.short_description = "Verify selected gymnasts with USAG"
-
-    def set_verified(self, request, queryset):
-        rows_updated = queryset.update(is_verified=True)
-        if rows_updated == 1:
-            message_bit = '1 gymnast was'
-        else:
-            message_bit = '{} gymnasts were'.format(rows_updated)
-        messages.success(request, '{} verified'.format(message_bit))
-    set_verified.short_description = "Mark selected gymnasts as verified"
 
     def update_age(self, request, queryset):
         rows_updated = 0

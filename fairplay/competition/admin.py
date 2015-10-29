@@ -165,6 +165,11 @@ class SessionAdmin(admin.ModelAdmin):
         meet = models.Meet.objects.filter(is_current_meet=True)
         return qs.filter(meet=meet)
 
+    class Media:
+        css = {
+            "all": ("{}css/filter-horizontal-adjustment.css".format(settings.STATIC_URL),)
+        }
+
 
 class LEDSignAdmin(admin.ModelAdmin):
     list_display = ('sign_id', 'device', )
@@ -191,6 +196,7 @@ admin.site.register(models.TeamAwardRank)
 @receiver(pre_save, sender=models.Event)
 @receiver(pre_save, sender=models.Session)
 @receiver(pre_save, sender=models.TeamAward)
+@receiver(pre_save, sender=models.Athlete)
 def save_current_meet(sender, instance, **kwargs):
     meet = models.Meet.objects.get(is_current_meet=True)
     instance.meet = meet
