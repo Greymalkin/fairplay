@@ -64,7 +64,18 @@ class AthleteAdmin(admin.ModelAdmin):
     list_per_page = 50
 
     def get_actions(self, request):
-        return dict([make_event_action(q) for q in models.Event.objects.all()])
+        actions = [make_event_action(q) for q in models.Event.objects.all()]
+        actions.append(('create_events', (self.create_events, 'create_events', 'Create events for athlete')))
+
+        return dict(actions)
+
+    def create_events(self, modeladmin, req, qset):
+        for athlete in qset:
+            for event in models.Event.objects.filter(meet=athlete.meet):
+                ae = models.AthleteEvent.objects.get_or_create(event=event, gymnast=athlete)
+                if athlete.scratched:
+                    ae.score = 0
+                    ae.save()
 
     def session(self, athlete):
         return models.Session.objects.get(divisions=athlete.division).name
