@@ -59,10 +59,6 @@ class Session(models.Model):
     meet = models.ForeignKey(Meet, related_name='sessions')
     name = models.CharField(max_length=255, help_text="Session name")
     divisions = models.ManyToManyField(Division, related_name='session')
-<<<<<<< Updated upstream
-=======
-    #??? Should we change the linkage to .levels, as with TeamAward?
->>>>>>> Stashed changes
 
     def __str__(self):
         return self.name
@@ -171,11 +167,7 @@ def populate_event(instance, created, raw, **kwargs):
     instance.save()
 
     for athlete in Athlete.objects.all():
-<<<<<<< Updated upstream
         ae = AthleteEvent.objects.get_or_create(event=instance, gymnast=athlete)
-=======
-        ae = AthleteEvent.objects.get_or_create(event=instance, athlete=athlete)
->>>>>>> Stashed changes
         if athlete.is_scratched:
             ae.score = 0
             ae.save()
