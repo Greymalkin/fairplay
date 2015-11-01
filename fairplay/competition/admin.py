@@ -1,5 +1,5 @@
 from django.forms.models import BaseInlineFormSet
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.conf import settings
 from django.db.models.signals import pre_save
 from django.db.models import Count, Sum
@@ -62,10 +62,20 @@ class AthleteAdmin(admin.ModelAdmin):
               'dob', 'team', 'division', 'starting_event', )
     list_filter = ('team', 'division', SessionFilter, 'starting_event', 'is_scratched')
     list_per_page = 50
-    actions = ['set_athlete_id',]
 
-    # def get_actions(self, request):
-    #     return dict([make_event_action(q) for q in models.Event.objects.all()])
+    def get_actions(self, request):
+        actions = [make_event_action(q) for q in models.Event.objects.all()]
+        actions.append(('create_events', (self.create_events, 'create_events', 'Create events for athlete')))
+
+        return dict(actions)
+
+    def create_events(self, modeladmin, req, qset):
+        for athlete in qset:
+            for event in models.Event.objects.filter(meet=athlete.meet):
+                ae = models.AthleteEvent.objects.get_or_create(event=event, gymnast=athlete)
+                if athlete.scratched:
+                    ae.score = 0
+                    ae.save()
 
     def session(self, athlete):
         return models.Session.objects.get(divisions=athlete.division).name
@@ -99,20 +109,6 @@ class AthleteAdmin(admin.ModelAdmin):
         return obj.team.team
     show_team.short_description = "Team"
     show_team.admin_order_field = 'team__team'
-
-    def set_athlete_id(self, request, queryset):
-        rows_updated = 0
-        print (queryset)
-
-        if rows_updated == 1:
-            message_bit = '1 athelete id was'
-        else:
-            message_bit = '{} athlete ids were'.format(rows_updated)
-
-        messages.success(request, '{} updated'.format(message_bit))
-    set_athlete_id.short_description = "Set athlete id"
-
-
 
 
 class AthleteInlineAdmin(admin.TabularInline):
