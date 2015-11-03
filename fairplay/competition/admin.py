@@ -1,12 +1,16 @@
+from datetime import date, timedelta
+from collections import OrderedDict
+
 from django.forms.models import BaseInlineFormSet
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.conf import settings
 from django.db.models.signals import pre_save
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Max
 from django.dispatch import receiver
 from grappelli.forms import GrappelliSortableHiddenMixin
 
 from . import models
+from meet.models import Meet
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -58,22 +62,25 @@ class AthleteEventInlineAdmin(admin.TabularInline):
 class AthleteAdmin(admin.ModelAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (AthleteEventInlineAdmin, )
-    fields = ('usag', 'athlete_id', 'is_scratched', 'last_name', 'first_name',
-              'dob', 'team', 'division', 'starting_event', )
-    list_filter = ('team', 'division', SessionFilter, 'starting_event', 'is_scratched')
+    fields = ('usag', 'athlete_id', 'is_scratched', 'last_name', 'first_name', 'team',
+              'dob', 'age', 'division', 'starting_event', 'rank' )
+    list_filter = ('team', 'division', 'level', SessionFilter, 'starting_event')
     list_per_page = 50
 
     def get_actions(self, request):
         actions = [make_event_action(q) for q in models.Event.objects.all()]
-        actions.append(('create_events', (self.create_events, 'create_events', 'Create events for athlete')))
-
-        return dict(actions)
+        actions.insert(0, ('create_events', (self.create_events, 'create_events', '03. Create events for athlete')))
+        actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
+        actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
+        return OrderedDict(actions)
 
     def create_events(self, modeladmin, req, qset):
+        events = models.Event.objects.filter(meet=qset[0].meet)
         for athlete in qset:
-            for event in models.Event.objects.filter(meet=athlete.meet):
+            for event in events:
+                print('creating {} events for {}'.format(event, athlete))
                 ae = models.AthleteEvent.objects.get_or_create(event=event, gymnast=athlete)
-                if athlete.scratched:
+                if athlete.is_scratched:
                     ae.score = 0
                     ae.save()
 
@@ -109,6 +116,86 @@ class AthleteAdmin(admin.ModelAdmin):
         return obj.team.team
     show_team.short_description = "Team"
     show_team.admin_order_field = 'team__team'
+
+    def set_athlete_id(self, modeladmin, request, queryset):
+        ''' Admin action meant to be performed once on all athletes at once.  
+            However, it can be performed multiple times without harm, and also on only a few athletes. 
+        '''
+        queryset = queryset.exclude(athlete_id__isnull=False, is_scratched=True).order_by('level', 'team', 'last_name')
+        rows_updated = queryset.count()
+        level_max_athlete_id = {}
+
+        for a in queryset:
+            # Check to see if we've calculated the max id for this level before.  If so, grab that id.
+            if a.level.level  not in level_max_athlete_id:
+                max_id = models.Athlete.objects.filter(level=a.level, meet=a.meet).aggregate(Max('athlete_id'))
+                max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
+                # First one: ID begins with level number. level 4 = 400
+                if max_id == 0:
+                    max_id = (int(a.level.level) * 100)
+            else:
+                max_id = level_max_athlete_id[a.level.level]
+
+            # Up the max id by one and save to athlete
+            max_id += 1   
+            level_max_athlete_id[a.level.level] = max_id
+            a.athlete_id = max_id
+            a.save()
+
+        if rows_updated == 1:
+            message_bit = '1 athelete id was'
+        else:
+            message_bit = '{} athlete ids were'.format(rows_updated)
+
+        messages.success(request, '{} updated'.format(message_bit))
+    set_athlete_id.short_description = "Set athlete id"
+
+
+    def sort_into_divisions(self, model_admin, request, queryset):
+        ''' Admin action meant to be performed once on all athletes at once.  
+            However, it can be performed multiple times without harm, and also on only a few athletes. 
+        '''
+        meet = Meet.objects.get(is_current_meet=True)
+        divisions_by_level = {}
+        rows_updated = queryset.count()
+
+        # Build dictionary of all divisions
+        divisions = models.Division.objects.filter(meet=meet)
+        for d in divisions:
+            if d.level.level not in divisions_by_level:
+                divisions_by_level[d.level.level] = {}
+            if d.min_age not in divisions_by_level[d.level.level]:
+                for age in range(d.min_age, d.max_age+1):
+                    divisions_by_level[d.level.level][age] = d
+
+        # Calc comptition age and retrieve correct division for age + level combination
+        for athlete in queryset:
+            if athlete.dob:
+                try:
+                    age = self.competition_age(athlete, meet)
+                    athlete.division = divisions_by_level[athlete.level.level][age]
+                    athlete.save()
+                except:
+                    print(athlete, age, athlete.level)
+                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(athlete, age, athlete.level))
+
+        if rows_updated == 1:
+            message_bit = '1 athelete division was'
+        else:
+            message_bit = '{} athlete divisions were'.format(rows_updated)
+
+        messages.success(request, '{} updated'.format(message_bit))
+    sort_into_divisions.short_description = "Set athlete id"
+
+    @staticmethod
+    def competition_age(gymnast, meet):
+        if meet.date.month > 8:
+            year = meet.date.year
+        else:
+            year = meet.date.year - 1
+        cutoff = date(year, settings.COMPETITION_MONTH, settings.COMPETITION_DATE)
+        age = (cutoff - gymnast.dob) // timedelta(days=365.2425)
+        return age
 
 
 class AthleteInlineAdmin(admin.TabularInline):

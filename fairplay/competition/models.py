@@ -1,6 +1,8 @@
 from django.db import models
 from django.dispatch import receiver
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save,post_save, m2m_changed
+from django.dispatch import receiver
+
 from meet.models import Meet
 from registration.models import Team, Gymnast, Level
 from . import ranking
@@ -111,9 +113,8 @@ class AthleteEvent(models.Model):
 
 
 class AthleteManager(models.Manager):
-    #TODO  put back athlete_id restriction
     def get_queryset(self):
-        return super(AthleteManager, self).get_queryset().filter(is_scratched=False)  #, athlete_id__isnull=False
+        return super(AthleteManager, self).get_queryset().filter(is_scratched=False)
 
 
 class Athlete(Gymnast):

@@ -40,7 +40,7 @@ def update_division_ranking(division):
         last_max_score = None
         # Set ranks, break ties.
         for athlete in athletes:
-            print(athlete['score'])
+            # print('athlete score:', athlete['score'])
 
             # skip no score
             if athlete['score'] is None:
