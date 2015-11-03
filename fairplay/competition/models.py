@@ -96,7 +96,7 @@ class TeamAwardRank(models.Model):
 
 
 class AthleteEvent(models.Model):
-    gymnast = models.ForeignKey('Athlete', related_name="events")
+    gymnast = models.ForeignKey(Gymnast, related_name="events")
     event = models.ForeignKey(Event, related_name="gymnasts")
     score = models.FloatField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True)

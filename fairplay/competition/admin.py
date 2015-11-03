@@ -279,6 +279,21 @@ class MessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'message', )
 
 
+# class TeamAdmin(admin.ModelAdmin):
+#     list_display = ('team', 'num_gymnasts', 'qualified')
+
+#     def get_queryset(self, request):
+#         """ Restrict display of items in the admin by those belonging to the current Meet """
+#         qs = super(TeamAdmin, self).get_queryset(request)
+#         meet = Meet.objects.filter(is_current_meet=True)
+#         return qs.filter(meet=meet).annotate(num_gymnasts=Count('gymnasts'))
+
+#     def num_gymnasts(self, obj):
+#         return obj.gymnasts.filter(is_scratched=False).count()
+#     num_gymnasts.short_description = 'Team Size'
+#     num_gymnasts.admin_order_field = 'num_gymnasts'
+
+
 
 admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
@@ -289,6 +304,7 @@ admin.site.register(models.Session, SessionAdmin)
 admin.site.register(models.Athlete, AthleteAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)
 admin.site.register(models.TeamAwardRank)
+# admin.site.register(models.Team, TeamAdmin)
 
 
 @receiver(pre_save, sender=models.TeamAward)

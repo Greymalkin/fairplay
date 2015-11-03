@@ -1,7 +1,11 @@
 from rest_framework import serializers
 from . import models
-from competition.models import Gymnast, Team
+from competition.models import Team, Gymnast
 
+
+class DivisionField(serializers.RelatedField):
+    def to_representation(self, value):
+        return {'name': value.name, 'level': value.level.level, 'id': value.id}
 
 class LEDSignSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,21 +39,21 @@ class AthleteEventSerializer(serializers.ModelSerializer):
         fields = ('id', 'event', 'score', )
 
 
-class GymnastSerializer(serializers.ModelSerializer):
-    division = DivisionSerializer()
+class AthleteSerializer(serializers.ModelSerializer):
+    division = DivisionField(read_only=True)
     events = AthleteEventSerializer(many=True)
 
     class Meta:
-        model = Gymnast
+        model = models.Athlete
         fields = ('id', 'athlete_id', 'last_name', 'first_name', 'division', 'events', 'starting_event')
 
 
 class TeamSerializer(serializers.ModelSerializer):
-    athletes = GymnastSerializer(many=True, source='gymnasts')
+    athletes = AthleteSerializer(many=True, source='gymnasts')
 
     class Meta:
         model = Team
-        fields = ('id', 'name', 'qualified', 'athletes',)
+        fields = ('id', 'team', 'qualified', 'athletes',)
 
 
 class MessageSerializer(serializers.ModelSerializer):

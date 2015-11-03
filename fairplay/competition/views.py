@@ -39,7 +39,7 @@ def led_sign(request):
 
 @csrf_exempt
 def download_roster(request):
-    athletes = models.Gymnast.objects.all().order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
+    athletes = models.Athlete.objects.all().order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
     events = models.Event.objects.all()
 
     response = HttpResponse(content_type='text/csv')
@@ -249,12 +249,12 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.TeamSerializer
 
 
-class GymnastViewSet(viewsets.ReadOnlyModelViewSet):
+class AthleteViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = Gymnast.objects.all()
-    serializer_class = serializers.GymnastSerializer
+    queryset = models.Athlete.objects.all()
+    serializer_class = serializers.AthleteSerializer
 
 
 class AthleteEventViewSet(viewsets.ModelViewSet):

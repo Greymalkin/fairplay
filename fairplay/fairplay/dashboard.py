@@ -67,6 +67,7 @@ class CustomIndexDashboard(Dashboard):
                 'competition.models.Session',
                 'competition.models.Event',
                 'competition.models.Message',
+                'competition.models.Team',
                 'competition.models.TeamAward',
                 'competition.models.TeamAwardRank',
                 ),
