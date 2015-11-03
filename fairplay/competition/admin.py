@@ -82,7 +82,9 @@ class AthleteAdmin(admin.ModelAdmin):
                 ae = models.AthleteEvent.objects.get_or_create(event=event, gymnast=athlete)
                 if athlete.is_scratched:
                     ae.score = 0
+                    models.signals.post_save.disconnect(models.update_rankings, sender=models.AthleteEvent)                    
                     ae.save()
+                    models.signals.post_save.connect(models.update_rankings, sender=models.AthleteEvent, dispatch_uid='update_rankings')
 
     def session(self, athlete):
         return models.Session.objects.get(divisions=athlete.division).name
