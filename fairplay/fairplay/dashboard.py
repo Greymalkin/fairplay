@@ -108,7 +108,7 @@ class CustomIndexDashboard(Dashboard):
                 meet = Meet.objects.get(is_current_meet=True)
                 level_count = Gymnast.objects.filter(meet=meet, level=level, is_scratched=False).count()
                 athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
-                for age in range(4, 18):
+                for age in range(4, 19):
                     age_count = Gymnast.objects.filter(meet=meet, level=level, age=age, is_scratched=False).count()
                     if age_count > 0:
                         athlete_info += "<li>{}yo ({} athletes)</li>".format(age, age_count)
