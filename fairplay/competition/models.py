@@ -122,7 +122,7 @@ class Athlete(Gymnast):
 
     class Meta:
         proxy = True
-        ordering = ['last_name', 'first_name', ]
+        ordering = ('athlete_id', 'last_name', 'first_name', )
 
     def __str__(self):
         return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
@@ -181,28 +181,39 @@ def scratch_athlete(instance, created, raw, **kwargs):
 
 
 def update_rankings(sender, instance, created, raw, using, update_fields, **kwargs):
+    print("update rankings")
+
+    post_save.disconnect(
+        None,
+        sender=AthleteEvent,
+        dispatch_uid='update_rankings')
+
     if update_fields is None or 'rank' not in update_fields:
         ranking.update_division_ranking(instance.gymnast.division)
         ranking.update_team_ranking()
 
+    post_save.connect(
+        update_rankings,
+        sender=AthleteEvent,
+        dispatch_uid='update_rankings')
 
-models.signals.post_save.connect(
+post_save.connect(
     scratch_athlete,
     sender=Athlete,
     dispatch_uid='scratch_athlete')
 
 
-models.signals.post_save.connect(
+post_save.connect(
     populate_athlete,
     sender=Athlete,
     dispatch_uid='populate_athlete')
 
-models.signals.post_save.connect(
+post_save.connect(
     populate_event,
     sender=Event,
     dispatch_uid='populate_event')
 
-models.signals.post_save.connect(
+post_save.connect(
     update_rankings,
     sender=AthleteEvent,
     dispatch_uid='update_rankings')

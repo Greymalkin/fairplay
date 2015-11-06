@@ -120,6 +120,7 @@ class Gymnast(Person):
     class Meta:
         verbose_name_plural = 'Gymnasts'
         verbose_name = 'Gymnast'
+        ordering = ('athlete_id', 'last_name', 'first_name', )
 
     def __str__(self):
         flagged = 'FLAGGED! ' if self.is_flagged else ''

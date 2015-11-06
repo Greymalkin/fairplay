@@ -309,8 +309,8 @@
     function findSession(id) {
         for (var p in sessionTable) {
             session = sessionTable[p];
-            for (var q=0; q<session.groups.length; ++q) {
-                if (session.groups[q].id === id) {
+            for (var q=0; q<session.divisions.length; ++q) {
+                if (session.divisions[q].id === id) {
                     return session;
                 }
             }
@@ -349,8 +349,14 @@
 
             for (var j=0; j<team.athletes.length; ++j) {
                 athlete = team.athletes[j];
-                athlete.team = team.name;
-                session = findSession(athlete.group.id);
+                athlete.team = team.team;
+
+                if (athlete.division == null) {
+                    warnings.push(athlete.first_name + " " + athlete.last_name + " ("+athlete.team+") - No division");
+                    continue;
+                }
+
+                session = findSession(athlete.division.id);
 
                 if (session !== null) {
                     if (session.teams[team.name] == null) {
@@ -361,7 +367,7 @@
 
 
                     if (athlete.starting_event === null) {
-                        warnings.push(athlete.first_name + " " + athlete.last_name + " ("+athlete.team+")");
+                        warnings.push(athlete.first_name + " " + athlete.last_name + " ("+athlete.team+") - No starting event");
 
                     } else {
                         var eventIDs = getEventList(athlete.starting_event);
@@ -387,8 +393,8 @@
         }
 
         if (warnings.length > 0) {
-            warningText = "WARNING! The following athletes to not have a starting event specificied:\n";
-            warningText += warnings.join(", ");
+            warningText = "WARNING! The following athletes have problems:\n";
+            warningText += warnings.join("\n");
             alert(warningText);
         }
 

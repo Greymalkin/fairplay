@@ -46,6 +46,7 @@ class AthleteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Athlete
         fields = ('id', 'athlete_id', 'last_name', 'first_name', 'division', 'events', 'starting_event')
+        ordering = ('athlete_id', )
 
 
 class TeamSerializer(serializers.ModelSerializer):
