@@ -4,7 +4,7 @@ from collections import OrderedDict
 from django.forms.models import BaseInlineFormSet
 from django.contrib import admin, messages
 from django.conf import settings
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.db.models import Count, Sum, Max
 from django.dispatch import receiver
 from grappelli.forms import GrappelliSortableHiddenMixin
@@ -76,15 +76,24 @@ class AthleteAdmin(admin.ModelAdmin):
 
     def create_events(self, modeladmin, req, qset):
         events = models.Event.objects.filter(meet=qset[0].meet)
+
+        post_save.disconnect(
+            None,
+            sender=models.AthleteEvent,
+            dispatch_uid='update_rankings')
+
         for athlete in qset:
+            print('creating events for {}'.format(athlete))
             for event in events:
-                print('creating {} events for {}'.format(event, athlete))
                 ae = models.AthleteEvent.objects.get_or_create(event=event, gymnast=athlete)
                 if athlete.is_scratched:
                     ae.score = 0
-                    models.signals.post_save.disconnect(models.update_rankings, sender=models.AthleteEvent)                    
                     ae.save()
-                    models.signals.post_save.connect(models.update_rankings, sender=models.AthleteEvent, dispatch_uid='update_rankings')
+
+        post_save.connect(
+            models.update_rankings,
+            sender=models.AthleteEvent,
+            dispatch_uid='update_rankings')
 
     def session(self, athlete):
         return models.Session.objects.get(divisions=athlete.division).name
@@ -120,8 +129,8 @@ class AthleteAdmin(admin.ModelAdmin):
     show_team.admin_order_field = 'team__team'
 
     def set_athlete_id(self, modeladmin, request, queryset):
-        ''' Admin action meant to be performed once on all athletes at once.  
-            However, it can be performed multiple times without harm, and also on only a few athletes. 
+        ''' Admin action meant to be performed once on all athletes at once.
+            However, it can be performed multiple times without harm, and also on only a few athletes.
         '''
         queryset = queryset.exclude(athlete_id__isnull=False, is_scratched=True).order_by('level', 'team', 'last_name')
         rows_updated = queryset.count()
@@ -139,7 +148,7 @@ class AthleteAdmin(admin.ModelAdmin):
                 max_id = level_max_athlete_id[a.level.level]
 
             # Up the max id by one and save to athlete
-            max_id += 1   
+            max_id += 1
             level_max_athlete_id[a.level.level] = max_id
             a.athlete_id = max_id
             a.save()
@@ -154,8 +163,8 @@ class AthleteAdmin(admin.ModelAdmin):
 
 
     def sort_into_divisions(self, model_admin, request, queryset):
-        ''' Admin action meant to be performed once on all athletes at once.  
-            However, it can be performed multiple times without harm, and also on only a few athletes. 
+        ''' Admin action meant to be performed once on all athletes at once.
+            However, it can be performed multiple times without harm, and also on only a few athletes.
         '''
         meet = Meet.objects.get(is_current_meet=True)
         divisions_by_level = {}
