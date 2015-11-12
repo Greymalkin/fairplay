@@ -38,6 +38,7 @@ class Division(models.Model):
     meet = models.ForeignKey(Meet, related_name='divisions')
     level = models.ForeignKey(Level)
     name = models.CharField(max_length=50)
+    short_name = models.CharField(max_length=10, help_text='For printing in report columns.')
     min_age = models.PositiveSmallIntegerField(default=6)
     max_age = models.PositiveSmallIntegerField(default=18)
 
@@ -184,7 +185,7 @@ def scratch_athlete(instance, created, raw, **kwargs):
 
 
 def update_rankings(sender, instance, created, raw, using, update_fields, **kwargs):
-    print("update rankings")
+    print("***** update rankings")
 
     post_save.disconnect(
         None,
@@ -192,6 +193,7 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
         dispatch_uid='update_rankings')
 
     if update_fields is None or 'rank' not in update_fields:
+        print('{} ranking being updated now'.format(instance.gymnast))
         ranking.update_division_ranking(instance.gymnast.division)
         ranking.update_team_ranking()
 
