@@ -239,7 +239,7 @@ class AthleteEventAdmin(admin.ModelAdmin):
 
 
 class DivisionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'level', 'min_age', 'max_age')
+    list_display = ('name', 'short_name', 'level', 'min_age', 'max_age')
     list_editable = ('min_age', 'max_age')
     ordering = ('level', 'min_age')
     exclude = ('meet',)
