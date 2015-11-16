@@ -185,8 +185,6 @@ def scratch_athlete(instance, created, raw, **kwargs):
 
 
 def update_rankings(sender, instance, created, raw, using, update_fields, **kwargs):
-    print("***** update rankings")
-
     post_save.disconnect(
         None,
         sender=AthleteEvent,
