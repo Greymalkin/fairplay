@@ -125,7 +125,7 @@ def update_team_ranking():
                     print(t.team)
                     print('---')
                     for e in top_3:
-                        print(e.athlete.first_name, e.athlete.last_name, e.score)
+                        print(e.gymnast.first_name, e.gymnast.last_name, e.score)
                     print('Total: ', top_3.aggregate(total=Sum('score')))
                     print('')
 

@@ -25,8 +25,8 @@
         </div>
         <div id="navbar">
           <ul id="topnav" class="nav navbar-nav">
-          {% for group in groups %}
-            <li><a href="#" data-tab="group_{{group.group.id}}" class="tab">Level {{group.group.level}} ({{group.group.age_group}})</a></li>
+          {% for division in divisions %}
+            <li><a href="#" data-tab="division_{{division.division.id}}" class="tab">Level {{division.division.level}} ({{division.division.name}})</a></li>
           {% endfor %}
           {% for team_award in teams %}
             <li><a href="#" data-tab="team_{{team_award.id}}" class="tab">{{team_award.award}}</a></li>
@@ -36,9 +36,9 @@
       </div>
     </nav>
 
-    {% for group in groups %}
-    <div class="container report" id="group_{{group.group.id}}">
-      {% for leaderboard in group.rankings %}
+    {% for division in divisions %}
+    <div class="container report" id="division_{{division.division.id}}">
+      {% for leaderboard in division.rankings %}
         {% include "individual_ceremony.html" %}
       {% endfor %}
     </div>

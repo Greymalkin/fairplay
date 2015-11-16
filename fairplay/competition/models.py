@@ -51,6 +51,9 @@ class Division(models.Model):
             age = '{}-{}'.format(self.min_age, self.max_age)
         return "Level {} ({} years)".format(self.level, age)
 
+    def title(self):
+        return "Level {} ({})".format(self.level, self.name)
+
     def age_division(self):
         age_division = self.min_age
         if self.min_age != self.max_age:
@@ -195,8 +198,6 @@ def scratch_athlete(instance, created, raw, **kwargs):
 
 
 def update_rankings(sender, instance, created, raw, using, update_fields, **kwargs):
-    print("***** update rankings")
-
     post_save.disconnect(
         None,
         sender=AthleteEvent,

@@ -14,13 +14,14 @@
 
     <!-- Custom styles for this template -->
     <link href="/static/css/individual.css" rel="stylesheet">
+    <link href="/static/css/individual.css" rel="stylesheet">
   </head>
 
   <body>
     <div class="container">
       <h2>{{meet.name}} - {{session.name}}<h2>
       <h3>{{meet.date}}</h3>
-      {% for group in groups %}
+      {% for division in divisions %}
         {% include "individual_results.html" %}
       {% endfor %}
     </div>

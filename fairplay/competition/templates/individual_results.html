@@ -1,27 +1,31 @@
-<strong>{{group.info}}</strong>
+<strong>{{division.info}}</strong>
 <table class="table table-striped leaderboard">
+<thead>
 <tr>
-    <th style="padding:1px;">#</th>
-    <th style="padding:1px;">Team</th>
-    <th style="padding:1px;">Gymnast</th>
+    <th>#</th>
+    <th>Team</th>
+    <th>Gymnast</th>
     {% for event in events %}
-    <th style="padding:1px;padding:1px;padding:1px;padding:1px;text-align:center;">{{event.initials|upper}}</th>
-    <th style="padding:1px;padding:1px;padding:1px;text-align:center;">R</th>
+    <th class="centered">{{event.initials|upper}}</th>
+    <th class="centered">R</th>
     {% endfor %}
-    <th style="padding:1px;padding:1px;text-align:center;">AA</th>
-    <th style="padding:1px;text-align:center;">R</th>
+    <th class="centered">AA</th>
+    <th class="centered">R</th>
 </tr>
-{% for athlete in group.athletes %}
+</thead>
+<tbody>
+{% for athlete in division.athletes %}
 <tr>
-    <td style="padding:1px;">{{athlete.info.athlete_id}}</td>
-    <td style="padding:1px;">{{athlete.info.team}}</td>
-    <td style="padding:1px;">{{athlete.info.first_name}} {{athlete.info.last_name}}</td>
+    <td>{{athlete.info.athlete_id}}</td>
+    <td>{{athlete.info.team}}</td>
+    <td>{{athlete.info.first_name}} {{athlete.info.last_name}}</td>
     {% for event in athlete.events %}
-    <td style="padding:1px;text-align:center;">{{event.score}}</td>
-    <td style="padding:1px;background-color:#eee;text-align:center;">{{event.rank}}</td>
+    <td class="centered">{{event.score}}</td>
+    <td class="centered grey">{{event.rank}}</td>
     {% endfor %}
-    <td style="padding:1px;text-align:center;">{{athlete.info.overall_score}}</td>
-    <td style="padding:1px;background-color:#eee;text-align:center;">{{athlete.info.rank}}</td>
+    <td class="centered">{{athlete.info.overall_score}}</td>
+    <td class="centered grey">{{athlete.info.rank}}</td>
 <tr>
 {% endfor %}
+</tbody>
 </table>

@@ -101,63 +101,59 @@ class SessionCeremonyView(TemplateView):
         context['events'] = models.Event.objects.all()
         context['rankings'] = {}
 
-        for division in session.divisions.all().order_by('min_age'):
+        for division in session.divisions.all().order_by('level', 'min_age'):
             leaderboards = []
 
             # division per event leaderboard
             for event in models.Event.objects.all():
-                leaderboard = []
-                athlete_events = models.AthleteEvent.objects.filter(event=event, athlete__division=division).order_by("rank")
+                event_leaderboard = []
+                athlete_events = models.AthleteEvent.objects.filter(event=event, gymnast__division=division).order_by("rank")
                 total_count = len(athlete_events)
                 award_count = math.ceil(total_count * meet_settings.event_award_percentage)
                 if total_count == 2:
                     award_count = 1
 
-                print('{} {} rankings for {} places out of {} total'.format(division, event.name, award_count, total_count))
-
                 for a in athlete_events[:award_count]:
                     if a.score is not None and a.score != 0:
-                        leaderboard.append({
-                            'athlete_id': a.athlete.athlete_id,
-                            'last_name': a.athlete.last_name,
-                            'first_name': a.athlete.first_name,
-                            'team': a.athlete.team.name,
+                        event_leaderboard.append({
+                            'athlete_id': a.gymnast.athlete_id,
+                            'last_name': a.gymnast.last_name,
+                            'first_name': a.gymnast.first_name,
+                            'team': a.gymnast.team.team,
                             'score': a.score,
                             'rank': a.rank
                         })
 
                 leaderboards.append({'event': event.name,
                                      'initials': event.initials,
-                                     'level': division.level,
-                                     'age_division': division.age_division,
-                                     'athletes': leaderboard})
+                                     'level': division.level.level,
+                                     'age_division': division.name,
+                                     'athletes': event_leaderboard})
 
             # overall leaderboard for division
-            leaderboard = []
-            athletes = models.Athlete.objects.filter(division=division, scratched=False, overall_score__isnull=False).order_by("rank")
+            aa_leaderboard = []
+            athletes = models.Athlete.objects.filter(division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
             total_count = len(athletes)
             award_count = math.ceil(total_count * meet_settings.all_around_award_percentage)
 
             if total_count == 2:
                 award_count = 1
 
-            print('{} All-Around rankings for {} places out of {} total'.format(division, award_count, total_count))
-
             for a in athletes[:award_count]:
                 if a.overall_score is not None and a.overall_score != 0:
-                    leaderboard.append({
+                    aa_leaderboard.append({
                         'athlete_id': a.athlete_id,
                         'last_name': a.last_name,
                         'first_name': a.first_name,
-                        'team': a.team.name,
+                        'team': a.team.team,
                         'score': a.overall_score,
                         'rank': a.rank
                     })
-            leaderboards.append({'event': 'Overall',
-                                 'initials': "overall",
-                                 'level': division.level,
-                                 'age_division': division.age_division,
-                                 'athletes': leaderboard})
+            leaderboards.append({'event': 'All Around',
+                                 'initials': "aa",
+                                 'level': division.level.level,
+                                 'age_division': division.name,
+                                 'athletes': aa_leaderboard})
 
             # individual leaderboards
             info = {}
@@ -192,19 +188,18 @@ class SessionIndividualView(TemplateView):
 
         context['events'] = models.Event.objects.all()
         context['divisions'] = []
-        for division in context['session'].divisions.all().order_by('order'):
+        for division in context['session'].divisions.all().order_by('min_age'):
             athletes = []
             for athlete in division.athletes.filter(rank__gt=0).order_by('rank'):
                 events = []
-                for athlete_event in models.AthleteEvent.objects.filter(athlete=athlete).order_by('event__order'):
+                for athlete_event in models.AthleteEvent.objects.filter(gymnast=athlete).order_by('event__order'):
                     score = athlete_event.score
                     if score is None:
                         score = 0.0
                     events.append({'score': score, 'rank': athlete_event.rank})
 
                 athletes.append({'info': athlete, 'events': events})
-            context['divisions'].append({'info': division, 'athletes': athletes})
-
+            context['divisions'].append({'info': division.title(), 'athletes': athletes})
         return context
 
 
@@ -216,19 +211,19 @@ class SessionTeamView(TemplateView):
         context['meet'] = meetconfig.Meet.objects.get()
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
-        # calculate_session_ranking(context['session'])
-
         team_awards = []
         for team_award in models.TeamAward.objects.filter(divisions__in=context['session'].divisions.all()).distinct():
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
             for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
-                teams.append({'name': t.team.name, 'score': t.score, 'rank': t.rank})
+                teams.append({'name': t.team.team, 'score': t.score, 'rank': t.rank})
 
             team_awards.append({'id': team_award.id, 'name': team_award.name, 'teams': teams})
 
         # team leaderboards
         context['awards'] = team_awards
+
+        print(context)
 
         return context
 
