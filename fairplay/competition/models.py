@@ -57,6 +57,10 @@ class Division(models.Model):
             age_division = '{}-{}'.format(self.min_age, self.max_age)
         return age_division
 
+    def num_gymnasts(self):
+        return self.athletes.all().count()
+    num_gymnasts.short_description = "Gymnasts"
+
 
 class Session(models.Model):
     meet = models.ForeignKey(Meet, related_name='sessions')
@@ -70,6 +74,15 @@ class Session(models.Model):
         ordering = ['name', ]
         verbose_name = "Session"
         verbose_name_plural = "Sessions"
+
+    def num_gymnasts(self):
+        try:
+            num_gymnasts = [a.athletes.all().count() for a in self.divisions.all()]
+            num_gymnasts = (sum(num_gymnasts))
+            return num_gymnasts
+        except:
+            return 0
+    num_gymnasts.short_description = "Gymnasts"
 
 
 class TeamAward(models.Model):
