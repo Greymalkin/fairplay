@@ -239,7 +239,7 @@ class AthleteEventAdmin(admin.ModelAdmin):
 
 
 class DivisionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'short_name', 'level', 'min_age', 'max_age')
+    list_display = ('name', 'short_name', 'level', 'min_age', 'max_age', 'num_gymnasts')
     list_editable = ('min_age', 'max_age')
     ordering = ('level', 'min_age')
     exclude = ('meet',)
@@ -263,7 +263,7 @@ class EventAdmin(admin.ModelAdmin):
 
 
 class SessionAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'num_gymnasts')
     filter_horizontal = ('divisions',)
     exclude = ('meet',)
 
