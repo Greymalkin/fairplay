@@ -281,8 +281,22 @@ class SessionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.SessionSerializer
 
 
-class ScorecardView(TemplateView):
-    pass
+class ScoresheetView(TemplateView):
+    template_name = 'scoresheet.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ScoresheetView, self).get_context_data(**kwargs)
+        context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)
+        return context
+
+
+class ScorecardLabelView(TemplateView):
+    template_name = 'label.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ScorecardLabelView, self).get_context_data(**kwargs)
+        context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)
+        return context
 
 
 class CompetitionRosterView(TemplateView):
