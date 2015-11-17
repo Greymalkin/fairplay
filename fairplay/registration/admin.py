@@ -79,7 +79,7 @@ class CoachMissingUsagFilter(SimpleListFilter):
                     | queryset.filter(background_expire_date=True))
 
 
-# ## Admins
+### Admins
 
 
 class LevelAdmin(admin.ModelAdmin):

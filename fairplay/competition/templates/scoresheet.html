@@ -1,0 +1,64 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Scoresheets for the Program Book</title>
+    <style>
+      table {width: 800px;}
+    </style>
+  </head>
+
+  <body>
+  <h1> {{meet.short_name}} {{session}}</h1>
+
+{% regroup athletes by team as athletes_by_team %}
+{% for team in athletes_by_team %}
+<table border="1" cellpadding="7">
+    <thead>
+      <tr>
+        <th colspan="10">{{team.grouper.team}}</th>
+      </tr>
+      <tr>
+        <th>Gymnast</th>
+        <th>Level</th>
+        <th>Div</th>
+        <th>Floor<br/>(FX)</th>
+        <th>Pommel<br/>(PH)</th>
+        <th>Rings<br/>(SR)</th>
+        <th>Vault<br/>(VT)</th>
+        <th>P-Bars<br/>(PB)</th>
+        <th>High Bar<br/>(HB)</th>
+        <th>All Around<br/>(AA)</th>
+      </tr>
+    </thead>
+
+    {% for athlete in team.list %}
+    <tbody>
+      <tr>
+        <td>{{ athlete.as_athlete_firstlast }}</td>
+        <td>{{ athlete.level }}</td>
+        <td>{{ athlete.division.short_name }}</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+      </tr>
+    </tbody>
+    {% endfor %}
+  </table>
+  <p>&nbsp;</p>
+{% endfor %}
+
+
+  </body>
+</html>
