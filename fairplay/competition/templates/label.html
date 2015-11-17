@@ -1,0 +1,64 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Gymnasts and Coaches Labels</title>
+<style>
+    body {
+        width: 8.5in;
+        margin: 0in .1875in;
+        }
+    .label{
+        /* Avery 5160 labels -- CSS and HTML by MM at Boulder Information Services */
+        width: 2.025in; /* plus .6 inches from padding */
+        height: 1.875in; /* plus .125 inches from padding */
+        padding: .125in .3in 0;
+        margin-right: .125in; /* the gutter */
+
+        float: left;
+
+        text-align: center;
+        overflow: hidden;
+
+        outline: 1px dotted; /* outline doesn't occupy space like border does */
+        }
+    .page-break  {
+        clear: left;
+        display:block;
+        page-break-after:always;
+        }
+    </style>
+  </head>
+
+  <body>
+  <h1> {{session.meet.short_name}} {{session}} Gymnasts</h1>
+
+  {% for athlete in athletes%}
+  <div class="label">
+    <h3>{{athlete.as_athlete_firstlast}} {{ athlete.team.team}}</h3>
+    <p>Level: {{athlete.level}}<br/>
+     Division: {{ athlete.division.short_name }}<br/>
+     {{ session.name }}</p>
+  </div>
+  {% endfor%}
+
+  <div class="page-break"></div>
+
+  <h1> {{session.meet.short_name}} {{session}} Coaches</h1>
+  {% for coach in coaches%}
+  <div class="label">
+    <h3>{{coach.first_name}} {{coach.last_name}}<br/>{{ coach.team.team}}</h3>
+    <p>{{ session.name }}</p>
+  </div>
+  {% endfor%}
+
+
+  </body>
+</html>

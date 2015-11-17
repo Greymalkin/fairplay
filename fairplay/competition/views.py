@@ -9,7 +9,7 @@ from django.views.generic import TemplateView
 from rest_framework import viewsets
 from . import models
 from meet import models as meetconfig
-from registration.models import Gymnast, Team
+from registration.models import Gymnast, Team, Coach
 from . import serializers
 
 from ledsign.bigdot import BigDot
@@ -237,7 +237,6 @@ class SessionScoresheetView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionScoresheetView, self).get_context_data(**kwargs)
-        context['meet'] = MEET
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
         context['athletes'] = models.Athlete.objects.filter(meet=MEET, division__session=self.kwargs['id']).\
                                                 order_by('team', 'division', 'last_name', 'first_name').\
@@ -245,12 +244,18 @@ class SessionScoresheetView(TemplateView):
         return context
 
 
-class SessionScorecardLabelView(TemplateView):
+class SessionLabelsView(TemplateView):
     template_name = 'label.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SessionScorecardLabelView, self).get_context_data(**kwargs)
-        context['meet'] = MEET
+        context = super(SessionLabelsView, self).get_context_data(**kwargs)
+        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+        context['athletes'] = models.Athlete.objects.filter(meet=MEET, division__session=self.kwargs['id']).\
+                                                order_by('team', 'division', 'last_name', 'first_name').\
+                                                select_related()
+        context['coaches'] = Coach.objects.filter(meet=MEET, team__gymnasts__division__session=context['session']).\
+                                                order_by('team', 'last_name', 'first_name').\
+                                                distinct()
         return context
 
 

@@ -130,44 +130,53 @@ class CustomIndexDashboard(Dashboard):
             # no meet set, whoops
             pass
 
-        sessions = Session.objects.filter(meet=Meet.objects.get(is_current_meet=True))
-        for session in sessions:
-            links = []
-            links.append({
-                'title': 'Awards Ceremony',
-                'url': '/results/ceremony/{}'.format(session.id),
-                'external': False,
-                })
-            links.append({
-                'title': 'Individual Results',
-                'url': '/results/individual/{}'.format(session.id),
-                'external': False,
-                })
-            links.append({
-                'title': 'Team Results',
-                'url': '/results/team/{}'.format(session.id),
-                'external': False,
-                })
-            links.append({
-                'title': 'Scoresheet',
-                'url': '/scoresheet/{}'.format(session.id),
-                'external': False,
-                })
+        try:
+            sessions = Session.objects.filter(meet=Meet.objects.get(is_current_meet=True))
+            for session in sessions:
+                links = []
+                links.append({
+                    'title': 'Awards Ceremony',
+                    'url': '/results/ceremony/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Individual Results',
+                    'url': '/results/individual/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Team Results',
+                    'url': '/results/team/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Scoresheet',
+                    'url': '/scoresheet/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Labels',
+                    'url': '/labels/{}'.format(session.id),
+                    'external': False,
+                    })
 
-            header = ""
-            counts = ""
-            for event in Event.objects.all():
-                count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
-                header += '<th>{}</th>'.format(event.initials)
-                link = '/admin/gymnastics/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
-                counts += '<td><a href="{}">{}</a></td>'.format(link, count)
+                header = ""
+                counts = ""
+                for event in Event.objects.filter(meet=Meet.objects.get(is_current_meet=True)):
+                    count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
+                    header += '<th>{}</th>'.format(event.initials)
+                    link = '/admin/gymnastics/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
+                    counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
-            self.children.append(modules.LinkList(
-                _(session.name),
-                column=2,
-                children=links,
-                post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
-            ))
+                self.children.append(modules.LinkList(
+                    _(session.name),
+                    column=2,
+                    children=links,
+                    post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
+                ))
+        except:
+            # no meet set, whoops
+            pass
 
         # append a recent actions module
         self.children.append(

@@ -16,7 +16,7 @@
   </head>
 
   <body>
-  <h1> {{meet.short_name}} {{session}}</h1>
+  <h1> {{session.meet.short_name}} {{session}}</h1>
 
 {% regroup athletes by team as athletes_by_team %}
 {% for team in athletes_by_team %}
