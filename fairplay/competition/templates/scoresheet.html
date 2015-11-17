@@ -10,9 +10,8 @@
     <meta name="author" content="">
 
     <title>Scoresheets for the Program Book</title>
-    <style>
-      table {width: 800px;}
-    </style>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/scoresheet.css" rel="stylesheet">
   </head>
 
   <body>
@@ -23,19 +22,19 @@
 <table border="1" cellpadding="7">
     <thead>
       <tr>
-        <th colspan="10">{{team.grouper.team}}</th>
+        <th colspan="10" class="team">{{team.grouper.team}}</th>
       </tr>
       <tr>
         <th>Gymnast</th>
-        <th>Level</th>
+        <th class="event">Level</th>
         <th>Div</th>
-        <th>Floor<br/>(FX)</th>
-        <th>Pommel<br/>(PH)</th>
-        <th>Rings<br/>(SR)</th>
-        <th>Vault<br/>(VT)</th>
-        <th>P-Bars<br/>(PB)</th>
-        <th>High Bar<br/>(HB)</th>
-        <th>All Around<br/>(AA)</th>
+        <th class="event">Floor<br/>(FX)</th>
+        <th class="event">Pommel<br/>(PH)</th>
+        <th class="event">Rings<br/>(SR)</th>
+        <th class="event">Vault<br/>(VT)</th>
+        <th class="event">P-Bars<br/>(PB)</th>
+        <th class="event">High Bar<br/>(HB)</th>
+        <th class="event">All Around<br/>(AA)</th>
       </tr>
     </thead>
 
@@ -43,8 +42,8 @@
     <tbody>
       <tr>
         <td>{{ athlete.as_athlete_firstlast }}</td>
-        <td>{{ athlete.level }}</td>
-        <td>{{ athlete.division.short_name }}</td>
+        <td class="center">{{ athlete.level }}</td>
+        <td class="center">{{ athlete.division.short_name }}</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
