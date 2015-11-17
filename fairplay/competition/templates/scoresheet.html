@@ -10,19 +10,20 @@
     <meta name="author" content="">
 
     <title>Scoresheets for the Program Book</title>
-     <!-- Bootstrap core CSS 
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">-->
+    <style>
+      table {width: 800px;}
+    </style>
   </head>
 
   <body>
   <h1> {{meet.short_name}} {{session}}</h1>
 
-<table border='3' cellpadding="7">
-{% for athlete in athletes %}
-  {% ifchanged athlete.team %}
+{% regroup athletes by team as athletes_by_team %}
+{% for team in athletes_by_team %}
+<table border="1" cellpadding="7">
     <thead>
       <tr>
-        <th colspan="10">{{athlete.team.team}}</th>
+        <th colspan="10">{{team.grouper.team}}</th>
       </tr>
       <tr>
         <th>Gymnast</th>
@@ -38,7 +39,7 @@
       </tr>
     </thead>
 
-  {% endifchanged %}
+    {% for athlete in team.list %}
     <tbody>
       <tr>
         <td>{{ athlete.as_athlete_firstlast }}</td>
@@ -53,9 +54,11 @@
         <td>&nbsp;</td>
       </tr>
     </tbody>
+    {% endfor %}
+  </table>
+  <p>&nbsp;</p>
 {% endfor %}
 
 
-  </table>
   </body>
 </html>
