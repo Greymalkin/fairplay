@@ -10,29 +10,52 @@
     <meta name="author" content="">
 
     <title>Scoresheets for the Program Book</title>
+     <!-- Bootstrap core CSS 
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">-->
   </head>
 
   <body>
-  <h1> {{meet.name}} </h1>
+  <h1> {{meet.short_name}} {{session}}</h1>
 
-  <table>
+<table border='3' cellpadding="7">
+{% for athlete in athletes %}
+  {% ifchanged athlete.team %}
     <thead>
-    <tr>
-      <th colspan="10">{{team}}</th>
-    </tr>
+      <tr>
+        <th colspan="10">{{athlete.team.team}}</th>
+      </tr>
       <tr>
         <th>Gymnast</th>
         <th>Level</th>
         <th>Div</th>
-        <th>Floor (FX)</th>
-        <th>Pommel (PH)</th>
-        <th>Rings (SR)</th>
-        <th>Vault (VT)</th>
-        <th>P-Bars (PB)</th>
-        <th>High Bar (HB)</th>
-        <th>AA</th>
+        <th>Floor<br/>(FX)</th>
+        <th>Pommel<br/>(PH)</th>
+        <th>Rings<br/>(SR)</th>
+        <th>Vault<br/>(VT)</th>
+        <th>P-Bars<br/>(PB)</th>
+        <th>High Bar<br/>(HB)</th>
+        <th>All Around<br/>(AA)</th>
       </tr>
     </thead>
+
+  {% endifchanged %}
+    <tbody>
+      <tr>
+        <td>{{ athlete.as_athlete_firstlast }}</td>
+        <td>{{ athlete.level }}</td>
+        <td>{{ athlete.division.short_name }}</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+      </tr>
+    </tbody>
+{% endfor %}
+
+
   </table>
   </body>
 </html>

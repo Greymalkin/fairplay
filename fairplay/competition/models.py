@@ -147,6 +147,14 @@ class Athlete(Gymnast):
     def session(self):
         return ""
 
+    @property
+    def as_athlete_firstlast(self):
+        return "{0} {1} {2}".format(self.athlete_id, self.first_name, self.last_name)
+
+    @property
+    def as_athlete_lastfirst(self):
+        return "{0} {2}, {1}".format(self.athlete_id, self.first_name, self.last_name)
+
 
 class Team(Team):
     pass

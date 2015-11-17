@@ -239,6 +239,9 @@ class SessionScoresheetView(TemplateView):
         context = super(SessionScoresheetView, self).get_context_data(**kwargs)
         context['meet'] = MEET
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+        context['athletes'] = models.Athlete.objects.filter(meet=MEET, division__session=self.kwargs['id']).\
+                                                order_by('team', 'division', 'last_name', 'first_name').\
+                                                select_related()
         return context
 
 

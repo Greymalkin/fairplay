@@ -128,12 +128,6 @@ class Gymnast(Person):
         usag = self.usag if self.usag and len(self.usag.strip()) else ''
         return "{3}{1}, {0} (L{2}) {4}".format(self.first_name, self.last_name, self.level, flagged, usag)
 
-    def as_athlete_firstlast(self):
-        return "{0} {1} {2}".format(self.athlete_id, self.first_name, self.last_name)
-
-    def as_athlete_lastfirst(self):
-        return "{0} {2}, {1}".format(self.athlete_id, self.first_name, self.last_name)
-
 
 class Level(models.Model):
     meet = models.ForeignKey(Meet, related_name='levels')
