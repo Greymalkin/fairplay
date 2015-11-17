@@ -253,8 +253,8 @@ class SessionLabelsView(TemplateView):
         context['athletes'] = models.Athlete.objects.filter(meet=MEET, division__session=self.kwargs['id']).\
                                                 order_by('team', 'division', 'last_name', 'first_name').\
                                                 select_related()
-        context['coaches'] = Coach.objects.filter(meet=MEET, team__gymnasts__division__session=context['session']).\
-                                                order_by('team', 'last_name', 'first_name').\
+        context['teams'] = Team.objects.filter(meet=MEET, gymnasts__division__session=context['session']).\
+                                                order_by('team').\
                                                 distinct()
         return context
 

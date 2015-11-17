@@ -18,7 +18,7 @@
     .label{
         /* Avery 5160 labels -- CSS and HTML by MM at Boulder Information Services */
         width: 2.025in; /* plus .6 inches from padding */
-        height: 1.875in; /* plus .125 inches from padding */
+        height: .875in; /* plus .125 inches from padding */
         padding: .125in .3in 0;
         margin-right: .125in; /* the gutter */
 
@@ -34,28 +34,36 @@
         display:block;
         page-break-after:always;
         }
+
+      .big {font-size: large; font-weight: bold;}
     </style>
   </head>
 
   <body>
-  <h1> {{session.meet.short_name}} {{session}} Gymnasts</h1>
+
+  <h1> {{session.meet.short_name}} {{session}} Labels for Gymnasts and Coaches</h1>
+  <div class="page-break"></div>
 
   {% for athlete in athletes%}
   <div class="label">
-    <h3>{{athlete.as_athlete_firstlast}} {{ athlete.team.team}}</h3>
-    <p>Level: {{athlete.level}}<br/>
-     Division: {{ athlete.division.short_name }}<br/>
-     {{ session.name }}</p>
+    <div class="big">{{athlete.as_athlete_firstlast}} {{ athlete.team.team}}</div>
+    <div>Level: {{athlete.level}} Division: {{ athlete.division.short_name }}<br/>
+     {{ session.name }}</div>
   </div>
   {% endfor%}
 
   <div class="page-break"></div>
 
-  <h1> {{session.meet.short_name}} {{session}} Coaches</h1>
-  {% for coach in coaches%}
+  {% for team in teams%}
   <div class="label">
-    <h3>{{coach.first_name}} {{coach.last_name}}<br/>{{ coach.team.team}}</h3>
-    <p>{{ session.name }}</p>
+    <div class="big">{{ team.team}}</div>
+    <div>
+      {{ session.name }} 
+      {% regroup session.divisions.all by level as by_level %}
+      {% for level in by_level %}<br/>
+        Level {{ level.grouper.level}}
+       {% endfor %} 
+    </div>
   </div>
   {% endfor%}
 
