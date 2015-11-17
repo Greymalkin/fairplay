@@ -7,6 +7,7 @@ class DivisionField(serializers.RelatedField):
     def to_representation(self, value):
         return {'name': value.name, 'level': value.level.level, 'id': value.id}
 
+
 class LEDSignSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.LEDSign
@@ -39,22 +40,24 @@ class AthleteEventSerializer(serializers.ModelSerializer):
         fields = ('id', 'event', 'score', )
 
 
-class AthleteSerializer(serializers.ModelSerializer):
-    division = DivisionField(read_only=True)
-    events = AthleteEventSerializer(many=True)
-
-    class Meta:
-        model = models.Athlete
-        fields = ('id', 'athlete_id', 'last_name', 'first_name', 'division', 'events', 'starting_event')
-        ordering = ('athlete_id', )
-
-
 class TeamSerializer(serializers.ModelSerializer):
-    athletes = AthleteSerializer(many=True, source='gymnasts')
+    pass
 
     class Meta:
         model = Team
-        fields = ('id', 'team', 'qualified', 'athletes',)
+        fields = ('id', 'team',)
+
+
+class AthleteSerializer(serializers.ModelSerializer):
+    division = DivisionField(read_only=True)
+    events = AthleteEventSerializer(many=True)
+    team = TeamSerializer(read_only=True)
+
+    class Meta:
+        model = models.Athlete
+        fields = ('id', 'athlete_id', 'last_name', 'first_name', 'division', 'events', 'team', 'starting_event')
+        ordering = ('athlete_id', )
+
 
 
 class MessageSerializer(serializers.ModelSerializer):

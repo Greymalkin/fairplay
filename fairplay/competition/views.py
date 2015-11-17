@@ -250,6 +250,7 @@ class AthleteViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = models.Athlete.objects.all()
     serializer_class = serializers.AthleteSerializer
+    lookup_field = 'athlete_id'
 
 
 class AthleteEventViewSet(viewsets.ModelViewSet):
