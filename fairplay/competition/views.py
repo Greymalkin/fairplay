@@ -17,6 +17,11 @@ from ledsign.bigdot import BigDot
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
+MEET, created = meetconfig.Meet.objects.get_or_create(is_current_meet=True,
+                  defaults={'name': 'AUTO CREATED', 
+                            'short_name': 'AUTO CREATED',
+                            'host': 'AUTO CREATED',
+                            'date': datetime.today(),})
 
 @csrf_exempt
 def led_sign(request):
@@ -39,8 +44,8 @@ def led_sign(request):
 
 @csrf_exempt
 def download_roster(request):
-    athletes = models.Athlete.objects.all().order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
-    events = models.Event.objects.all()
+    athletes = models.Athlete.objects.filter(meet=MEET).order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
+    events = models.Event.objects.filter(meet=MEET)
 
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
@@ -90,7 +95,6 @@ class SessionCeremonyView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SessionCeremonyView, self).get_context_data(**kwargs)
         session = models.Session.objects.get(id=self.kwargs['id'])
-        meet_settings = meetconfig.Meet.objects.get()
 
         # go do the actual math
         # calculate_session_ranking(session)
@@ -98,18 +102,18 @@ class SessionCeremonyView(TemplateView):
         # start populating the context
         context['session'] = session
         context['divisions'] = []
-        context['events'] = models.Event.objects.all()
+        context['events'] = models.Event.objects.filter(meet=MEET)
         context['rankings'] = {}
 
         for division in session.divisions.all().order_by('level', 'min_age'):
             leaderboards = []
 
             # division per event leaderboard
-            for event in models.Event.objects.all():
+            for event in models.Event.objects.filter(meet=MEET):
                 event_leaderboard = []
                 athlete_events = models.AthleteEvent.objects.filter(event=event, gymnast__division=division).order_by("rank")
                 total_count = len(athlete_events)
-                award_count = math.ceil(total_count * meet_settings.event_award_percentage)
+                award_count = math.ceil(total_count * MEET.event_award_percentage)
                 if total_count == 2:
                     award_count = 1
 
@@ -132,9 +136,9 @@ class SessionCeremonyView(TemplateView):
 
             # overall leaderboard for division
             aa_leaderboard = []
-            athletes = models.Athlete.objects.filter(division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
+            athletes = models.Athlete.objects.filter(meet=MEET, division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
             total_count = len(athletes)
-            award_count = math.ceil(total_count * meet_settings.all_around_award_percentage)
+            award_count = math.ceil(total_count * MEET.all_around_award_percentage)
 
             if total_count == 2:
                 award_count = 1
@@ -162,7 +166,7 @@ class SessionCeremonyView(TemplateView):
             context['divisions'].append(info)
 
         team_awards = []
-        for team_award in models.TeamAward.objects.filter(divisions__in=session.divisions.all()).distinct():
+        for team_award in models.TeamAward.objects.filter(meet=MEET, divisions__in=session.divisions.all()).distinct():
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
             for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
@@ -181,12 +185,12 @@ class SessionIndividualView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionIndividualView, self).get_context_data(**kwargs)
-        context['meet'] = meetconfig.Meet.objects.get()
+        context['meet'] = MEET
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         # calculate_session_ranking(context['session'])
 
-        context['events'] = models.Event.objects.all()
+        context['events'] = models.Event.objects.filter(meet=MEET)
         context['divisions'] = []
         for division in context['session'].divisions.all().order_by('min_age'):
             athletes = []
@@ -208,7 +212,7 @@ class SessionTeamView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionTeamView, self).get_context_data(**kwargs)
-        context['meet'] = meetconfig.Meet.objects.get()
+        context['meet'] = MEET
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         team_awards = []
@@ -225,6 +229,25 @@ class SessionTeamView(TemplateView):
 
         print(context)
 
+        return context
+
+
+class SessionScoresheetView(TemplateView):
+    template_name = 'scoresheet.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionScoresheetView, self).get_context_data(**kwargs)
+        context['meet'] = MEET
+        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+        return context
+
+
+class SessionScorecardLabelView(TemplateView):
+    template_name = 'label.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionScorecardLabelView, self).get_context_data(**kwargs)
+        context['meet'] = MEET
         return context
 
 
@@ -274,24 +297,6 @@ class SessionViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = models.Session.objects.all()
     serializer_class = serializers.SessionSerializer
-
-
-class ScoresheetView(TemplateView):
-    template_name = 'scoresheet.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(ScoresheetView, self).get_context_data(**kwargs)
-        context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)
-        return context
-
-
-class ScorecardLabelView(TemplateView):
-    template_name = 'label.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(ScorecardLabelView, self).get_context_data(**kwargs)
-        context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)
-        return context
 
 
 class CompetitionRosterView(TemplateView):

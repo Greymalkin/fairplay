@@ -130,7 +130,7 @@ class CustomIndexDashboard(Dashboard):
             # no meet set, whoops
             pass
 
-        sessions = Session.objects.all()
+        sessions = Session.objects.filter(meet=Meet.objects.get(is_current_meet=True))
         for session in sessions:
             links = []
             links.append({
@@ -146,6 +146,11 @@ class CustomIndexDashboard(Dashboard):
             links.append({
                 'title': 'Team Results',
                 'url': '/results/team/{}'.format(session.id),
+                'external': False,
+                })
+            links.append({
+                'title': 'Scoresheet',
+                'url': '/scoresheet/{}'.format(session.id),
                 'external': False,
                 })
 
