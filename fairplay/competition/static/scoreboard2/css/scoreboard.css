@@ -1,0 +1,50 @@
+body {
+    margin-top: 50px;
+}
+
+#scoreboard td {
+    vertical-align: middle;
+}
+
+#session-select {
+    width: 250px;
+}
+
+#sign-mode-select {
+    display: block;
+    margin-bottom: 20px;
+    width: 250px;
+}
+
+#message-select {
+    display: block;
+    width: 250px;
+}
+
+#rotation-select {
+    display: block;
+    width: 200px;
+    margin-bottom: 15px;
+}
+
+#competition {
+    display: none;
+}
+
+input {
+    font-weight:bold;
+}
+
+#athlete-id-entry {
+    width: 80px;
+}
+
+#athlete-find-button {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    width: 80px;
+}
+
+#scoreboard {
+    display: none;
+}
