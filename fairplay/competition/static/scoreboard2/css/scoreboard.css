@@ -47,4 +47,14 @@ input {
 
 #scoreboard {
     display: none;
+    min-width: 650px;
+}
+
+#competition {
+    float: left;
+}
+
+#history {
+    width: 250px;
+    float: right;
 }
