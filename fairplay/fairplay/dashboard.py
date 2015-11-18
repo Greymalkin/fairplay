@@ -165,7 +165,7 @@ class CustomIndexDashboard(Dashboard):
                 for event in Event.objects.filter(meet=Meet.objects.get(is_current_meet=True)):
                     count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                     header += '<th>{}</th>'.format(event.initials)
-                    link = '/admin/gymnastics/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
+                    link = '/admin/competition/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
                     counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
                 self.children.append(modules.LinkList(

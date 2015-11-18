@@ -118,7 +118,7 @@ class CoachAdmin(admin.ModelAdmin):
 
 
 class GymnastAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'usag', 'show_team', 'level', 'age', 'dob', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
+    list_display = ('last_name', 'first_name', 'usag', 'show_team', 'level', 'age', 'dob',  'division', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     raw_id_fields = ('team',)
@@ -154,7 +154,6 @@ class GymnastAdmin(admin.ModelAdmin):
             {'title': u'Choose tshirt size',
                 'objects': queryset,
                 'form': form})
-
     set_shirt_action.short_description = u'Update shirt size of selected gymnast'
 
     def verify_with_usag(self, request, queryset):
@@ -267,7 +266,6 @@ class GymnastAdmin(admin.ModelAdmin):
         messages.success(request, '{} updated'.format(message_bit))
     update_age.short_description = "Update gymnast competition age"
 
-
     def export_as_csv(self, request, queryset):
         """ Generic csv export admin action. """
         opts = self.model._meta
@@ -282,6 +280,41 @@ class GymnastAdmin(admin.ModelAdmin):
             writer.writerow([getattr(obj, field) for field in field_names])
         return response
     export_as_csv.short_description = "Export selected objects as csv file"
+
+    def sort_into_divisions(self, model_admin, request, queryset):
+        ''' Admin action meant to be performed once on all athletes at once.
+            However, it can be performed multiple times without harm, and also on only a few athletes.
+        '''
+        meet = Meet.objects.get(is_current_meet=True)
+        divisions_by_level = {}
+        rows_updated = queryset.count()
+
+        # Build dictionary of all divisions
+        divisions = models.Division.objects.filter(meet=meet)
+        for d in divisions:
+            if d.level.level not in divisions_by_level:
+                divisions_by_level[d.level.level] = {}
+            if d.min_age not in divisions_by_level[d.level.level]:
+                for age in range(d.min_age, d.max_age+1):
+                    divisions_by_level[d.level.level][age] = d
+
+        # Calc comptition age and retrieve correct division for age + level combination
+        for athlete in queryset:
+            if athlete.dob:
+                try:
+                    age = self.competition_age(athlete, meet)
+                    athlete.division = divisions_by_level[athlete.level.level][age]
+                    athlete.save()
+                except:
+                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(athlete, age, athlete.level))
+
+        if rows_updated == 1:
+            message_bit = '1 athelete division was'
+        else:
+            message_bit = '{} athlete divisions were'.format(rows_updated)
+
+        messages.success(request, '{} updated'.format(message_bit))
+    sort_into_divisions.short_description = "Set athlete id"
 
 
 class CoachInline(admin.TabularInline):
