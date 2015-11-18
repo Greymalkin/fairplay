@@ -104,7 +104,7 @@ class AthleteAdmin(admin.ModelAdmin):
         return qs
 
     def get_list_display(self, request):
-        result = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'starting_event']
+        result = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
         events = models.Event.objects.all()
         result += [e.initials for e in events]
         result += ['all_around', ]
