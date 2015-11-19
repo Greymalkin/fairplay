@@ -1,3 +1,5 @@
+import csv
+
 from datetime import date, timedelta
 from collections import OrderedDict
 
@@ -7,6 +9,7 @@ from django.conf import settings
 from django.db.models.signals import pre_save, post_save
 from django.db.models import Count, Sum, Max
 from django.dispatch import receiver
+from django.http import HttpResponse
 from grappelli.forms import GrappelliSortableHiddenMixin
 
 from . import models
@@ -24,6 +27,23 @@ def make_event_action(event):
             item.save()
 
     return (name, (action, name, "Set starting event to {}".format(event)))
+
+
+def export_as_csv(self, request, queryset):
+    """ Generic csv export admin action. """
+    opts = self.model._meta
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename={}.csv'.format(str(opts).replace('.', '_'))
+    writer = csv.writer(response)
+    field_names = [field.name for field in opts.fields]
+    # Write a first row with header information
+    writer.writerow(field_names)
+    # Write data rows
+    for obj in queryset:
+        writer.writerow([getattr(obj, field) for field in field_names])
+    return response
+export_as_csv.short_description = "Export selected objects as csv file"
+
 
 
 class SessionFilter(admin.SimpleListFilter):
@@ -72,6 +92,7 @@ class AthleteAdmin(admin.ModelAdmin):
         actions.insert(0, ('create_events', (self.create_events, 'create_events', '03. Create events for athlete')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
+        actions.append(('export_as_csv', (export_as_csv, 'export_as_csv', 'Export selected objects as csv file')))
         return OrderedDict(actions)
 
     def create_events(self, modeladmin, req, qset):
@@ -312,7 +333,7 @@ admin.site.register(models.Session, SessionAdmin)
 admin.site.register(models.Athlete, AthleteAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)
 admin.site.register(models.TeamAwardRank)
-# admin.site.register(models.Team, TeamAdmin)
+admin.site.add_action(export_as_csv)
 
 
 @receiver(pre_save, sender=models.TeamAward)

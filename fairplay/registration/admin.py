@@ -122,7 +122,7 @@ class GymnastAdmin(admin.ModelAdmin):
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     raw_id_fields = ('team',)
-    actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'export_as_csv']
+    actions = ['update_age', 'set_shirt_action', 'verify_with_usag', ]
     autocomplete_lookup_fields = {'fk': ['team']}
     exclude = ('meet',)
 
@@ -265,21 +265,6 @@ class GymnastAdmin(admin.ModelAdmin):
             message_bit = '{} gymnast\'s competition ages were'.format(rows_updated)
         messages.success(request, '{} updated'.format(message_bit))
     update_age.short_description = "Update gymnast competition age"
-
-    def export_as_csv(self, request, queryset):
-        """ Generic csv export admin action. """
-        opts = self.model._meta
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(str(opts).replace('.', '_'))
-        writer = csv.writer(response)
-        field_names = [field.name for field in opts.fields]
-        # Write a first row with header information
-        writer.writerow(field_names)
-        # Write data rows
-        for obj in queryset:
-            writer.writerow([getattr(obj, field) for field in field_names])
-        return response
-    export_as_csv.short_description = "Export selected objects as csv file"
 
     def sort_into_divisions(self, model_admin, request, queryset):
         ''' Admin action meant to be performed once on all athletes at once.
