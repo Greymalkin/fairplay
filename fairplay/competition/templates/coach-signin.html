@@ -1,0 +1,62 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Coaches Sign in Sheet</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/scoresheet.css" rel="stylesheet">
+    <style>
+      table {width: 1200px; 
+              page-break-inside: inherit; }
+      td {height: 50px;}
+    </style>
+  </head>
+
+  <body>
+
+  <h1> {{session.meet.name}}</h1>
+
+  <p>Coaches: By signing below you are certifying that you are a current USA Gymnatics Professional member
+      in good standing, with current safety/risk management and background check certification, along with the proper discipline level to 
+      participate in stated sanctioned events.</p>
+
+  <p>If your name is printed below, your credentials have been verified through the USAG database, if your name does
+      not appear below, please show proof of current USAG membership, safety and background certifications.</p>
+
+  <table border="1" >
+    <thead>
+      <tr style="background-color: #ddd">
+        <th>Club</th>
+        <th>Name</th>
+        <th style="width: 400px;">Signature</th>
+        <th class="center">USAG #</th>
+        <th>Safety Exp</th>
+        <th >Membership Exp</th>
+        <th>Background Exp</th>
+      </tr>
+    </thead>
+
+    {% for coach in coaches %}
+    <tbody>
+      <tr>
+        <td>{{ coach.team.team }}</td>
+        <td>{{ coach.first_name }} {{ coach.last_name }}</td>
+        <td>&nbsp;</td>
+        <td class="center">{{ coach.usag }} </td>
+        <td style="background-color: #ccc">&nbsp;</td>
+        <td style="background-color: #ccc">&nbsp;</td>
+        <td style="background-color: #ccc">&nbsp;</td>
+      </tr>
+    </tbody>
+    {% endfor %}
+  </table>
+
+  </body>
+</html>

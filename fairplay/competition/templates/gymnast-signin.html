@@ -1,0 +1,43 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>{{session}} Gymnast Sign In Sheet</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/scoresheet.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+  <table border="1" >
+    <thead>
+      <tr style="background-color: #ddd">
+        <th style="width: 150px">Club</th>
+        <th class="event">Athlete ID</th>
+        <th style="width: 200px;">Name</th>
+        <th>Checked In?</th>
+      </tr>
+    </thead>
+
+    {% for athlete in gymnasts %}
+    <tbody>
+      <tr>
+        <td>{{ athlete.team.team }}</td>
+        <td>{{ athlete.athlete_id}}</td>
+        <td>{{ athlete.last_name }}, {{ athlete.first_name }} </td>
+        <td>&nbsp;</td>
+      </tr>
+    </tbody>
+    {% endfor %}
+  </table>
+
+  </body>
+</html>

@@ -19,9 +19,12 @@ urlpatterns = patterns(
     url(r'^api/', include(router.urls)),
     url(r'^ledsign/', competition.views.led_sign),
     url(r'^roster/', competition.views.download_roster),
+    url(r'^coaches/signin/$', competition.views.CoachSignInView.as_view()),
     url(r'^results/ceremony/(?P<id>\d+)/$', competition.views.SessionCeremonyView.as_view()),
     url(r'^results/individual/(?P<id>\d+)/$', competition.views.SessionIndividualView.as_view()),
     url(r'^results/team/(?P<id>\d+)/$', competition.views.SessionTeamView.as_view()),
     url(r'^scoresheet/(?P<id>\d+)/$', competition.views.SessionScoresheetView.as_view()),
     url(r'^labels/(?P<id>\d+)/$', competition.views.SessionLabelsView.as_view()),
+    url(r'^rotations/(?P<id>\d+)/$', competition.views.SessionRotationView.as_view()),
+    url(r'^gymnast/signin/(?P<id>\d+)/$', competition.views.SessionGymnastSignInView.as_view()),
 )

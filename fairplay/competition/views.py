@@ -3,8 +3,10 @@ from datetime import datetime
 import csv
 import math
 import logging
+from collections import OrderedDict
 
 from django.views.generic import TemplateView
+
 
 from rest_framework import viewsets
 from . import models
@@ -67,22 +69,18 @@ def download_roster(request):
     writer.writerow(header)
 
     for athlete in athletes:
-        if athlete.starting_event:
-            starting_event = athlete.starting_event.initials
-        else:
-            starting_event = ""
         row = [
             athlete.first_name,
             athlete.last_name,
             athlete.team.team,
             '' if not athlete.division else athlete.division.level,
-            '' if not athlete.division else athlete.division.age_division,
+            '' if not athlete.division else athlete.division.short_name,
             athlete.athlete_id,
-            starting_event]
+            '' if not athlete.starting_event else athlete.starting_event.initials]
 
         for event in events:
             row.append(models.AthleteEvent.objects.get(gymnast=athlete,
-                                                event=event).score)
+                                                       event=event).score)
 
         writer.writerow(row)
 
@@ -238,7 +236,7 @@ class SessionScoresheetView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SessionScoresheetView, self).get_context_data(**kwargs)
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
-        context['athletes'] = models.Athlete.objects.filter(meet=MEET, division__session=self.kwargs['id']).\
+        context['athletes'] = models.Athlete.objects.filter(division__session=self.kwargs['id']).\
                                                 order_by('team', 'division', 'last_name', 'first_name').\
                                                 select_related()
         return context
@@ -250,12 +248,39 @@ class SessionLabelsView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SessionLabelsView, self).get_context_data(**kwargs)
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
-        context['athletes'] = models.Athlete.objects.filter(meet=MEET, division__session=self.kwargs['id']).\
+        context['athletes'] = models.Athlete.objects.filter(division__session=self.kwargs['id']).\
                                                 order_by('team', 'division', 'last_name', 'first_name').\
                                                 select_related()
-        context['teams'] = Team.objects.filter(meet=MEET, gymnasts__division__session=context['session']).\
+        context['teams'] = Team.objects.filter(gymnasts__division__session=context['session']).\
                                                 order_by('team').\
                                                 distinct()
+        return context
+
+
+class SessionGymnastSignInView(TemplateView):
+    template_name = 'gymnast-signin.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionGymnastSignInView, self).get_context_data(**kwargs)
+        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+        context['gymnasts'] = models.Athlete.objects.filter(division__session=self.kwargs['id']).\
+                                                order_by('team', 'last_name', 'first_name')
+        return context
+
+
+class SessionRotationView(TemplateView):
+    template_name = 'rotations.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionRotationView, self).get_context_data(**kwargs)
+        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+        context['events'] = models.Event.objects.filter(meet=MEET)
+        context['teams'] = Team.objects.filter(gymnasts__division__session=context['session']).distinct()
+        for t in context['teams']:
+            ateam = t.gymnasts.filter(is_scratched=False, division__session=context['session']).distinct('starting_event').order_by('starting_event_id')
+            print('*******', t.team)
+            for a in ateam:
+                print(a.starting_event, '|', a.starting_event.warmup_event)
         return context
 
 
@@ -316,8 +341,13 @@ class WarmupScheduleView(TemplateView):
     pass
 
 
-class SignInSheetView(TemplateView):
-    pass
+class CoachSignInView(TemplateView):
+    template_name = 'coach-signin.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CoachSignInSheetView, self).get_context_data(**kwargs)
+        context['coaches'] = Coach.objects.filter(meet=MEET).order_by('team', 'last_name', 'first_name')
+        return context
 
 
 class CompetitionOrder(TemplateView):

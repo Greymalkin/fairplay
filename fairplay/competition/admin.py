@@ -92,6 +92,7 @@ class AthleteAdmin(admin.ModelAdmin):
         actions.insert(0, ('create_events', (self.create_events, 'create_events', '03. Create events for athlete')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
+        actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to empty')))
         actions.append(('export_as_csv', (export_as_csv, 'export_as_csv', 'Export selected objects as csv file')))
         return OrderedDict(actions)
 
@@ -116,8 +117,15 @@ class AthleteAdmin(admin.ModelAdmin):
             sender=models.AthleteEvent,
             dispatch_uid='update_rankings')
 
+    def clear_event(self, modeladmin, request, queryset):
+        for item in queryset:
+            item.starting_event = None
+            item.save()
+    clear_event.short_description = "Set starting event to empty"
+
     def session(self, athlete):
         return models.Session.objects.get(divisions=athlete.division).name
+    session.admin_order_field = 'division__session__name'
 
     def get_queryset(self, request):
         qs = super(AthleteAdmin, self).get_queryset(request)

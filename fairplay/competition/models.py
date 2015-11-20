@@ -33,6 +33,16 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def warmup_event(self):
+        """ Traditional format warmup event """
+        warmup = None
+        try:
+            warmup = Event.objects.filter(meet=self.meet, order__gt=self.order)[0]
+        except:
+            warmup = Event.objects.first()
+        return warmup
+
 
 class Division(models.Model):
     meet = models.ForeignKey(Meet, related_name='divisions')
@@ -86,6 +96,15 @@ class Session(models.Model):
         except:
             return 0
     num_gymnasts.short_description = "Gymnasts"
+
+    @property
+    def levels(self):
+        levels = self.divisions.order_by('level_id').distinct('level_id').values_list('level__level', flat=True)
+        return levels
+
+    @property
+    def division_list(self):
+        return self.divisions.values_list('name', flat=True)
 
 
 class TeamAward(models.Model):
@@ -225,7 +244,6 @@ post_save.connect(
     scratch_athlete,
     sender=Athlete,
     dispatch_uid='scratch_athlete')
-
 
 post_save.connect(
     populate_athlete,

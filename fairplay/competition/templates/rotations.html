@@ -1,0 +1,53 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Warm Ups and Rotations</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/scoresheet.css" rel="stylesheet">
+
+    <style>
+      table {width: 100%;}
+    </style>
+  </head>
+
+  <body>
+
+  <h1> {{session.meet.name}}</h1>
+  <h3> {{ session.name }}: Level {{session.levels|join:", "}} </h3>
+  <p>Host: {{session.meet.host}} <br/>
+    {{session.meet.date}}</p>
+
+  <table border="1">
+  <tr><td colspan="4">Warm-up time per event: 10 minutes</td></tr>
+  <tr>
+    <td>Open Warm-Up<td>
+    <td>&nbsp;</td>
+    <td>Timed Warm-Up</td>
+    <td>&nbsp;</td>
+  </tr>
+  </table>
+
+
+  <table>
+    <tr>
+      <td>Team</td>
+      <td>Level</td>
+      <td>Begin Warm-up</td>
+      <td>Begin Meet</td>
+    </tr>
+  {% for team in teams %}
+  <tr>
+    <td>{{team.team}} </td>
+  </tr>
+  {% endfor %}
+</table>
+  </body>
+</html>
