@@ -34,8 +34,8 @@ class Event(models.Model):
         return self.name
 
     @property
-    def warmup_event(self):
-        """ Traditional format warmup event """
+    def warmup_event_starthere(self):
+        """ Traditional Format. If this is where you start your warmup, where will your first event rotation start? """
         warmup = None
         try:
             warmup = Event.objects.filter(meet=self.meet, order__gt=self.order)[0]
@@ -43,10 +43,19 @@ class Event(models.Model):
             warmup = Event.objects.first()
         return warmup
 
+    def warmup_event_endhere(self):
+        """ Traditional Format. Where do you start your warmup if you need to end warmup at THIS, first event rotation? """
+        warmup = None
+        try:
+            warmup = Event.objects.filter(meet=self.meet, order__lt=self.order)[0]
+        except:
+            warmup = Event.objects.last()
+        return warmup
+
 
 class Division(models.Model):
     meet = models.ForeignKey(Meet, related_name='divisions')
-    level = models.ForeignKey(Level)
+    level = models.ForeignKey(Level, related_name='divisions')
     name = models.CharField(max_length=50)
     short_name = models.CharField(max_length=10, help_text='For printing in report columns.')
     min_age = models.PositiveSmallIntegerField(default=6)

@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 from rest_framework import viewsets
 from . import models
 from meet import models as meetconfig
-from registration.models import Gymnast, Team, Coach
+from registration.models import Gymnast, Team, Coach, Level
 from . import serializers
 
 from ledsign.bigdot import BigDot
@@ -274,14 +274,43 @@ class SessionRotationView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SessionRotationView, self).get_context_data(**kwargs)
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
-        context['events'] = models.Event.objects.filter(meet=MEET)
-        context['teams'] = Team.objects.filter(gymnasts__division__session=context['session']).distinct()
-        for t in context['teams']:
-            ateam = t.gymnasts.filter(is_scratched=False, division__session=context['session']).distinct('starting_event').order_by('starting_event_id')
-            print('*******', t.team)
-            for a in ateam:
-                print(a.starting_event, '|', a.starting_event.warmup_event)
+        context['events'] = []
+        context['warmup'] = []
+        for event in models.Event.objects.filter(meet=MEET):
+            event_info = {}
+            event_info['event'] = event
+            event_info['warmup'] = []
+            event_info['rotation'] = []
+
+            for team in self.teams_on_event(context['session'], event):
+                team_info = {}
+                team_info['team'] = team
+                team_info['divisions'] = self.divisions_in_rotation(context['session'], event, team)
+                team_info['levels'] = self.levels_in_rotation(context['session'], event, team)
+                event_info['rotation'].append(team_info)
+
+            for team in self.teams_on_event(context['session'], event.warmup_event_endhere()):
+                team_info = {}
+                team_info['team'] = team
+                team_info['divisions'] = self.divisions_in_rotation(context['session'], event, team)
+                team_info['levels'] = self.levels_in_rotation(context['session'], event, team)
+                event_info['warmup'].append(team_info)                
+
+            context['events'].append(event_info)        
+
         return context
+
+    def teams_on_event(self, session, event):
+        teams = Team.objects.filter(gymnasts__division__session=session, gymnasts__starting_event=event).distinct()
+        return teams
+
+    def divisions_in_rotation(self, session, event, team):
+        divisions = models.Division.objects.filter(session=session, athletes__team=team, athletes__starting_event=event).distinct()
+        return divisions
+
+    def levels_in_rotation(self, session, event, team):
+        levels = Level.objects.filter(divisions__session=session, divisions__athletes__team=team, divisions__athletes__starting_event=event).distinct()
+        return levels
 
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):

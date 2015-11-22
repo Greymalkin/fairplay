@@ -11,10 +11,9 @@
 
     <title>Warm Ups and Rotations</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/static/css/scoresheet.css" rel="stylesheet">
 
     <style>
-      table {width: 100%;}
+      table {width: 75%;}
     </style>
   </head>
 
@@ -25,29 +24,42 @@
   <p>Host: {{session.meet.host}} <br/>
     {{session.meet.date}}</p>
 
-  <table border="1">
-  <tr><td colspan="4">Warm-up time per event: 10 minutes</td></tr>
+<div>Warm-up time per event: 10 minutes</div>
+<table>
   <tr>
     <td>Open Warm-Up<td>
-    <td>&nbsp;</td>
     <td>Timed Warm-Up</td>
-    <td>&nbsp;</td>
   </tr>
   </table>
 
 
-  <table>
-    <tr>
-      <td>Team</td>
-      <td>Level</td>
-      <td>Begin Warm-up</td>
-      <td>Begin Meet</td>
-    </tr>
-  {% for team in teams %}
-  <tr>
-    <td>{{team.team}} </td>
-  </tr>
+  <p>&nbsp;</p>
+  <h2>Warm-up Rotation</h2>
+
+  {% for event in events %}
+  <div class="event">{{event.event.name}} </div>
+    {% for team in event.warmup %}
+      <div class="team">
+        {{team.team.team }} 
+          {% if session.name = "Session III" %} <span class="divisions">Levels {{team.levels|join:", "}}</span>{% endif %}
+      </div>
+    {% endfor %}
+    <p>&nbsp;</p>
   {% endfor %}
-</table>
+
+  <p>&nbsp;</p>
+  <h2>Competition Rotation</h2>
+
+  {% for event in events %}
+  <div class="event">{{event.event.name}} </div>
+    {% for team in event.rotation %}
+      <div class="team">
+        {{team.team.team }} 
+          {% if session.name = "Session III" %} <span class="divisions">Levels {{team.levels|join:", "}}</span>{% endif %}
+      </div>
+    {% endfor %}
+    <p>&nbsp;</p>
+  {% endfor %}
+
   </body>
 </html>
