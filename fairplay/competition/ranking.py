@@ -122,12 +122,12 @@ def update_team_ranking():
                 ).order_by("-score")[:3]
 
                 if len(top_3) == 3:
-                    print(t.team)
-                    print('---')
-                    for e in top_3:
-                        print(e.gymnast.first_name, e.gymnast.last_name, e.score)
-                    print('Total: ', top_3.aggregate(total=Sum('score')))
-                    print('')
+                    # print(t.team)
+                    # print('---')
+                    # for e in top_3:
+                    #     print(e.gymnast.first_name, e.gymnast.last_name, e.score)
+                    # print('Total: ', top_3.aggregate(total=Sum('score')))
+                    # print('')
 
                     score = top_3.aggregate(total=Sum('score'))
                     if score['total'] is not None:

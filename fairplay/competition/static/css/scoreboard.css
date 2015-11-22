@@ -27,22 +27,40 @@ body {
     margin-bottom: 15px;
 }
 
-#messaging {
-    display: none;
-}
-
-#introduce_teams {
-    display: none;
-}
-
-#event_name {
-    display: none;
+.container {
+    display: flex;
 }
 
 #competition {
     display: none;
+    flex: 1;
 }
 
 input {
     font-weight:bold;
+}
+
+#athlete-id-entry {
+    width: 80px;
+}
+
+#athlete-find-button {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    width: 80px;
+}
+
+#scoreboard {
+    display: none;
+    width: 100%;
+    flex: 1;
+}
+
+#history {
+    display: none;
+    width: 250px;
+}
+
+h4 {
+    margin-top: 20px;
 }

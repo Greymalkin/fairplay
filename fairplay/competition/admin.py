@@ -280,11 +280,19 @@ class SessionAdmin(admin.ModelAdmin):
 
 
 class LEDSignAdmin(admin.ModelAdmin):
-    list_display = ('sign_id', 'device', )
+    list_display = ('name', 'device', )
 
 
-class MessageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'message', )
+class LEDShowMessageInline(admin.TabularInline):
+    model = models.LEDShowMessage
+    fields = ('led_sign', 'message')
+    extra = 6
+
+
+class LEDShowAdmin(admin.ModelAdmin):
+    model = models.LEDShow
+    list_display = ('name',)
+    inlines = (LEDShowMessageInline, )
 
 
 # class TeamAdmin(admin.ModelAdmin):
@@ -307,7 +315,7 @@ admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
 admin.site.register(models.Event, EventAdmin)
 admin.site.register(models.AthleteEvent, AthleteEventAdmin)
-admin.site.register(models.Message, MessageAdmin)
+admin.site.register(models.LEDShow, LEDShowAdmin)
 admin.site.register(models.Session, SessionAdmin)
 admin.site.register(models.Athlete, AthleteAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)

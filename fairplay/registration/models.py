@@ -45,20 +45,26 @@ class Team(models.Model):
         return '{} {}'.format(self.first_name, self.last_name)
 
     def calc_level_cost(self):
-        num_levels = self.team_awards.count()
-        if num_levels > 0:
-            self.level_cost = self.per_level_cost.price * num_levels
-        else:
-            self.level_cost = 0
-        return self.level_cost
+        try:
+            num_levels = self.team_awards.count()
+            if num_levels > 0:
+                self.level_cost = self.per_level_cost.price * num_levels
+            else:
+                self.level_cost = 0
+            return self.level_cost
+        except:
+            return 0
 
     def calc_gymnast_cost(self):
-        num_gymnasts = self.gymnasts.filter(is_scratched=False).count()
-        if num_gymnasts > 0:
-            self.gymnast_cost = self.per_gymnast_cost.price * num_gymnasts
-        else:
-            self.gymnast_cost = 0
-        return self.gymnast_cost
+        try:
+            num_gymnasts = self.gymnasts.filter(is_scratched=False).count()
+            if num_gymnasts > 0:
+                self.gymnast_cost = self.per_gymnast_cost.price * num_gymnasts
+            else:
+                self.gymnast_cost = 0
+            return self.gymnast_cost
+        except:
+            return 0
 
     def calc_total_cost(self):
         return self.gymnast_cost + self.level_cost

@@ -1,7 +1,5 @@
 from django.db import models
-from django.dispatch import receiver
-from django.db.models.signals import pre_save,post_save, m2m_changed
-from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 from meet.models import Meet
 from registration.models import Team, Gymnast, Level
@@ -9,11 +7,11 @@ from . import ranking
 
 
 class LEDSign(models.Model):
-    sign_id = models.PositiveSmallIntegerField(unique=True)
+    name = models.CharField(max_length=255)
     device = models.CharField(max_length=255)
 
     def __str__(self):
-        return "{}".format(self.id)
+        return self.name
 
     class Meta:
         verbose_name = "LED sign"
@@ -160,15 +158,27 @@ class Team(Team):
     pass
 
     class Meta:
-        proxy=True
+        proxy = True
 
 
-class Message(models.Model):
+class LEDShow(models.Model):
     name = models.CharField(max_length=255)
-    message = models.TextField()
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "LED show"
+        verbose_name_plural = "LED shows"
+
+
+class LEDShowMessage(models.Model):
+    led_sign = models.ForeignKey(LEDSign)
+    led_show = models.ForeignKey(LEDShow)
+    message = models.TextField()
+
+    def __str__(self):
+        return str(self.id)
 
 
 def populate_athlete(instance, created, raw, **kwargs):
