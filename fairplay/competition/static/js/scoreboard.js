@@ -1,10 +1,10 @@
 (function() {
-    var sessionTable = {};
     var eventList = [];
     var eventTable = {};
     var currentEvent = null;
     var currentSession = null;
-    var currentAthletes = null;
+    var currentAthlete = null;
+    var currentAthleteEventId = null;
     var introText = "";
 
     // using jQuery
@@ -32,12 +32,16 @@
     });
 
     function onSelectEvent(event) {
-        currentEvent  = eventTable[$(event.target).attr('data-id')];
+        currentEvent  = eventTable[$("#event-select").val()];
 
         $("#event-name").text(currentEvent.name);
+        $("#competition").show();
+        $("#history").show();
+
+        $("#scoreboard").hide();
+        $("#history-list").empty();
 
         $("#topnav li").removeClass("active");
-        $(event.target).parent().addClass("active");
 
         $("label[for='sign-mode-select']").show();
         $("#sign-mode-select").show();
@@ -45,190 +49,107 @@
         $("#sign-mode-select").change();
         $("#message-select").val($("#message-select option:first").val());
         $("#message-select").change();
+
+        $("#athlete-id-entry").focus();
     }
 
-    function onChangeSession(event) {
-        currentSession  = sessionTable[parseInt($("#session-select").val())];
-
-        if (currentEvent !== null) {
-            $("#sign-mode-select").val('messaging');
-            $("#sign-mode-select").change();
-            $("#message-select").val($("#message-select option:first").val());
-            $("#message-select").change();
+    function onChangeAthleteID(event) {
+        if (event.keyCode == 13) {
+            loadAthlete();
         }
-
-        for (var p in currentSession.teams) {
-            var athleteList = currentSession.teams[p];
-            introText += "|MODE_WIPE_DOWN||COLOR_RED|"+p+"|MODE_ROTATE|";
-            for (var i=0; i<athleteList.length; ++i) {
-                var athlete = athleteList[i];
-                if (i % 2 === 0){
-                    introText += "|COLOR_YELLOW|";
-                } else {
-                    introText += "|COLOR_GREEN|";
-                }
-                introText += athlete.athlete_id + " " + athlete.first_name + " " + athlete.last_name + "  ";
-            }
-        }
-    }
-
-    function onChangeMode(event) {
-        var value = $(event.target).val();
-
-        $("#messaging").hide();
-        $("#introduce_teams").hide();
-        $("#competition").hide();
-
-        $("#" + value).show();
-
-        if (value == "competition") {
-            $("#rotation-select").val("0");
-            $("#rotation-select").change();
-
-        } else if (value == "introduce_teams") {
-            var data = {
-                "device": currentEvent.sign.device,
-                "message": introText
-            };
-
-            $.post('/ledsign/', JSON.stringify(data))
-            .success(function(data) {
-                console.log("Sent message!", data);
-            })
-            .error(function(data) {
-                console.log("Error sending message!", data);
-            });
-        }
-
-    }
-
-    function onChangeMessage(event) {
-        var data = {
-            "device": currentEvent.sign.device,
-            "message": $(event.target).val()
-        };
-
-        $.post('/ledsign/', JSON.stringify(data))
-        .success(function(data) {
-            console.log("Sent message!", data);
-        })
-        .error(function(data) {
-            console.log("Error sending message!", data);
-        });
-    }
-
-    function onChangeRotation(event) {
-        var rotation = $(event.target).val();
-        $("#scoreboard").find("tr:gt(0)").remove();
-
-        var athletes = currentSession.events[currentEvent.id][rotation];
-
-        currentAthletes = athletes;
-
-        for (var i=0; i<athletes.length; ++i) {
-            var athlete = athletes[i];
-            var score = null;
-
-            for (var j=0; j<athlete.athlete.events.length; ++j) {
-                if (athlete.athlete.events[j].event == currentEvent.id) {
-                    score = athlete.athlete.events[j].score;
-                }
-            }
-
-            var row = $('<tr data-id="' + athlete.athleteEventID + '"></tr>');
-            row.append('<td>' + athlete.athlete.athlete_id+ '</td>');
-            row.append('<td>' + athlete.athlete.last_name+'</td>');
-            row.append('<td>' + athlete.athlete.first_name+'</td>');
-            row.append('<td>' + athlete.athlete.team+'</td>');
-            if (score === null) {
-                scoreInput = $('<input class="form-control"  size="4" data-index="'+i+'"></input>');
-            } else {
-                scoreInput = $('<input class="form-control alert-success" size="4" value="'+score+'" data-index="'+i+'"></input>');
-            }
-            scoreInput.keypress(onScoreKey);
-            scoreCol = $("<td></td>");
-            scoreCol.append(scoreInput);
-            row.append(scoreCol);
-            row.append('<td><button "type="button" class="btn btn-primary save-button">Save</button></td>');
-            $("#scoreboard").append(row);
-        }
-
-        $(".next-button").click(showNextAthlete);
-        $(".save-button").click(saveAthlete);
     }
 
     function onScoreKey(event) {
-        if (event.which == 13) {
-            var row = $(event.target).parent().parent().find("td");
+        if (event.keyCode == 13) {
             saveAthlete(event);
         }
     }
 
-    function showNextAthlete(event) {
-        var row = $(event.target).parent().parent().find("td");
+    function processAthlete(data) {
+        var score = null;
 
-        var id = $(row[0]).text();
-        var lastName = $(row[1]).text();
-        var firstName = $(row[2]).text();
-        var team = $(row[3]).text();
+        data.events.forEach(function(item) {
+            if (item.event == currentEvent.id) {
+                score = item.score;
+                currentAthleteEventId = item.id;
+            }
+        });
 
-        var message = "|MODE_WIPE_UP||COLOR_GREEN|Next Up:|MODE_ROTATE||COLOR_YELLOW|";
-        message += id + " " + firstName + " " + lastName + " - " + team;
+        currentAthlete = data;
+        $("#scoreboard").show();
+        $("#athlete-id-confirm").text(data.athlete_id);
+        $("#athlete-last-name-confirm").text(data.last_name);
+        $("#athlete-first-name-confirm").text(data.first_name);
+        $("#athlete-team-confirm").text(data.team.team);
 
-        var data = {
-            "device": currentEvent.sign.device,
-            "message": message
-        };
+        $("#athlete-score-entry").val(score);
 
-        $.post('/ledsign/', JSON.stringify(data))
-        .success(function(data) {
-            console.log("Sent message!", data);
-        })
-        .error(function(data) {
-            console.log("Error sending message!", data);
+        if (score == null || String(score).length == 0) {
+            $("#athlete-score-entry").removeClass("alert-warning");
+        } else {
+            $("#athlete-score-entry").addClass("alert-warning");
+        }
+
+        $("#athlete-score-entry").focus();
+        $("#athlete-score-entry").select();
+    }
+
+    function loadAthlete() {
+        var athleteId = $("#athlete-id-entry").val();
+        $("#athlete-id-entry").val('');
+        $.getJSON('/api/athletes/' + athleteId + '/')
+        .success(processAthlete)
+        .error(function() {
+            alert("Sorry, no athlete with ID " + athleteId + " exists!")
         });
     }
 
     function saveAthlete(event) {
-        var tr = $(event.target).parent().parent();
-        var row = tr.find("td");
-
-        var score = parseFloat($(row[4]).children()[0].value);
+        var score = parseFloat($("#athlete-score-entry").val());
 
         if (score >= 0 && score <= 20) {
-            var id = tr.attr('data-id');
+            $("#scoreboard").fadeOut();
             $.ajax({
-                url: '/api/athleteevents/' + id,
-                data: JSON.stringify({"id":id, "score": score, "event":currentEvent.id}),
+                url: '/api/athleteevents/' + currentAthleteEventId + '/',
+                data: JSON.stringify({
+                    "id":currentAthleteEventId,
+                    "score": score,
+                    "event":currentEvent.id
+                }),
                 type: 'PUT',
                 contentType: 'Application/JSON'
             })
             .success(function(data) {
-                tr.fadeTo(100, 0.2, function() { tr.fadeTo(100, 1); });
-                var input = $($(row[4]).children()[0]);
-                input.addClass("alert-success");
-
-                // put the score back into the data
-                var athlete = currentAthletes[parseInt(input.attr('data-index'))];
-                for (var j=0; j<athlete.athlete.events.length; ++j) {
-                    if (athlete.athlete.events[j].event == currentEvent.id) {
-                        athlete.athlete.events[j].score = score;
-                    }
-                }
+                showScore(score);
+                currentAthlete = null;
+                currentAthleteEventId = null;
             })
             .error(function(data) {
-                console.log("FAILURE");
+                alert("Problem saving athlete event score!");
+                currentAthlete = null;
+                currentAthleteEventId = null;
             });
+
+            $("#athlete-id-entry").focus();
+
         } else {
             alert("Invalid score");
-            $(row[5]).children()[0].value = "";
+            $("#athlete-score-entry").val("")
+        }
+    }
+
+    function showScore(score) {
+        var id = currentAthlete.athlete_id;
+        var lastName = currentAthlete.last_name;
+        var firstName = currentAthlete.first_name;
+        var team = currentAthlete.team.team;
+        var scoreText = String(score);
+
+        if (scoreText.split(".").length == 1) {
+            scoreText += ".0";
         }
 
-        var id = $(row[0]).text();
-        var lastName = $(row[1]).text();
-        var firstName = $(row[2]).text();
-        var team = $(row[3]).text();
-        var scoreText = $(row[4]).children()[0].value;
+        $("#history-list").prepend("<tr><td>" + id + " " + lastName +", " + firstName + "</td><td>" + scoreText + "</td></tr>");
 
         if (!isNaN(score) && score > 0) {
 
@@ -243,6 +164,8 @@
                 "message": message
             };
 
+            console.log(data);
+
             $.post('/ledsign/', JSON.stringify(data))
             .success(function(data) {
                 console.log("Sent message!", data);
@@ -253,70 +176,16 @@
         }
     }
 
-    function processSessions(data) {
-        $("#session-select").empty();
-
-        for (var i=0; i<data.length; ++i) {
-            var session = data[i];
-            session.events = {};
-            session.teams = {};
-
-            for (var j=0; j<eventList.length; ++j) {
-                session.events[eventList[j].id] = [];
-
-                for (var k=0; k<eventList.length; ++k) {
-                    session.events[eventList[j].id].push([]);
-                }
-            }
-
-            sessionTable[session.id] = data[i];
-            $("#session-select").append('<option value="' + session.id + '">' + session.name + '</option>');
-        }
-
-        $.getJSON('/api/teams')
-        .success(processTeams)
-        .error(handleError);
-    }
-
-    function processMessages(data) {
-        $("#message-select").empty();
-        $("#message-select").append('<option value="">--</option>');
-
-        for (var i=0; i<data.length; ++i) {
-            $("#message-select").append('<option value="' + data[i].message + '">' + data[i].name + '</option>');
-        }
-    }
-
     function processEvents(data) {
-        $("#topnav").empty();
-        $("#rotation-select").empty();
+        $("#event-select").empty();
 
         for (var i=0; i<data.length; ++i) {
-            var eventNav = $('<a href="#" data-id="'+data[i].id+'">'+data[i].name+'</a>');
-            eventNav.click(onSelectEvent);
-            $("#topnav").append($("<li></li>").append(eventNav));
-
+            $("#event-select").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
             eventList.push(data[i]);
             eventTable[data[i].id] = data[i];
-            $("#rotation-select").append('<option value="' + i + '">Rotation #' + (i + 1) + '</option>');
         }
 
-        $.getJSON('/api/sessions')
-        .success(processSessions)
-        .error(handleError);
-    }
-
-    function findSession(id) {
-        for (var p in sessionTable) {
-            session = sessionTable[p];
-            for (var q=0; q<session.divisions.length; ++q) {
-                if (session.divisions[q].id === id) {
-                    return session;
-                }
-            }
-        }
-
-        return null;
+        onSelectEvent();
     }
 
     // get a wrapped list of event IDs
@@ -341,80 +210,15 @@
         return result;
     }
 
-    function processTeams(data) {
-        var warnings = [];
-
-        for (var i=0; i<data.length; ++i) {
-            var team = data[i];
-
-            for (var j=0; j<team.athletes.length; ++j) {
-                athlete = team.athletes[j];
-                athlete.team = team.team;
-
-                if (athlete.division == null) {
-                    warnings.push(athlete.first_name + " " + athlete.last_name + " ("+athlete.team+") - No division");
-                    continue;
-                }
-
-                session = findSession(athlete.division.id);
-
-                if (session !== null) {
-                    if (session.teams[team.name] == null) {
-                        session.teams[team.name] = [];
-                    }
-                    session.teams[team.name].push(athlete);
-
-
-
-                    if (athlete.starting_event === null) {
-                        warnings.push(athlete.first_name + " " + athlete.last_name + " ("+athlete.team+") - No starting event");
-
-                    } else {
-                        var eventIDs = getEventList(athlete.starting_event);
-
-                        for (var k=0; k<eventIDs.length; ++k) {
-                            var eventID = eventIDs[k];
-                            var athleteEventID = null;
-
-                            for (var q=0; q<athlete.events.length; ++q) {
-                                if (athlete.events[q].event === eventID) {
-                                    athleteEventID = athlete.events[q].id;
-                                }
-                            }
-
-                            session.events[eventID][k].push({
-                                "athlete":athlete,
-                                "athleteEventID": athleteEventID
-                            });
-                        }
-                    }
-                }
-            }
-        }
-
-        if (warnings.length > 0) {
-            warningText = "WARNING! The following athletes have problems:\n";
-            warningText += warnings.join("\n");
-            alert(warningText);
-        }
-
-        onChangeSession(null);
-    }
-
     function handleError(e) {
         console.log("ERROR ", e);
     }
 
-    $("#sign-mode-select").hide();
-
-    $("#rotation-select").change(onChangeRotation);
-    $("#session-select").change(onChangeSession);
-    $("#sign-mode-select").change(onChangeMode);
-    $("#message-select").change(onChangeMessage);
-
-    $.getJSON('/api/messages')
-    .success(processMessages)
-    .error(handleError);
+    $("#athlete-id-entry").on("keypress", onChangeAthleteID);
+    $("#athlete-score-entry").on("keypress", onScoreKey);
+    $("#athlete-find-button").click(loadAthlete);
+    $("#athlete-save-button").click(saveAthlete);
+    $("#event-select").change(onSelectEvent)
 
     $.getJSON('/api/events')
     .success(processEvents)

@@ -20,7 +20,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 MEET, created = meetconfig.Meet.objects.get_or_create(is_current_meet=True,
-                  defaults={'name': 'AUTO CREATED', 
+                  defaults={'name': 'AUTO CREATED',
                             'short_name': 'AUTO CREATED',
                             'host': 'AUTO CREATED',
                             'date': datetime.today(),})
@@ -168,7 +168,7 @@ class SessionCeremonyView(TemplateView):
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
             for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
-                teams.append({'name': t.team.name, 'score': t.score, 'rank': t.rank})
+                teams.append({'name': t.team.team, 'score': t.score, 'rank': t.rank})
 
             team_awards.append({'id': team_award.id, 'award': team_award.name, 'teams': teams})
 
@@ -344,14 +344,6 @@ class AthleteEventViewSet(viewsets.ModelViewSet):
     """
     queryset = models.AthleteEvent.objects.all()
     serializer_class = serializers.AthleteEventSerializer
-
-
-class MessageViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
-    queryset = models.Message.objects.all()
-    serializer_class = serializers.MessageSerializer
 
 
 class SessionViewSet(viewsets.ReadOnlyModelViewSet):

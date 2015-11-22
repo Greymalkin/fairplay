@@ -13,10 +13,25 @@ from grappelli.dashboard import modules, Dashboard
 from grappelli.dashboard.utils import get_admin_site_name
 
 from meet.models import Meet
+from competition.models import LEDShow
 from competition.models import Session, Event
 from registration.models import Gymnast, Level
 
 roster_html = """
+<div style="margin-left:10px; margin-right:10px; margin-bottom:10px; margin-top:60px;">
+<label for="led-show-select" class="grp-listing-small">LED Show</label>
+<select id="led-show-select">
+<option value="">---</option>
+"""
+
+for show in LEDShow.objects.all():
+    roster_html += '<option value="{}">{}</option>'.format(show.id, show.name)
+
+roster_html += """
+</select>
+<input id="led-show-button" type="button" value="Display Show" class="grp-button grp-default" style="width:100%;margin-top: 10px;"/>
+</div>"""
+roster_html += """
 <script src="/static/js/jquery.ocupload-min.js"></script>
 <script src="/static/js/dashboard.js"></script>
 """
@@ -66,7 +81,7 @@ class CustomIndexDashboard(Dashboard):
                 'competition.models.Division',
                 'competition.models.Session',
                 'competition.models.Event',
-                'competition.models.Message',
+                'competition.models.LEDShow',
                 'competition.models.Team',
                 'competition.models.TeamAward',
                 'competition.models.TeamAwardRank',
@@ -177,6 +192,7 @@ class CustomIndexDashboard(Dashboard):
                     _(session.name),
                     column=2,
                     children=links,
+                    css_classes=('grp-closed',),
                     post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
                 ))
         except:

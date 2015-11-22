@@ -11,7 +11,7 @@ class DivisionField(serializers.RelatedField):
 class LEDSignSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.LEDSign
-        fields = ('sign_id', 'device',)
+        fields = ('name', 'device',)
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -57,10 +57,3 @@ class AthleteSerializer(serializers.ModelSerializer):
         model = models.Athlete
         fields = ('id', 'athlete_id', 'last_name', 'first_name', 'division', 'events', 'team', 'starting_event')
         ordering = ('athlete_id', )
-
-
-
-class MessageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Message
-        fields = ('id', 'name', 'message')

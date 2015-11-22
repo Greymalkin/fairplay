@@ -1,9 +1,0 @@
-/* Reduce the size of the filter horizontal boxes slightly, so they line up correctly  */
-.selector .selector-available, .selector .selector-chosen {
-  width: 365px;
-}
-
-.selector select[multiple=multiple] {
-  max-width: 367px !important;
-  width: 367px !important;
-}
