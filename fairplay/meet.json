@@ -1,1 +1,0 @@
-[{"fields": {"date": "2015-12-12", "flow_thresh_min": 10, "name": "2015 Baltimore-Washington Men's Invitational", "notes": null, "all_around_award_percentage": 0.5, "flow_thresh_max": 15, "short_name": "2015 BWI", "event_award_percentage": 0.5, "max_sessions_per_day": 3, "host": "Fairland", "is_current_meet": true}, "model": "meet.meet", "pk": 1}]
