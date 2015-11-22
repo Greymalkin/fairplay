@@ -78,7 +78,7 @@ class Session(models.Model):
 
     def num_gymnasts(self):
         try:
-            num_gymnasts = [a.athletes.all().count() for a in self.divisions.all()]
+            num_gymnasts = [a.athletes.filter(is_scratched=False).count() for a in self.divisions.all()]
             num_gymnasts = (sum(num_gymnasts))
             return num_gymnasts
         except:

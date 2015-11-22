@@ -9,12 +9,14 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Scoresheets for the Program Book</title>
+    <title>{{session}} Scoresheets for the Program Book</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/scoresheet.css" rel="stylesheet">
   </head>
 
   <body>
+  <!-- HEY!  This page will print correctly in Firefox (respecting page breaks), but NOT in Chrome. -->
+
   <h1> {{session.meet.short_name}} {{session}}</h1>
 
 {% regroup athletes by team as athletes_by_team %}
