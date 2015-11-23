@@ -2,28 +2,32 @@ import json
 from datetime import datetime
 import csv
 import math
-import logging
-from collections import OrderedDict
+
 
 from django.views.generic import TemplateView
 
 
 from rest_framework import viewsets
-from . import models
+
 from meet import models as meetconfig
-from registration.models import Gymnast, Team, Coach, Level
+from registration.models import Team, Coach, Level
+from . import models
 from . import serializers
+from . import ranking
 
 from ledsign.bigdot import BigDot
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-MEET, created = meetconfig.Meet.objects.get_or_create(is_current_meet=True,
-                  defaults={'name': 'AUTO CREATED',
-                            'short_name': 'AUTO CREATED',
-                            'host': 'AUTO CREATED',
-                            'date': datetime.today(),})
+MEET, created = meetconfig.Meet.objects.get_or_create(
+    is_current_meet=True,
+    defaults={
+        'name': 'AUTO CREATED',
+        'short_name': 'AUTO CREATED',
+        'host': 'AUTO CREATED',
+        'date': datetime.today(), })
+
 
 @csrf_exempt
 def led_sign(request):
@@ -163,6 +167,7 @@ class SessionCeremonyView(TemplateView):
             info['rankings'] = leaderboards
             context['divisions'].append(info)
 
+        ranking.update_team_ranking()
         team_awards = []
         for team_award in models.TeamAward.objects.filter(meet=MEET, divisions__in=session.divisions.all()).distinct():
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
@@ -213,19 +218,20 @@ class SessionTeamView(TemplateView):
         context['meet'] = MEET
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
+        ranking.update_team_ranking()
+
         team_awards = []
         for team_award in models.TeamAward.objects.filter(divisions__in=context['session'].divisions.all()).distinct():
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
-            for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
+            # for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
+            for t in tars:
                 teams.append({'name': t.team.team, 'score': t.score, 'rank': t.rank})
 
             team_awards.append({'id': team_award.id, 'name': team_award.name, 'teams': teams})
 
         # team leaderboards
         context['awards'] = team_awards
-
-        print(context)
 
         return context
 
@@ -296,7 +302,7 @@ class SessionRotationView(TemplateView):
                 team_info['levels'] = self.levels_in_rotation(context['session'], event.warmup_event_endhere, team)
                 event_info['warmup'].append(team_info)                
 
-            context['events'].append(event_info)        
+            context['events'].append(event_info)
 
         return context
 
@@ -366,9 +372,13 @@ class CoachSignInView(TemplateView):
     template_name = 'coach-signin.html'
 
     def get_context_data(self, **kwargs):
-        context = super(CoachSignInSheetView, self).get_context_data(**kwargs)
+        context = super(CoachSignInView, self).get_context_data(**kwargs)
         context['coaches'] = Coach.objects.filter(meet=MEET).order_by('team', 'last_name', 'first_name')
         return context
+
+
+class TeamAwardsView(TemplateView):
+    pass
 
 
 class CompetitionOrder(TemplateView):

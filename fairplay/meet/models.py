@@ -2,14 +2,11 @@ import datetime
 from django.db import models
 
 
-
 class Meet(models.Model):
     name = models.CharField(max_length=200, blank=False, null=False)
     short_name = models.CharField(max_length=100, blank=False, null=False)
     host = models.CharField(max_length=200, blank=False, null=False)
     date = models.DateField()
-    event_award_percentage = models.FloatField('Event Awards', default=0.5, help_text="This is a percentage value and applies to all divisions in the entire meet. How many awards will we give per event?")
-    all_around_award_percentage = models.FloatField('AA Awards', default=0.5, help_text="Percentage value.  How many athletes in All Around will get medals?")
     is_current_meet = models.BooleanField('Current Meet?', default=False)
 
     max_sessions_per_day = models.IntegerField(
