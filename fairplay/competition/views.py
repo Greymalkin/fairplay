@@ -295,12 +295,12 @@ class SessionRotationView(TemplateView):
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
         context['events'] = []
         context['warmup'] = []
+        context['teams'] = []
         for event in models.Event.objects.filter(meet=MEET):
             event_info = {}
             event_info['event'] = event
             event_info['warmup'] = []
             event_info['rotation'] = []
-            event_info['teams'] = []
 
             for team in self.teams_on_event(context['session'], event):
                 team_info = {}
@@ -319,9 +319,8 @@ class SessionRotationView(TemplateView):
         for team in self.teams_in_session(context['session']):
             team_info = {}
             team_info['team'] = team
-            team_info['starting_events'] = self.starting_events(context['session'], team)
-            event_info['teams'].append(team_info)
-        print(event_info['teams'])
+            team_info['starting_events'] = self.team_starting_events(context['session'], team)
+            context['teams'].append(team_info)
         return context
 
     def teams_on_event(self, session, event):
@@ -340,9 +339,10 @@ class SessionRotationView(TemplateView):
         teams = Team.objects.filter(gymnasts__division__session=session).distinct()
         return teams 
 
-    def starting_events(self, session, team):
-        events = models.Event.objects.filter(gymnasts__gymnast__team=team, gymnasts__gymnast__division__session=session).distinct('gymnasts__gymnast__starting_event_id').order_by('gymnasts__gymnast__starting_event_id')
+    def team_starting_events(self, session, team):
+        events = team.gymnasts.filter(division__session=session, is_scratched=False).distinct('starting_event').order_by()
         return events
+
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
     """
