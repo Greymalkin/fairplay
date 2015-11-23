@@ -1,15 +1,11 @@
 (function() {
 
-    $(".tab").click(function(event) {
-        var $activeTab = $(event.target);
-        $(".tab").parent().removeClass('active');
-        $activeTab.parent().addClass('active');
-
+    $("select").change(function(event) {
         $(".report").hide();
-        $("#" + $activeTab.attr('data-tab')).show();
+        $("#" + $("select").val()).show();
     });
 
-    $($(".tab")[0]).click();
+    $($("select")).change();
 
     $(".crossable").click(function(event) {
         $(event.target).parent().css("color", "#ddd");

@@ -1,19 +1,17 @@
 <h2>{{leaderboard.event}} - Level {{leaderboard.level}} ({{leaderboard.age_division}})</h2>
-<table class="table table-striped leaderboard">
+<table class="table table-striped leaderboard" style="width: auto;">
       <tr>
-        <th>Rank</td>
-        <th>Score</td>
-        <th>Team</td>
-        <th>First Name</td>
-        <th>Last Name</td>
+        <th style="width: 40px;">Rank</th>
+        <th style="width: 80px;">Score</th>
+        <th style="width: 200px;">Team</th>
+        <th style="width: 200px;">Gymnast</th>
       </tr>
     {% for athlete in leaderboard.athletes %}
       <tr class="crossable">
-        <td style="padding:4px;">{{athlete.rank}}</td>
-        <td style="padding:4px;">{{athlete.score}}</td>
-        <td style="padding:4px;">{{athlete.team}}</td>
-        <td style="padding:4px;">{{athlete.first_name}}</td>
-        <td style="padding:4px;">{{athlete.last_name}}</td>
+        <td>{{athlete.rank}}</td>
+        <td>{{athlete.score}}</td>
+        <td>{{athlete.team}}</td>
+        <td>{{athlete.name}}</td>
       </tr>
     {% endfor %}
 </table>

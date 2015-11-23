@@ -245,7 +245,7 @@ class AthleteInlineAdmin(admin.TabularInline):
 
 class TeamAwardAdmin(admin.ModelAdmin):
     list_display = ('name', 'order', )
-    filter_horizontal = ('divisions', 'levels')
+    filter_horizontal = ('levels',)
     exclude = ('meet',)
     list_editable = ('order',)
 
@@ -268,8 +268,8 @@ class AthleteEventAdmin(admin.ModelAdmin):
 
 
 class DivisionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'short_name', 'level', 'min_age', 'max_age', 'num_gymnasts')
-    list_editable = ('min_age', 'max_age')
+    list_display = ('name', 'level', 'num_gymnasts', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count')
+    list_editable = ('min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     ordering = ('level', 'min_age')
     exclude = ('meet',)
 
