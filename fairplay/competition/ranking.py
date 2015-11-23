@@ -105,29 +105,32 @@ def update_division_ranking(division):
 def update_team_ranking():
     from . import models
 
+    # delete the old team award rank athlete events
+    models.TeamAwardRankAthleteEvent.objects.all().delete()
+
     # determine ranking for each team award
     for team_award in models.TeamAward.objects.all():
         teams = []
 
         for t in models.Team.objects.filter(qualified=True):
             team = {'name': t.team, 'score': 0, 'id': t.id}
+            tar, created = models.TeamAwardRank.objects.get_or_create(
+                team=models.Team.objects.get(id=team['id']),
+                team_award=team_award)
 
             for event in models.Event.objects.all():
                 top_3 = models.AthleteEvent.objects.filter(
                     event=event,
                     gymnast__team=t
                 ).filter(
-                    gymnast__division__in=team_award.divisions.all(),  #TODO: UPDATE to team_award.levels.all().divisions.all()
+                    gymnast__division__in=team_award.levels.all().divisions.all(),  # TODO: UPDATE to team_award.levels.all().divisions.all()
                     score__isnull=False
                 ).order_by("-score")[:3]
 
                 if len(top_3) == 3:
-                    # print(t.team)
-                    # print('---')
-                    # for e in top_3:
-                    #     print(e.gymnast.first_name, e.gymnast.last_name, e.score)
-                    # print('Total: ', top_3.aggregate(total=Sum('score')))
-                    # print('')
+                    for index, ae in enumerate(top_3):
+                        tarae = models.TeamAwardRankAthleteEvent(team_award_rank=tar, event=event, athlete_event=ae, rank=(index + 1))
+                        tarae.save()
 
                     score = top_3.aggregate(total=Sum('score'))
                     if score['total'] is not None:
@@ -148,10 +151,10 @@ def update_team_ranking():
             last_score = team['score']
             team['rank'] = rank
 
-            # save the team rank
-            ta = models.TeamAwardRank.objects.get_or_create(
+            tar = models.TeamAwardRank.objects.get_or_create(
                 team=models.Team.objects.get(id=team['id']),
                 team_award=team_award)[0]
-            ta.rank = rank
-            ta.score = team['score']
-            ta.save()
+            # save the team rank
+            tar.rank = rank
+            tar.score = team['score']
+            tar.save()

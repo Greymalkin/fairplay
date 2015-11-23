@@ -117,7 +117,6 @@ class Session(models.Model):
 class TeamAward(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_awards')
     name = models.CharField(max_length=255)
-    award_percentage = models.FloatField(default=0.66)
     divisions = models.ManyToManyField(Division, blank=True)
     levels = models.ManyToManyField(Level)
     order = models.PositiveSmallIntegerField(default=0)
@@ -136,6 +135,19 @@ class TeamAwardRank(models.Model):
     team_award = models.ForeignKey(TeamAward)
     rank = models.PositiveSmallIntegerField(null=True)
     score = models.FloatField(null=True)
+
+    def __str__(self):
+        return "{} - {}".format(self.team_award, self.team)
+
+
+class TeamAwardRankAthleteEvent(models.Model):
+    team_award_rank = models.ForeignKey(TeamAwardRank)
+    event = models.ForeignKey('Event')
+    athlete_event = models.ForeignKey('AthleteEvent')
+    rank = models.PositiveSmallIntegerField(null=True)
+
+    def __str__(self):
+        return "{} - {} - {} - {} ({})".format(self.team_award_rank.team_award, self.team_award_rank.team, self.event, self.athlete_event.gymnast, self.rank)
 
 
 class AthleteEvent(models.Model):
@@ -250,9 +262,7 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
         dispatch_uid='update_rankings')
 
     if update_fields is None or 'rank' not in update_fields:
-        print('{} ranking being updated now'.format(instance.gymnast))
         ranking.update_division_ranking(instance.gymnast.division)
-        ranking.update_team_ranking()
 
     post_save.connect(
         update_rankings,

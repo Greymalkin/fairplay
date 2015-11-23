@@ -339,7 +339,6 @@ class LEDShowAdmin(admin.ModelAdmin):
 #     num_gymnasts.admin_order_field = 'num_gymnasts'
 
 
-
 admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
 admin.site.register(models.Event, EventAdmin)
@@ -349,6 +348,7 @@ admin.site.register(models.Session, SessionAdmin)
 admin.site.register(models.Athlete, AthleteAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)
 admin.site.register(models.TeamAwardRank)
+admin.site.register(models.TeamAwardRankAthleteEvent)
 admin.site.add_action(export_as_csv)
 
 
