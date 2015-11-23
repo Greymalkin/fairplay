@@ -24,28 +24,29 @@
   <p>Host: {{session.meet.host}} <br/>
     {{session.meet.date}}</p>
 
-<div>Warm-up time per event: 10 minutes</div>
-<table>
-  <tr>
-    <td>Open Warm-Up<td>
-    <td>Timed Warm-Up</td>
-  </tr>
-  </table>
+  {% if session.warmup = "Traditional" %} 
+    <div>Warm-up time per event: 10 minutes</div>
+    <table>
+      <tr>
+        <td>Open Warm-Up<td>
+        <td>Timed Warm-Up</td>
+      </tr>
+    </table>
 
-
-  <p>&nbsp;</p>
-  <h2>Warm-up Rotation</h2>
-
-  {% for event in events %}
-  <div class="event">{{event.event.name}} </div>
-    {% for team in event.warmup %}
-      <div class="team">
-        {{team.team.team }} 
-          {% if session.name = "Session III" %} <span class="divisions">Levels {{team.levels|join:", "}}</span>{% endif %}
-      </div>
-    {% endfor %}
     <p>&nbsp;</p>
-  {% endfor %}
+    <h2>Warm-up Rotation</h2>
+
+    {% for event in events %}
+    <div class="event">{{event.event.name}} </div>
+      {% for team in event.warmup %}
+        <div class="team">
+          {{team.team.team }} 
+            {% if session.levels.count > 1 or 'V' in sesson.name %} <span class="divisions">Level {{team.levels|join:", "}}</span>{% endif %}
+        </div>
+      {% endfor %}
+      <p>&nbsp;</p>
+    {% endfor %}
+  {% endif %}
 
   <p>&nbsp;</p>
   <h2>Competition Rotation</h2>
@@ -55,7 +56,7 @@
     {% for team in event.rotation %}
       <div class="team">
         {{team.team.team }} 
-          {% if session.name = "Session III" %} <span class="divisions">Levels {{team.levels|join:", "}}</span>{% endif %}
+          {% if session.levels.count > 1 %} <span class="divisions">Level {{team.levels|join:", "}}</span>{% endif %}
       </div>
     {% endfor %}
     <p>&nbsp;</p>

@@ -308,12 +308,12 @@ class SessionRotationView(TemplateView):
                 team_info['levels'] = self.levels_in_rotation(context['session'], event, team)
                 event_info['rotation'].append(team_info)
 
-            for team in self.teams_on_event(context['session'], event.warmup_event_endhere()):
+            for team in self.teams_on_event(context['session'], event.warmup_event_endhere):
                 team_info = {}
                 team_info['team'] = team
-                team_info['divisions'] = self.divisions_in_rotation(context['session'], event, team)
-                team_info['levels'] = self.levels_in_rotation(context['session'], event, team)
-                event_info['warmup'].append(team_info)
+                team_info['divisions'] = self.divisions_in_rotation(context['session'], event.warmup_event_endhere, team)
+                team_info['levels'] = self.levels_in_rotation(context['session'], event.warmup_event_endhere, team)
+                event_info['warmup'].append(team_info)                
 
             context['events'].append(event_info)
 

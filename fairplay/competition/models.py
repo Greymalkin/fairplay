@@ -41,11 +41,12 @@ class Event(models.Model):
             warmup = Event.objects.first()
         return warmup
 
+    @property
     def warmup_event_endhere(self):
         """ Traditional Format. Where do you start your warmup if you need to end warmup at THIS, first event rotation? """
         warmup = None
         try:
-            warmup = Event.objects.filter(meet=self.meet, order__lt=self.order)[0]
+            warmup = Event.objects.filter(meet=self.meet, order__lt=self.order).order_by('-order')[0]
         except:
             warmup = Event.objects.last()
         return warmup
@@ -88,6 +89,10 @@ class Session(models.Model):
     meet = models.ForeignKey(Meet, related_name='sessions')
     name = models.CharField(max_length=255, help_text="Session name")
     divisions = models.ManyToManyField(Division, related_name='session')
+    TRADITIONAL = 'Traditional'
+    COMPETE = 'Warm-up/Compete'
+    WARMUP = ((TRADITIONAL, TRADITIONAL), (COMPETE, COMPETE))
+    warmup = models.CharField(max_length=25, choices=WARMUP, default=TRADITIONAL)
 
     def __str__(self):
         return self.name
