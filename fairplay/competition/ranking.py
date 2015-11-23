@@ -102,42 +102,45 @@ def update_division_ranking(division):
         a.save()
 
 
-def update_team_ranking():
+def update_team_ranking(team_award):
     from . import models
 
-    # delete the old team award rank athlete events
-    models.TeamAwardRankAthleteEvent.objects.all().delete()
+    teams = []
 
-    # determine ranking for each team award
-    for team_award in models.TeamAward.objects.all():
-        teams = []
+    for t in models.Team.objects.filter(qualified=True):
+        team = {'name': t.team, 'score': 0, 'id': t.id}
+        tar, created = models.TeamAwardRank.objects.get_or_create(
+            team=models.Team.objects.get(id=team['id']),
+            team_award=team_award)
 
-        for t in models.Team.objects.filter(qualified=True):
-            team = {'name': t.team, 'score': 0, 'id': t.id}
-            tar, created = models.TeamAwardRank.objects.get_or_create(
-                team=models.Team.objects.get(id=team['id']),
-                team_award=team_award)
+        models.TeamAwardRankAthleteEvent.objects.filter(team_award_rank=tar).delete()
 
-            for event in models.Event.objects.all():
-                top_3 = models.AthleteEvent.objects.filter(
-                    event=event,
-                    gymnast__team=t
-                ).filter(
-                    gymnast__division__in=team_award.levels.all().divisions.all(),  # TODO: UPDATE to team_award.levels.all().divisions.all()
-                    score__isnull=False
-                ).order_by("-score")[:3]
+        for event in models.Event.objects.all():
+            divisions = []
 
-                if len(top_3) == 3:
-                    for index, ae in enumerate(top_3):
-                        tarae = models.TeamAwardRankAthleteEvent(team_award_rank=tar, event=event, athlete_event=ae, rank=(index + 1))
-                        tarae.save()
+            for level in team_award.levels.all():
+                for division in level.divisions.all():
+                    divisions.append(division)
 
-                    score = top_3.aggregate(total=Sum('score'))
-                    if score['total'] is not None:
-                        team['score'] += score['total']
+            top_3 = models.AthleteEvent.objects.filter(
+                event=event,
+                gymnast__team=t
+            ).filter(
+                gymnast__division__in=divisions,
+                score__isnull=False
+            ).order_by("-score")[:3]
 
-                    if team['score'] > 0:
-                        teams.append(team)
+            if len(top_3) == 3:
+                for index, ae in enumerate(top_3):
+                    tarae = models.TeamAwardRankAthleteEvent(team_award_rank=tar, event=event, athlete_event=ae, rank=(index + 1))
+                    tarae.save()
+
+                score = top_3.aggregate(total=Sum('score'))
+                if score['total'] is not None:
+                    team['score'] += score['total']
+
+                if team['score'] > 0:
+                    teams.append(team)
 
         teams = multikeysort(teams, ('score',))
 

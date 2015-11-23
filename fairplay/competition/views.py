@@ -115,7 +115,8 @@ class SessionCeremonyView(TemplateView):
                 event_leaderboard = []
                 athlete_events = models.AthleteEvent.objects.filter(event=event, gymnast__division=division).order_by("rank")
                 total_count = len(athlete_events)
-                award_count = math.ceil(total_count * MEET.event_award_percentage)
+                # award_count = math.ceil(total_count * MEET.event_award_percentage)
+                award_count = division.event_award_count
                 if total_count == 2:
                     award_count = 1
 
@@ -123,8 +124,7 @@ class SessionCeremonyView(TemplateView):
                     if a.score is not None and a.score != 0:
                         event_leaderboard.append({
                             'athlete_id': a.gymnast.athlete_id,
-                            'last_name': a.gymnast.last_name,
-                            'first_name': a.gymnast.first_name,
+                            'name': '{} {}.'.format(a.gymnast.first_name, a.gymnast.last_name[0]),
                             'team': a.gymnast.team.team,
                             'score': a.score,
                             'rank': a.rank
@@ -140,7 +140,8 @@ class SessionCeremonyView(TemplateView):
             aa_leaderboard = []
             athletes = models.Athlete.objects.filter(meet=MEET, division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
             total_count = len(athletes)
-            award_count = math.ceil(total_count * MEET.all_around_award_percentage)
+            # award_count = math.ceil(total_count * MEET.all_around_award_percentage)
+            award_count = division.all_around_award_count
 
             if total_count == 2:
                 award_count = 1
@@ -149,8 +150,7 @@ class SessionCeremonyView(TemplateView):
                 if a.overall_score is not None and a.overall_score != 0:
                     aa_leaderboard.append({
                         'athlete_id': a.athlete_id,
-                        'last_name': a.last_name,
-                        'first_name': a.first_name,
+                        'name': '{} {}.'.format(a.first_name, a.last_name[0]),
                         'team': a.team.team,
                         'score': a.overall_score,
                         'rank': a.rank
@@ -167,12 +167,19 @@ class SessionCeremonyView(TemplateView):
             info['rankings'] = leaderboards
             context['divisions'].append(info)
 
-        ranking.update_team_ranking()
+        session_levels = []
+        for division in context['session'].divisions.all():
+            if division.level not in session_levels:
+                session_levels.append(division.level)
+
         team_awards = []
-        for team_award in models.TeamAward.objects.filter(meet=MEET, divisions__in=session.divisions.all()).distinct():
+        for team_award in models.TeamAward.objects.filter(meet=MEET, levels__in=session_levels).distinct():
+            ranking.update_team_ranking(team_award)
+
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
-            for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
+            # for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
+            for t in tars[:team_award.award_count]:
                 teams.append({'name': t.team.team, 'score': t.score, 'rank': t.rank})
 
             team_awards.append({'id': team_award.id, 'award': team_award.name, 'teams': teams})
@@ -218,10 +225,16 @@ class SessionTeamView(TemplateView):
         context['meet'] = MEET
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
-        ranking.update_team_ranking()
+        session_levels = []
+        for division in context['session'].divisions.all():
+            if division.level not in session_levels:
+                session_levels.append(division.level)
 
         team_awards = []
-        for team_award in models.TeamAward.objects.filter(divisions__in=context['session'].divisions.all()).distinct():
+        for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
+
+            ranking.update_team_ranking(team_award)
+
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
             # for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:

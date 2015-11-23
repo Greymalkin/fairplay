@@ -58,6 +58,8 @@ class Division(models.Model):
     short_name = models.CharField(max_length=10, help_text='For printing in report columns.')
     min_age = models.PositiveSmallIntegerField(default=6)
     max_age = models.PositiveSmallIntegerField(default=18)
+    event_award_count = models.PositiveSmallIntegerField(default=3)
+    all_around_award_count = models.PositiveSmallIntegerField(verbose_name="All-around award count", default=3)
 
     class Meta():
         ordering = ['level', 'min_age', ]
@@ -117,8 +119,8 @@ class Session(models.Model):
 class TeamAward(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_awards')
     name = models.CharField(max_length=255)
-    divisions = models.ManyToManyField(Division, blank=True)
     levels = models.ManyToManyField(Level)
+    award_count = models.PositiveSmallIntegerField(default=3)
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:

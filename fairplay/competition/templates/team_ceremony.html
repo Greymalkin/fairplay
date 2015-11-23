@@ -1,15 +1,15 @@
 <h2>Team Award - {{leaderboard.award}}</h2>
-<table class="table table-striped leaderboard">
+<table class="table table-striped leaderboard" style="width: auto;">
       <tr>
-        <th>Rank</td>
-        <th>Team</td>
-        <th>Score</td>
+        <th style="width: 40px;">Rank</th>
+        <th style="width: 80px;">Score</th>
+        <th style="width: 200px;">Team</th>
       </tr>
     {% for team in leaderboard.teams %}
       <tr class="crossable">
-        <td style="padding:4px;">{{team.rank}}</td>
-        <td style="padding:4px;">{{team.name}}</td>
-        <td style="padding:4px;">{{team.score}}</td>
+        <td>{{team.rank}}</td>
+        <td>{{team.score}}</td>
+        <td>{{team.name}}</td>
       </tr>
     {% endfor %}
 </table>

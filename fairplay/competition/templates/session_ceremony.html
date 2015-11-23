@@ -24,14 +24,20 @@
           <a class="navbar-brand" href="#">{{session.name}} Ceremony</a>
         </div>
         <div id="navbar">
-          <ul id="topnav" class="nav navbar-nav">
-          {% for division in divisions %}
-            <li><a href="#" data-tab="division_{{division.division.id}}" class="tab">Level {{division.division.level}} ({{division.division.name}})</a></li>
-          {% endfor %}
-          {% for team_award in teams %}
-            <li><a href="#" data-tab="team_{{team_award.id}}" class="tab">{{team_award.award}}</a></li>
-          {% endfor %}
-          </ul>
+          <form class="navbar-form navbar-left">
+            <select id="award-select" class="form-control">
+              {% for division in divisions %}
+                <option value="division_{{division.division.id}}">
+                  Level {{division.division.level}} ({{division.division.name}})
+                </option>
+              {% endfor %}
+              {% for team_award in teams %}
+                <option value="team_{{team_award.id}}">
+                  Team Award: {{team_award.award}}
+                </option>
+              {% endfor %}
+            </select>
+          </form>
         </div><!--/.nav-collapse -->
       </div>
     </nav>
