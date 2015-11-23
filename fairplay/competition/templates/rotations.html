@@ -24,14 +24,14 @@
   <p>Host: {{session.meet.host}} <br/>
     {{session.meet.date}}</p>
 
-{% if session.name != "Session III" %} 
-<div>Warm-up time per event: 10 minutes</div>
-<table>
-  <tr>
-    <td>Open Warm-Up<td>
-    <td>Timed Warm-Up</td>
-  </tr>
-  </table>
+  {% if session.warmup = "Traditional" %} 
+    <div>Warm-up time per event: 10 minutes</div>
+    <table>
+      <tr>
+        <td>Open Warm-Up<td>
+        <td>Timed Warm-Up</td>
+      </tr>
+    </table>
 
     <p>&nbsp;</p>
     <h2>Warm-up Rotation</h2>

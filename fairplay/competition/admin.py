@@ -292,7 +292,7 @@ class EventAdmin(admin.ModelAdmin):
 
 
 class SessionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'num_gymnasts')
+    list_display = ('name', 'num_gymnasts', 'warmup')
     filter_horizontal = ('divisions',)
     exclude = ('meet',)
 

@@ -87,6 +87,10 @@ class Session(models.Model):
     meet = models.ForeignKey(Meet, related_name='sessions')
     name = models.CharField(max_length=255, help_text="Session name")
     divisions = models.ManyToManyField(Division, related_name='session')
+    TRADITIONAL = 'Traditional'
+    COMPETE = 'Warm-up/Compete'
+    WARMUP = ((TRADITIONAL, TRADITIONAL), (COMPETE, COMPETE))
+    warmup = models.CharField(max_length=25, choices=WARMUP, default=TRADITIONAL)
 
     def __str__(self):
         return self.name

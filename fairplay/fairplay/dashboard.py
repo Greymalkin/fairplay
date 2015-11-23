@@ -179,6 +179,11 @@ class CustomIndexDashboard(Dashboard):
                     'url': '/gymnast/signin/{}'.format(session.id),
                     'external': False,
                     })
+                links.append({
+                    'title': 'Rotations',
+                    'url': '/rotations/{}'.format(session.id),
+                    'external': False,
+                    })
 
                 header = ""
                 counts = ""
