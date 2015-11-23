@@ -43,50 +43,104 @@
         /*float: right;*/
       }
 
-      table {width: 75%;}
     </style>
+<style type="text/css" media="screen, print, projection">
+  body,
+  html {
+    margin:0;
+    padding:0;
+    color:#000;
+    background:#a7a09a;
+  }
+  #wrap {
+    width:950px;
+    margin:0 auto;
+    background:#99c;
+  }
+  #header {
+      padding:5px 10px;
+    background:#ddd;
+  }
+  h1 {
+      margin:0;
+    }
+  #nav {
+    padding:5px 10px;
+    background:#c99;
+  }
+  #nav ul {
+    margin:0;
+    padding:0;
+    list-style:none;
+  }
+  #nav li {
+    display:inline;
+    margin:0;
+    padding:0;
+  }
+  #main {
+    float:left;
+    width:50%;
+    padding:10px;
+    background:#9c9;
+  }
+  h2 {
+    margin:0 0 1em;
+  }
+  #sidebar {
+    float:right;
+    width:50%;
+    padding:10px;
+    background:#99c;
+  }
+  #footer {
+    clear:both;
+    padding:5px 10px;
+    background:#cc9;
+  }
+  #footer p {
+    margin:0;
+    }
+  * html #footer {
+    height:1px;
+  }
+    .page-break  {
+        clear: both;
+        display:block;
+        page-break-after:always;
+        }
+  </style>
+
   </head>
 
   <body>
 
+<div id="wrap">
+  <div id="header">
   <h1> {{session.meet.name}}</h1>
-  <h3> {{ session.name }}</h3>
-  <p> Level: {{session.levels|join:", "}} </br>
-      Gymnasts: {{ session.num_gymnasts }} </br>
-      Host: {{session.meet.host}}  </br>
-      {{session.meet.date}}
-  </p>
+  <h3> {{ session.name }}: Rotations, Event View</h3>
+</div>
 
+  <div id="nav">
+    <ul>
+      <li>Level: {{session.levels|join:", "}} | </li>
+      <li>Gymnasts: {{ session.num_gymnasts }} | </li>
+      <li>Host: {{session.meet.host}} | </li>
+      <li>Date: {{session.meet.date}} | </li>
   {% if session.warmup = "Traditional" %} 
-    <div>Warm-up time per event: 10 minutes</div>
-    <table>
-      <tr>
-        <td>Open Warm-Up<td>
-        <td>Timed Warm-Up</td>
-      </tr>
-    </table>
-
-    <p>&nbsp;</p>
-
-    <div class="event_container warmup">
-    <h2>Warm-up Rotation</h2>
-
-    {% for event in events %}
-    <div class="event_group">{{event.event.name}} </div>
-      {% for team in event.warmup %}
-        <div class="team_item">
-          {{team.team.team }} 
-            {% if session.levels.count > 1 or 'V' in sesson.name %} <span class="divisions">Level {{team.levels|join:", "}}</span>{% endif %}
-        </div>
-      {% endfor %}
-      <p>&nbsp;</p>
-    {% endfor %}
+      <li>Warm-up time per event: 10 minutes  </li>
   {% endif %}
+     </ul>
+     <ul>       
+      <li>Open Warm-Up: <input type="text"></li>      
+      <li>Timed Warm-Up: <input type="text"></li>      
+    </ul>
+
   </div>
 
-  <p>&nbsp;</p>
 
-  <div class="event_container competition">
+
+  <div {% if session.warmup != "Traditional" %}id="main" {%else%}id="sidebar"{%endif%}>
     <h2>Competition Rotation</h2>
     {% for event in events %}
     <h4 class="event_group">{{event.event.name}} </h4>
@@ -99,24 +153,67 @@
       <p>&nbsp;</p>
     {% endfor %}
     <p>&nbsp;</p>
+
   </div>
 
-  <h2>Teams</h2>
-  {% for team in teams %}
-  <div class="team_container">
-  <h4>{{team.team.team}} </h4>
-  <ul>
-  <!-- <li class="team_group">{{team.team.team}} </li> -->
-  <li>
-    {% for event in team.starting_events %}
-      <div class="warm">Begin Warmup {{ event.starting_event.warmup_event_starthere }}</div>
-      <div class="start">Begin Meet {{ event.starting_event }} {% if team.starting_events.count > 1 %} Level {{event.level}} {% endif %} </div>
-    {% endfor %}
-  </li>
-  </ul>
-  <p>&nbsp;</p>
+    {% if session.warmup = "Traditional" %} 
+  <div id="main">
+      <h2>Warm-up Rotation</h2>
+
+      {% for event in events %}
+      <h4 class="event_group">{{event.event.name}} </h4>
+        {% for team in event.warmup %}
+          <div class="team_item">
+            {{team.team.team }} 
+              {% if session.levels.count > 1 or 'V' in sesson.name %} <span class="divisions">Level {{team.levels|join:", "}}</span>{% endif %}
+          </div>
+        {% endfor %}
+        <p>&nbsp;</p>
+      {% endfor %}
   </div>
-  {% endfor %}
+    {% endif %}
+
+  <div class="page-break"></div>
+  <div id="header">
+  <h1> {{session.meet.name}}</h1>
+  <h3> {{ session.name }}: Rotations, Team View</h3>
+  </div>
+
+  <div id="nav">
+    <ul>
+      <li>Level: {{session.levels|join:", "}} | </li>
+      <li>Gymnasts: {{ session.num_gymnasts }} | </li>
+      <li>Host: {{session.meet.host}} | </li>
+      <li>Date: {{session.meet.date}} | </li>      
+    </ul>
+  </div>
+
+  <div id="footer">
+    {% for team in teams %}
+    <div class="team_container">
+    <h4>{{team.team.team}} </h4>
+    <ul>
+    <!-- <li class="team_group">{{team.team.team}} </li> -->
+    <li>
+      {% for event in team.starting_events %}
+        <div class="warm">
+          {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} 
+          Begin Warmup {{ event.starting_event.warmup_event_starthere }} 
+        </div>
+        <div class="start">
+          {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} 
+          Begin Meet {{ event.starting_event }} 
+        </div>
+      {% endfor %}
+    </li>
+    </ul>
+    <p>&nbsp;</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+
 
   </body>
 </html>
