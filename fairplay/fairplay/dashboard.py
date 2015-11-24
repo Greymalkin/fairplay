@@ -36,6 +36,11 @@ roster_html += """
 <script src="/static/js/dashboard.js"></script>
 """
 
+try:
+    MEET = Meet.objects.get(is_current_meet=True)
+except:
+    MEET = None
+
 
 class CustomIndexDashboard(Dashboard):
     """
@@ -121,15 +126,14 @@ class CustomIndexDashboard(Dashboard):
         try:
             athlete_info = ""
             for level in Level.objects.all():
-                meet = Meet.objects.get(is_current_meet=True)
-                level_count = Gymnast.objects.filter(meet=meet, level=level, is_scratched=False).count()
+                level_count = Gymnast.objects.filter(meet=MEET, level=level, is_scratched=False).count()
                 athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
                 for age in range(4, 19):
-                    age_count = Gymnast.objects.filter(meet=meet, level=level, age=age, is_scratched=False).count()
+                    age_count = Gymnast.objects.filter(meet=MEET, level=level, age=age, is_scratched=False).count()
                     if age_count > 0:
                         athlete_info += "<li>{}yo ({} athletes)</li>".format(age, age_count)
 
-                age_count = Gymnast.objects.filter(meet=meet, level=level, age=None, is_scratched=False).count()
+                age_count = Gymnast.objects.filter(meet=MEET, level=level, age=None, is_scratched=False).count()
                 if age_count > 0:
                     athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
                 athlete_info += "</ul></p>"
@@ -146,7 +150,7 @@ class CustomIndexDashboard(Dashboard):
             pass
 
         try:
-            sessions = Session.objects.filter(meet=Meet.objects.get(is_current_meet=True))
+            sessions = Session.objects.filter(meet=MEET)
             for session in sessions:
                 links = []
                 links.append({
@@ -165,6 +169,16 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                     })
                 links.append({
+                    'title': 'Rotations',
+                    'url': '/rotations/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Sign-in',
+                    'url': '/gymnast/signin/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
                     'title': 'Scoresheet',
                     'url': '/scoresheet/{}'.format(session.id),
                     'external': False,
@@ -175,8 +189,8 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                     })
                 links.append({
-                    'title': 'Sign-in',
-                    'url': '/gymnast/signin/{}'.format(session.id),
+                    'title': 'Team Roster',
+                    'url': '/team/roster/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
@@ -184,15 +198,10 @@ class CustomIndexDashboard(Dashboard):
                     'url': '/allteams/roster/{}'.format(session.id),
                     'external': False,
                     })
-                links.append({
-                    'title': 'Rotations',
-                    'url': '/rotations/{}'.format(session.id),
-                    'external': False,
-                    })
 
                 header = ""
                 counts = ""
-                for event in Event.objects.filter(meet=Meet.objects.get(is_current_meet=True)):
+                for event in Event.objects.filter(meet=MEET):
                     count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                     header += '<th>{}</th>'.format(event.initials)
                     link = '/admin/competition/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)

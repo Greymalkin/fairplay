@@ -1,0 +1,83 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>{{session}} Team Competition Roster</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/scoresheet.css" rel="stylesheet">
+    <style>
+      .rowbreak    { page-break-after:always }
+      .bordered {
+        border: 1px none;
+        border-bottom: black;
+        border-block-end-style: double;
+      }
+      .double-bordered {
+        border: 1px none;
+        border-bottom: black;
+        border-block-end-style: double;
+        border-top: black;
+        border-block-start-style: double;
+
+      }
+      .dotted-bordered {
+      }
+    </style>
+  </head>
+
+  <body>
+  <!-- HEY!  This page will print correctly in Firefox (respecting page breaks), but NOT in Chrome. -->
+
+  
+
+<table border="0" cellpadding="7">
+
+{% regroup athletes by team as athletes_by_team %}
+    <thead>
+    <tr>
+    <th colspan="10" class="bordered">
+      <h1 style="padding-bottom: 25px;"> {{session.meet.short_name}} {{session}} Team Competition Roster</h1>      
+
+    </th>
+    </tr>
+      <tr>
+        <th class="bordered">Team/Gymnast</th>
+        <th class="event bordered">Level</th>
+        <th class="bordered">ID #</th>
+        <th class="bordered">Birthdate</th>
+        <th class="bordered">Age/Div</th>
+      </tr>
+    </thead>
+{% for team in athletes_by_team %}
+    <tbody>
+      <tr>
+        <th colspan="10" class="team double-bordered" style="text-align: left;">{{team.grouper.team}}</th>
+      </tr>
+    </tbody>
+
+    {% for athlete in team.list %}
+    <tbody>
+      <tr class="dotted-bordered">
+        <td style="width: 250px">{{ athlete.as_athlete_firstlast }}</td>
+        <td class="center">{{ athlete.level }}</td>
+        <td class="center">{{athlete.usag}}</td>
+        <td class="center">{{athlete.dob}}</td>
+        <td class="center">{{athlete.age}} / {{ athlete.division.short_name }}</td>
+      </tr>
+    </tbody>
+    {% endfor %}
+    <tbody><tr class="rowbreak"><td><div class="page-break"></div></td></tr></tbody>
+{% endfor %}
+  </table>
+  <p>&nbsp;</p>
+
+
+  </body>
+</html>

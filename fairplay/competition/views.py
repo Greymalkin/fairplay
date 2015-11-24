@@ -261,16 +261,12 @@ class SessionScoresheetView(TemplateView):
         return context
 
 
-class SessionAllTeamsRosterView(TemplateView):
+class SessionAllTeamsRosterView(SessionScoresheetView):
     template_name = 'roster_allteams.html'
 
-    def get_context_data(self, **kwargs):
-        context = super(SessionAllTeamsRosterView, self).get_context_data(**kwargs)
-        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
-        context['athletes'] = models.Athlete.objects.filter(division__session=self.kwargs['id']).\
-                                                order_by('team', 'division', 'last_name', 'first_name').\
-                                                select_related()
-        return context
+
+class SessionTeamRosterView(SessionScoresheetView):
+    template_name = 'roster_team.html'
 
 
 class SessionLabelsView(TemplateView):
