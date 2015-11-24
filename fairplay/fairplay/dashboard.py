@@ -180,6 +180,11 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                     })
                 links.append({
+                    'title': 'All Teams Roster',
+                    'url': '/allteams/roster/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
                     'title': 'Rotations',
                     'url': '/rotations/{}'.format(session.id),
                     'external': False,

@@ -288,6 +288,18 @@ class SessionScoresheetView(TemplateView):
         return context
 
 
+class SessionAllTeamsRosterView(TemplateView):
+    template_name = 'roster_allteams.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionAllTeamsRosterView, self).get_context_data(**kwargs)
+        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+        context['athletes'] = models.Athlete.objects.filter(division__session=self.kwargs['id']).\
+                                                order_by('team', 'division', 'last_name', 'first_name').\
+                                                select_related()
+        return context
+
+
 class SessionLabelsView(TemplateView):
     template_name = 'label.html'
 
@@ -410,14 +422,6 @@ class SessionViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = models.Session.objects.all()
     serializer_class = serializers.SessionSerializer
-
-
-class CompetitionRosterView(TemplateView):
-    pass
-
-
-class WarmupScheduleView(TemplateView):
-    pass
 
 
 class CoachSignInView(TemplateView):
