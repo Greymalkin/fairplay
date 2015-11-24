@@ -1,0 +1,57 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>{{session}} Competition Roster (All Teams)</title>
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/scoresheet.css" rel="stylesheet">
+  </head>
+
+  <body>
+  <!-- HEY!  This page will print correctly in Firefox (respecting page breaks), but NOT in Chrome. -->
+
+  <h1 style="padding-bottom: 25px;"> {{session.meet.short_name}} {{session}} Competition Roster (All Teams)</h1>
+
+{% regroup athletes by team as athletes_by_team %}
+{% for team in athletes_by_team %}
+<table border="1" cellpadding="7">
+    <thead>
+      <tr>
+        <th colspan="10" class="team">{{team.grouper.team}}</th>
+      </tr>
+      <tr>
+        <th>Team/Gymnast</th>
+        <th class="event">Level</th>
+        <th>ID #</th>
+        <th>Birthdate</th>
+        <th>Age/Div</th>
+        <th>&nbsp;</th>
+      </tr>
+    </thead>
+
+    {% for athlete in team.list %}
+    <tbody>
+      <tr>
+        <td style="width: 250px">{{ athlete.as_athlete_firstlast }}</td>
+        <td class="center">{{ athlete.level }}</td>
+        <td class="center">{{athlete.usag}}</td>
+        <td class="center">{{athlete.dob}}</td>
+        <td class="center">{{athlete.age}} / {{ athlete.division.age_division }}</td>
+        <td>&nbsp;</td>
+      </tr>
+    </tbody>
+    {% endfor %}
+  </table>
+  <p>&nbsp;</p>
+{% endfor %}
+
+
+  </body>
+</html>
