@@ -202,7 +202,7 @@ class SessionIndividualView(TemplateView):
 
         context['events'] = models.Event.objects.filter(meet=MEET)
         context['divisions'] = []
-        for division in context['session'].divisions.all().order_by('min_age'):
+        for division in context['session'].divisions.all().order_by('level', 'min_age'):
             athletes = []
             for athlete in division.athletes.filter(rank__gt=0).order_by('rank'):
                 events = []
@@ -231,17 +231,44 @@ class SessionTeamView(TemplateView):
                 session_levels.append(division.level)
 
         team_awards = []
+        events = models.Event.objects.all()
+        context['events'] = events
+        context['width'] = 200 + 60 * len(events)
         for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
 
             ranking.update_team_ranking(team_award)
 
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
+            dq_teams = []
             # for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
-            for t in tars:
-                teams.append({'name': t.team.team, 'score': t.score, 'rank': t.rank})
+            for tar in tars:
+                team = {
+                    'name': tar.team.team,
+                    'score': tar.score,
+                    'rank': tar.rank,
+                    'gymnasts': []}
 
-            team_awards.append({'id': team_award.id, 'name': team_award.name, 'teams': teams})
+                if tar.rank is not None:
+                    gymnasts = models.Gymnast.objects.filter(events__team_award_rankings__team_award_rank=tar).distinct()
+
+                    for gymnast in gymnasts:
+                        scores = []
+                        for event in events:
+                            tarae = models.TeamAwardRankAthleteEvent.objects.filter(team_award_rank=tar, event=event, athlete_event__gymnast=gymnast)
+
+                            if len(tarae) == 1:
+                                scores.append(tarae[0].athlete_event.score)
+                            else:
+                                scores.append('')
+
+                        team['gymnasts'].append({'gymnast': gymnast, 'scores': scores})
+
+                    teams.append(team)
+                else:
+                    dq_teams.append(team['name'])
+
+            team_awards.append({'id': team_award.id, 'name': team_award.name, 'teams': teams, 'dq_teams': ', '.join(dq_teams)})
 
         # team leaderboards
         context['awards'] = team_awards
@@ -337,7 +364,7 @@ class SessionRotationView(TemplateView):
 
     def teams_in_session(self, session):
         teams = Team.objects.filter(gymnasts__division__session=session).distinct()
-        return teams 
+        return teams
 
     def team_starting_events(self, session, team):
         events = team.gymnasts.filter(division__session=session, is_scratched=False).distinct('starting_event').order_by()

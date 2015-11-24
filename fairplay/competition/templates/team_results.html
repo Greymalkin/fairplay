@@ -1,15 +1,32 @@
-<strong>{{award.name}}</strong>
-<table class="table table-striped leaderboard">
-<tr>
-    <th style="padding:1px;">Rank</th>
-    <th style="padding:1px;">Team</th>
-    <th style="padding:1px;">Score</th>
-</tr>
+<h2>{{award.name}}</h2>
 {% for team in award.teams %}
-<tr>
-    <td style="padding:1px;">{{team.rank}}</td>
-    <td style="padding:1px;">{{team.name}}</td>
-    <td style="padding:1px;">{{team.score}}</td>
-<tr>
+    <div class="team-details">
+        <table style="width:{{width}}px;">
+            <tr style="width:{{width}}px;">
+            <td><h4>#{{team.rank}} {{team.name}}</h4></td>
+            <td style="text-align:right;"><h4>{{team.score}}</h4></td>
+            </tr>
+        </table>
+        <table class="table table-striped leaderboard">
+        <tr>
+            <th style="width:200px;">Gymnast</th>
+            {% for event in events %}
+            <th style="width:60px;text-align:center;">{{event.initials|upper}}</th>
+            {% endfor %}
+        </tr>
+        {% for gymnast in team.gymnasts %}
+        <tr>
+            <td>{{gymnast.gymnast.first_name}} {{gymnast.gymnast.last_name}}</td>
+            {% for score in gymnast.scores %}
+                <td class="center">{{score}}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </table>
+    </div>
 {% endfor %}
-</table>
+{% if award.dq_teams|length > 0 %}
+    <p><strong>The following teams did not have enough participating gymnasts to qualify:</strong><br/>
+    {{award.dq_teams}}
+    </p>
+{% endif %}
