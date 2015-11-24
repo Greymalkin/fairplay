@@ -107,7 +107,9 @@ def update_team_ranking(team_award):
 
     teams = []
 
-    for t in models.Team.objects.filter(qualified=True):
+    models.TeamAwardRank.objects.filter(team_award=team_award).delete()
+
+    for t in models.Team.objects.filter(team_awards=team_award):
         team = {'name': t.team, 'score': 0, 'id': t.id}
         tar, created = models.TeamAwardRank.objects.get_or_create(
             team=models.Team.objects.get(id=team['id']),

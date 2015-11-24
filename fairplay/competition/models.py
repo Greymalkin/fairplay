@@ -148,9 +148,9 @@ class TeamAwardRank(models.Model):
 
 
 class TeamAwardRankAthleteEvent(models.Model):
-    team_award_rank = models.ForeignKey(TeamAwardRank)
+    team_award_rank = models.ForeignKey(TeamAwardRank, related_name='athlete_event_rankings')
     event = models.ForeignKey('Event')
-    athlete_event = models.ForeignKey('AthleteEvent')
+    athlete_event = models.ForeignKey('AthleteEvent', related_name='team_award_rankings')
     rank = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):

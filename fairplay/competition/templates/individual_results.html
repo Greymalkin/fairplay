@@ -1,10 +1,13 @@
-<strong>{{division.info}}</strong>
+
 <table class="table table-striped leaderboard">
 <thead>
 <tr>
+    <th colspan="50"><h5>{{division.info}}</h5></th>
+</tr>
+<tr>
     <th>#</th>
-    <th>Team</th>
     <th>Gymnast</th>
+    <th>Team</th>
     {% for event in events %}
     <th class="centered">{{event.initials|upper}}</th>
     <th class="centered">R</th>
@@ -17,8 +20,8 @@
 {% for athlete in division.athletes %}
 <tr>
     <td>{{athlete.info.athlete_id}}</td>
-    <td>{{athlete.info.team}}</td>
     <td>{{athlete.info.first_name}} {{athlete.info.last_name}}</td>
+    <td>{{athlete.info.team.team}}</td>
     {% for event in athlete.events %}
     <td class="centered">{{event.score}}</td>
     <td class="centered grey">{{event.rank}}</td>

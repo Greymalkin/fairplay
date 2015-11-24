@@ -32,7 +32,6 @@ class Team(models.Model):
     notes = models.TextField(blank=True, null=True)
     qualified = models.BooleanField(default=True, help_text="Qualifies for team awards")
 
-
     class Meta:
         verbose_name = 'Team'
         verbose_name_plural = 'Teams'

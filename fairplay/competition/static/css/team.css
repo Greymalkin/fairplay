@@ -1,0 +1,39 @@
+
+th {
+    font-size: 8pt;
+    padding: 2px !important;
+}
+
+td {
+    font-size: 8pt;
+    padding: 2px !important;
+    -webkit-print-color-adjust: exact;
+}
+
+thead{
+  display:table-header-group;/*repeat table headers on each page*/
+}
+
+tbody{
+  display:table-row-group;
+}
+
+.centered {
+    text-align: center;
+}
+
+.grey {
+    background-color: #eee !important;
+}
+
+.leaderboard {
+    width: auto;
+}
+
+.team-details {
+    page-break-inside: avoid;
+}
+
+.center {
+    text-align:center;
+}
