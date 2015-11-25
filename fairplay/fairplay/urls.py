@@ -28,4 +28,5 @@ urlpatterns = patterns(
     url(r'^rotations/(?P<id>\d+)/$', competition.views.SessionRotationView.as_view()),
     url(r'^gymnast/signin/(?P<id>\d+)/$', competition.views.SessionGymnastSignInView.as_view()),
     url(r'^allteams/roster/(?P<id>\d+)/$', competition.views.SessionAllTeamsRosterView.as_view()),
+    url(r'^team/roster/(?P<id>\d+)/$', competition.views.SessionTeamRosterView.as_view()),
 )
