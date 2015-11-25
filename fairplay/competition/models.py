@@ -8,7 +8,7 @@ from . import ranking
 
 class LEDSign(models.Model):
     name = models.CharField(max_length=255)
-    device = models.CharField(max_length=255)
+    device = models.PositiveSmallIntegerField()
 
     def __str__(self):
         return self.name
@@ -221,7 +221,7 @@ class LEDShow(models.Model):
 
 class LEDShowMessage(models.Model):
     led_sign = models.ForeignKey(LEDSign)
-    led_show = models.ForeignKey(LEDShow)
+    led_show = models.ForeignKey(LEDShow, related_name='messages')
     message = models.TextField()
 
     def __str__(self):

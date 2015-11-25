@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from . import models
-from competition.models import Team, Gymnast
+from competition.models import Team
 
 
 class DivisionField(serializers.RelatedField):
@@ -12,6 +12,22 @@ class LEDSignSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.LEDSign
         fields = ('name', 'device',)
+
+
+class LEDShowMessageSerializer(serializers.ModelSerializer):
+    led_sign = LEDSignSerializer(many=False)
+
+    class Meta:
+        model = models.LEDShowMessage
+        fields = ('led_sign', 'message')
+
+
+class LEDShowSerializer(serializers.ModelSerializer):
+    messages = LEDShowMessageSerializer(many=True)
+
+    class Meta:
+        model = models.LEDShow
+        fields = ('name', 'messages')
 
 
 class EventSerializer(serializers.ModelSerializer):

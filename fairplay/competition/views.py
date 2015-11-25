@@ -1,9 +1,8 @@
 import json
 from datetime import datetime
 import csv
-import math
 
-
+from django.conf import settings
 from django.views.generic import TemplateView
 
 
@@ -15,7 +14,7 @@ from . import models
 from . import serializers
 from . import ranking
 
-from ledsign.bigdot import BigDot
+from ledsign.bigdot import BigDotUDP
 
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -31,14 +30,22 @@ MEET, created = meetconfig.Meet.objects.get_or_create(
 
 @csrf_exempt
 def led_sign(request):
+    print(request.body.decode())
     data = json.loads(request.body.decode())
 
     if 'device' in data and 'message' in data:
         try:
-            sign = BigDot(data['device'])
-            sign.show_message(data['message'])
+            sign = BigDotUDP(settings.LED_SIGN_HOST, settings.LED_SIGN_PORT)
+            sign.show_message(data['device'], data['message'])
         except:
             response = {'success': False, 'reason': 'could not send to sign'}
+
+    elif 'device' in data:
+        try:
+            sign = BigDotUDP(settings.LED_SIGN_HOST, settings.LED_SIGN_PORT)
+            sign.set_address(data['device'])
+        except:
+            response = {'success': False, 'reason': 'could not set sign address'}
 
     else:
         response = {'success': False, 'reason': 'missing data'}
@@ -381,6 +388,11 @@ class SessionRotationView(TemplateView):
     def team_starting_events(self, session, team):
         events = team.gymnasts.filter(division__session=session, is_scratched=False).distinct('starting_event').order_by()
         return events
+
+
+class LEDShowViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.LEDShow.objects.all()
+    serializer_class = serializers.LEDShowSerializer
 
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):

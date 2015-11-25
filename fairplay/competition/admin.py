@@ -45,7 +45,6 @@ def export_as_csv(self, request, queryset):
 export_as_csv.short_description = "Export selected objects as csv file"
 
 
-
 class SessionFilter(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
@@ -83,7 +82,7 @@ class AthleteAdmin(admin.ModelAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (AthleteEventInlineAdmin, )
     fields = ('usag', 'athlete_id', 'is_scratched', 'last_name', 'first_name', 'team',
-              'dob', 'age', 'division', 'starting_event', 'rank' )
+              'dob', 'age', 'division', 'starting_event', 'rank', )
     list_filter = ('team', 'division', 'level', SessionFilter, 'starting_event')
     list_per_page = 50
 
@@ -309,7 +308,15 @@ class SessionAdmin(admin.ModelAdmin):
 
 
 class LEDSignAdmin(admin.ModelAdmin):
-    list_display = ('name', 'device', )
+    list_display = ('name', 'device', 'connect')
+
+    def connect(self, obj):
+        return '<a href="#" onClick="connectSign({});">Connect Sign</a>'.format(obj.device)
+
+    connect.allow_tags = True
+
+    class Media:
+        js = ("/static/js/ledsign.js",)
 
 
 class LEDShowMessageInline(admin.TabularInline):

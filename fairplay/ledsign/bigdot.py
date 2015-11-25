@@ -1,23 +1,14 @@
-import serial
+import socket
 
-PREAMBLE = chr(0) * 5 + chr(1) + 'Z00' + chr(2)
-# 5xNUL + SOH = Start of message
-# Z = For all signs
-# 00 = At all addresses
-# STX = start message
-
-CONFIG = PREAMBLE + 'E$AAU4000FF00'
-# E = process a command
-# $ = Command type: $ = Write config table command
-# A = Type of file for this directory slot: A = Text file
-# A = Label for the file (think of it as the file name)
-# U = Keyboard Lock/Unlock flag: U = unlocked (accessable by keyboard)
-# 4000 = number of bytes(in hex) for the file
-# FF = Start time: FF = On Always
-# 00 = stop time: 00 = unused because of the FF in prior section
-
+NUL = chr(0)
+SOH = chr(1)
+STX = chr(2)
 EOT = chr(4)
 MODE = chr(27) + ' '
+PREAMBLE = NUL * 5 + SOH + 'Z'
+# 5xNUL = Auto-baud detection
+# SOH = Start of message
+# Z = For all sign types
 
 CODES = {
     '|COLOR_RED|': chr(28) + '1',
@@ -85,16 +76,31 @@ CODES = {
 }
 
 
-class BigDot():
-    def __init__(self, device):
-        self.serial = serial.Serial(device, 9600)
-        self.serial.write(bytearray(CONFIG + EOT, 'ascii'))
+class BigDotUDP():
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
 
-    def show_message(self, message):
-            for key, value in CODES.items():
-                message = message.replace(key, value)
+    def set_address(self, address):
+        hex_address = '{:02x}'.format(address).upper()
+        message = PREAMBLE + '00' + STX + 'E7' + hex_address + EOT
+        message_bytes = bytearray(message, 'ASCII')
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(message_bytes, (self.host, self.port))
 
-            if message[0:2] != MODE:
-                message = CODES['|MODE_ROTATE|'] + message
+        self.show_message(address, "SIGN ADDRESS #{}".format(address))
 
-            self.serial.write(bytearray(PREAMBLE + 'AA' + message + EOT, 'ascii'))
+    def show_message(self, address, message):
+        hex_address = '{:02x}'.format(address).upper()
+
+        for key, value in CODES.items():
+            message = message.replace(key, value)
+
+        # if not specified, use standard rotate mode
+        if message[0:2] != MODE:
+            message = CODES['|MODE_ROTATE|'] + message
+
+        message = PREAMBLE + hex_address + STX + 'AA' + message + EOT
+        message_bytes = bytearray(message, 'ASCII')
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.sendto(message_bytes, (self.host, self.port))
