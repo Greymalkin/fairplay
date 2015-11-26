@@ -17,6 +17,33 @@ from meet.models import Meet
 
 from django.utils.translation import ugettext_lazy as _
 
+LED_SIGN_CODES = """
+The following are special codes you can use to customize the LED sign display<br>
+<strong>MODES (defaults to rotate)<strong><br>
+|MODE_ROTATE|
+|MODE_HOLD|
+|MODE_FLASH|
+|MODE_ROLL_UP|
+|MODE_ROLL_DOWN|
+|MODE_ROLL_LEFT|
+|MODE_ROLL_RIGHT|
+|MODE_WIPE_UP|
+|MODE_WIPE_DOWN|
+|MODE_WIPE_RIGHT|
+|MODE_SCROLL|
+|MODE_AUTO_MODE|
+|MODE_ROLL_IN|
+|MODE_ROLL_OUT|
+|MODE_WIPE_IN|
+|MODE_WIPE_OUT|
+|MODE_TWINKLE|
+|MODE_SPARKLE|
+|MODE_SNOW|
+|MODE_INTERLOCK|
+|MODE_SWITCH|
+
+"""
+
 
 def make_event_action(event):
     name = 'mark_%s' % event
@@ -82,7 +109,8 @@ class AthleteAdmin(admin.ModelAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (AthleteEventInlineAdmin, )
     fields = ('usag', 'athlete_id', 'is_scratched', 'last_name', 'first_name', 'team',
-              'dob', 'age', 'division', 'starting_event', 'rank', )
+              'dob', 'age', 'division', 'starting_event', 'overall_score', 'rank', )
+    readonly_fields = ('overall_score', 'rank')
     list_filter = ('team', 'division', 'level', SessionFilter, 'starting_event')
     list_per_page = 50
 
@@ -322,13 +350,19 @@ class LEDSignAdmin(admin.ModelAdmin):
 class LEDShowMessageInline(admin.TabularInline):
     model = models.LEDShowMessage
     fields = ('led_sign', 'message')
-    extra = 6
+    extra = 0
+    min_num = 6
 
 
 class LEDShowAdmin(admin.ModelAdmin):
     model = models.LEDShow
     list_display = ('name',)
     inlines = (LEDShowMessageInline, )
+    fieldsets = ((None, {
+        'fields': ('name',),
+        'description': LED_SIGN_CODES
+    }),
+    )
 
 
 # class TeamAdmin(admin.ModelAdmin):
