@@ -121,6 +121,7 @@ class AthleteAdmin(admin.ModelAdmin):
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
         actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to empty')))
         actions.append(('export_as_csv', (export_as_csv, 'export_as_csv', 'Export selected objects as csv file')))
+        actions.append(('export_with_session', (self.export_with_session, 'export_with_session', 'Export selected gymnasts as csv file with session')))
         return OrderedDict(actions)
 
     def create_events(self, modeladmin, req, qset):
@@ -217,7 +218,6 @@ class AthleteAdmin(admin.ModelAdmin):
         messages.success(request, '{} updated'.format(message_bit))
     set_athlete_id.short_description = "Set athlete id"
 
-
     def sort_into_divisions(self, model_admin, request, queryset):
         ''' Admin action meant to be performed once on all athletes at once.
             However, it can be performed multiple times without harm, and also on only a few athletes.
@@ -262,6 +262,26 @@ class AthleteAdmin(admin.ModelAdmin):
         cutoff = date(year, settings.COMPETITION_MONTH, settings.COMPETITION_DATE)
         age = (cutoff - gymnast.dob) // timedelta(days=365.2425)
         return age
+
+    def export_with_session(self, modeladmin, request, queryset):
+        """ Generic csv export admin action. """
+        opts = self.model._meta
+        response = HttpResponse(content_type='text/csv')
+        team_name = queryset[0].team.team
+        response['Content-Disposition'] = 'attachment; filename={}_bwi_roster.csv'.format(team_name)
+        writer = csv.writer(response)
+        field_names = ['team', 'usag', 'last_name', 'first_name', 'dob', 'age', 'shirt',  'meet', 'level', 'division', ]
+        with_session = field_names.copy()
+        with_session.append('Session')
+        # Write a first row with header information
+        writer.writerow(with_session)
+        # Write data rows
+        for obj in queryset:
+            field_values = [getattr(obj, field) for field in field_names]
+            field_values.append(obj.division.session.first())
+            writer.writerow(field_values)
+        return response
+    export_with_session.short_description = "Export selected gymnasts as csv file with session"
 
 
 class AthleteInlineAdmin(admin.TabularInline):

@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 import competition.views
+import registration.views
 
 router = DefaultRouter()
 router.register(r'events', competition.views.EventViewSet)
@@ -26,7 +27,9 @@ urlpatterns = patterns(
     url(r'^scoresheet/(?P<id>\d+)/$', competition.views.SessionScoresheetView.as_view()),
     url(r'^labels/(?P<id>\d+)/$', competition.views.SessionLabelsView.as_view()),
     url(r'^rotations/(?P<id>\d+)/$', competition.views.SessionRotationView.as_view()),
+    url(r'^announcer/(?P<id>\d+)/$', competition.views.SessionAnnouncerView.as_view()),
     url(r'^gymnast/signin/(?P<id>\d+)/$', competition.views.SessionGymnastSignInView.as_view()),
     url(r'^allteams/roster/(?P<id>\d+)/$', competition.views.SessionAllTeamsRosterView.as_view()),
     url(r'^team/roster/(?P<id>\d+)/$', competition.views.SessionTeamRosterView.as_view()),
+    url(r'^breakdown/$', registration.views.MeetBreakdownView.as_view()),
 )

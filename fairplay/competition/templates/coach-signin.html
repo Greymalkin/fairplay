@@ -13,15 +13,20 @@
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/scoresheet.css" rel="stylesheet">
     <style>
-      table {width: 1200px; 
-              page-break-inside: inherit; }
-      td {height: 50px;}
+      table {
+        width: 1200px; 
+        page-break-inside: inherit; 
+      }
+      td {
+        height: 50px;
+      }
     </style>
   </head>
 
   <body>
 
-  <h1> {{session.meet.name}}</h1>
+  <h1> {{meet.name}}</h1>
+  <h3> Coaches Sign In Sheet</h3>
 
   <p>Coaches: By signing below you are certifying that you are a current USA Gymnatics Professional member
       in good standing, with current safety/risk management and background check certification, along with the proper discipline level to 
@@ -56,6 +61,18 @@
       </tr>
     </tbody>
     {% endfor %}
+    <!-- Add 2nd loop here that loos from 1-10 and prints out empty rows -->
+    <tbody>
+      <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+      </tr>
+    </tbody>
   </table>
 
   </body>

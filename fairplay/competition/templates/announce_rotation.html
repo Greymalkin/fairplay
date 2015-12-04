@@ -18,11 +18,6 @@
   <body>
   <!-- HEY!  This page will print correctly in Firefox (respecting page breaks), but NOT in Chrome. -->
 
-
-  <!-- 
-      LIST OF EVENTS, ANNOTATED BY WHICH TEAMS WILL BE WARMING UP THERE 
-      AND THEN WHICH TEAMS WILL BE STARTING COMPETITION THERE.
-   -->
   <div id="wrap">
     <div id="header">
     <h1> {{session.meet.name}}</h1>
@@ -86,10 +81,7 @@
     </div>
     {% endif %}
 
-
   <div class="page-break"></div>
-  <!--  LIST OF TEAMS, ANNOTATED BY WHICH EVENT IS THE STARTING ROTATION -->
-
   <div id="header">
     <h1> {{session.meet.name}}</h1>
     <h3> {{ session.name }}: Rotations, Team View</h3>
@@ -108,31 +100,18 @@
     {% for team in teams %}
     <div class="team_container">
     <!-- <div class="team_group">{{team.team.team}} </div> -->
-
     <ul>
       <li>
           <div class="team_group">{{team.team.team}} </div>
         {% for event in team.starting_events %}
-          {% if session.warmup = "Traditional" %} 
           <div class="warm {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
             {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} 
             {{ event.starting_event.warmup_event_starthere }} <span class="divisions">(Warm-up)</span>
           </div>
-
           <div class="start">
             <!-- {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} --> 
             {{ event.starting_event }} <span class="divisions">(Competition)</span>
           </div>
-
-          {% else %}
-          <!-- hide the warmup if this is not a traditional session -->
-          <div class="start {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
-            <!-- {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} --> 
-            {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} 
-            {{ event.starting_event }} <span class="divisions">(Competition)</span>
-          </div>
-
-          {% endif%}
         {% endfor %}
       </li>
     </ul>

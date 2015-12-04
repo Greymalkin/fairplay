@@ -366,11 +366,11 @@ class SessionRotationView(TemplateView):
         return context
 
     def teams_on_event(self, session, event):
-        teams = Team.objects.filter(gymnasts__division__session=session, gymnasts__starting_event=event).distinct()
+        teams = Team.objects.filter(gymnasts__division__session=session, gymnasts__starting_event=event, gymnasts__is_scratched=False).distinct()
         return teams
 
     def divisions_in_rotation(self, session, event, team):
-        divisions = models.Division.objects.filter(session=session, athletes__team=team, athletes__starting_event=event).distinct()
+        divisions = models.Division.objects.filter(session=session, athletes__team=team, athletes__starting_event=event, athletes__is_scratched=False).distinct()
         return divisions
 
     def levels_in_rotation(self, session, event, team):
@@ -378,12 +378,80 @@ class SessionRotationView(TemplateView):
         return levels
 
     def teams_in_session(self, session):
-        teams = Team.objects.filter(gymnasts__division__session=session).distinct()
+        teams = Team.objects.filter(gymnasts__division__session=session, gymnasts__is_scratched=False).distinct()
         return teams
 
     def team_starting_events(self, session, team):
         events = team.gymnasts.filter(division__session=session, is_scratched=False).distinct('starting_event').order_by()
         return events
+
+
+class SessionAnnouncerView(TemplateView):
+    template_name = 'announce_rotation.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionAnnouncerView, self).get_context_data(**kwargs)
+        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+        context['events'] = []
+        context['warmup'] = []
+        context['teams'] = []
+        for event in models.Event.objects.filter(meet=MEET):
+            event_info = {}
+            event_info['event'] = event
+            event_info['warmup'] = []
+            event_info['rotation'] = []
+
+            for team in self.teams_on_event(context['session'], event):
+                team_info = {}
+                team_info['team'] = team
+                team_info['divisions'] = self.divisions_in_rotation(context['session'], event, team)
+                team_info['levels'] = self.levels_in_rotation(context['session'], event, team)
+                event_info['rotation'].append(team_info)
+
+            for team in self.teams_on_event(context['session'], event.warmup_event_endhere):
+                team_info = {}
+                team_info['team'] = team
+                team_info['divisions'] = self.divisions_in_rotation(context['session'], event.warmup_event_endhere, team)
+                team_info['levels'] = self.levels_in_rotation(context['session'], event.warmup_event_endhere, team)
+                event_info['warmup'].append(team_info)
+            context['events'].append(event_info)
+        for team in self.teams_in_session(context['session']):
+            team_info = {}
+            team_info['team'] = team
+            team_info['starting_events'] = self.team_starting_events(context['session'], team)
+            context['teams'].append(team_info)
+        return context
+
+    def teams_on_event(self, session, event):
+        teams = Team.objects.filter(gymnasts__division__session=session, gymnasts__starting_event=event, gymnasts__is_scratched=False).distinct()
+        return teams
+
+    def divisions_in_rotation(self, session, event, team):
+        divisions = models.Division.objects.filter(session=session, athletes__team=team, athletes__starting_event=event, athletes__is_scratched=False).distinct()
+        return divisions
+
+    def levels_in_rotation(self, session, event, team):
+        levels = Level.objects.filter(divisions__session=session, divisions__athletes__team=team, divisions__athletes__starting_event=event).distinct()
+        return levels
+
+    def teams_in_session(self, session):
+        teams = Team.objects.filter(gymnasts__division__session=session, gymnasts__is_scratched=False).distinct()
+        return teams
+
+    def team_starting_events(self, session, team):
+        events = team.gymnasts.filter(division__session=session, is_scratched=False).distinct('starting_event').order_by()
+        return events
+
+
+
+class CoachSignInView(TemplateView):
+    template_name = 'coach-signin.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CoachSignInView, self).get_context_data(**kwargs)
+        context['meet'] = MEET
+        context['coaches'] = Coach.objects.filter(meet=MEET).order_by('team', 'last_name', 'first_name')
+        return context
 
 
 class LEDShowViewSet(viewsets.ReadOnlyModelViewSet):
@@ -430,20 +498,3 @@ class SessionViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = models.Session.objects.all()
     serializer_class = serializers.SessionSerializer
-
-
-class CoachSignInView(TemplateView):
-    template_name = 'coach-signin.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(CoachSignInView, self).get_context_data(**kwargs)
-        context['coaches'] = Coach.objects.filter(meet=MEET).order_by('team', 'last_name', 'first_name')
-        return context
-
-
-class TeamAwardsView(TemplateView):
-    pass
-
-
-class CompetitionOrder(TemplateView):
-    pass

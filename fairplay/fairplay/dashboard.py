@@ -119,11 +119,22 @@ class CustomIndexDashboard(Dashboard):
                     'url': '/roster',
                     'external': False,
                 },
+                {
+                'title': 'Coaches Sign In',
+                'url': '/coaches/signin/',
+                'external': False,
+                },
             ],
             post_content=roster_html
         ))
 
         try:
+            links = []
+            links.append({
+                'title': 'Test',
+                'url': '/',
+                'external': False,
+                })
             athlete_info = ""
             for level in Level.objects.all():
                 level_count = Gymnast.objects.filter(meet=MEET, level=level, is_scratched=False).count()
@@ -141,7 +152,7 @@ class CustomIndexDashboard(Dashboard):
             self.children.append(modules.LinkList(
                 _('Meet Breakdown'),
                 column=3,
-                children=(),
+                children=links,
                 post_content=athlete_info,
                 css_classes=('grp-closed',),
             ))
@@ -169,13 +180,13 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                     })
                 links.append({
-                    'title': 'Rotations',
+                    'title': 'Warm-Up & Competition Rotations',
                     'url': '/rotations/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
-                    'title': 'Sign-in',
-                    'url': '/gymnast/signin/{}'.format(session.id),
+                    'title': 'For Announcer: Rotations',
+                    'url': '/announcer/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
@@ -189,12 +200,12 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                     })
                 links.append({
-                    'title': 'Team Roster',
+                    'title': 'Individual Teams Rosters',
                     'url': '/team/roster/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
-                    'title': 'All Teams Roster',
+                    'title': 'All Teams Roster & Gymnast Sign In',
                     'url': '/allteams/roster/{}'.format(session.id),
                     'external': False,
                     })
