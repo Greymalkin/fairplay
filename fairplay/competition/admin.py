@@ -119,7 +119,7 @@ class AthleteAdmin(admin.ModelAdmin):
         actions.insert(0, ('create_events', (self.create_events, 'create_events', '03. Create events for athlete')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
-        actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to empty')))
+        actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to (None)')))
         actions.append(('export_as_csv', (export_as_csv, 'export_as_csv', 'Export selected objects as csv file')))
         actions.append(('export_with_session', (self.export_with_session, 'export_with_session', 'Export selected gymnasts as csv file with session')))
         return OrderedDict(actions)
