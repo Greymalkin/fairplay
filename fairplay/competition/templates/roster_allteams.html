@@ -12,6 +12,14 @@
     <title>{{session}} Competition Roster (All Teams)</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/scoresheet.css" rel="stylesheet">
+    <style>
+       .write_in {
+          width: 175px;
+       }
+       table {
+        width: 900px;
+       }
+    </style>
   </head>
 
   <body>
@@ -32,7 +40,7 @@
         <th>ID #</th>
         <th>Birthdate</th>
         <th>Age/Div</th>
-        <th>&nbsp;</th>
+        <th class="write_in">&nbsp;</th>
       </tr>
     </thead>
 
@@ -44,7 +52,7 @@
         <td class="center">{{athlete.usag}}</td>
         <td class="center">{{athlete.dob}}</td>
         <td class="center">{{athlete.age}} / {{ athlete.division.age_division }}</td>
-        <td>&nbsp;</td>
+        <td class="write_in">&nbsp;</td>
       </tr>
     </tbody>
     {% endfor %}

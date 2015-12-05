@@ -328,6 +328,7 @@ class TeamAdmin(admin.ModelAdmin):
                  ('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
                  ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost', 'payment_postmark', 'registration_complete'), }),
                  )
+    actions = ['export_with_session']
 
     class Media:
         css = {
@@ -346,6 +347,44 @@ class TeamAdmin(admin.ModelAdmin):
         return obj.gymnasts.filter(is_scratched=False).count()
     num_gymnasts.short_description = 'Team Size'
     num_gymnasts.admin_order_field = 'num_gymnasts'
+
+    def export_with_session(self, request, queryset):
+        """ Generic csv export admin action. """
+        opts = self.model._meta
+        response = HttpResponse(content_type='text/csv')
+        team_name = queryset[0].team
+        response['Content-Disposition'] = 'attachment; filename={}_bwi_roster.csv'.format(team_name)
+        writer = csv.writer(response)
+
+        field_names = ['team',
+                       'usag',
+                       'last_name',
+                       'first_name',
+                       'dob',
+                       'age',
+                       'shirt',
+                       'is_scratched',
+                       'level',
+                       'division', ]
+        with_session = field_names.copy()
+        with_session.append('Session')
+        # Write a first row with header information
+        writer.writerow(with_session)
+        
+        # Write data rows
+        for obj in queryset:
+            gymnasts = models.Gymnast.objects.filter(team=obj).order_by('is_scratched', 'level', 'division', 'last_name')
+            for gymnast in gymnasts:
+                field_values = [getattr(gymnast, field) for field in field_names]
+                try:
+                    field_values.append(gymnast.division.session.first())
+                except:
+                    field_values.append(None)
+                writer.writerow(field_values)
+        return response
+    export_with_session.short_description = "Export selected team as csv file with session"
+
+
 
 
 class LogAdmin(admin.ModelAdmin):
