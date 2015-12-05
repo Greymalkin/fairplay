@@ -184,8 +184,13 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                     })
                 links.append({
-                    'title': 'Labels',
-                    'url': '/labels/{}'.format(session.id),
+                    'title': 'Download Athlete Labels',
+                    'url': '/labels/athlete/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Download Team Labels',
+                    'url': '/labels/team/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
