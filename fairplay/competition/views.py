@@ -444,6 +444,17 @@ class SessionAnnouncerView(TemplateView):
 
 
 
+class SessionCoachHospitalityView(TemplateView):
+    template_name = 'coach_hospitality.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SessionCoachHospitalityView, self).get_context_data(**kwargs)
+        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+
+        return context
+
+
+
 class CoachSignInView(TemplateView):
     template_name = 'coach-signin.html'
 

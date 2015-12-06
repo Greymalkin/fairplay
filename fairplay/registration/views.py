@@ -38,3 +38,12 @@ class MeetBreakdownView(TemplateView):
         #         athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
         #     athlete_info += "</ul></p>"
         return context
+
+
+class OrderingAwardsView(TemplateView):
+    template_name = 'ordering_awards.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(OrderingAwardsView, self).get_context_data(**kwargs)
+
+        return context

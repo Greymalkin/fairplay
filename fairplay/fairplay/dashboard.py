@@ -134,7 +134,12 @@ class CustomIndexDashboard(Dashboard):
                 'title': 'Test',
                 'url': '/',
                 'external': False,
-                })
+                }),
+            links.append({
+                'title': 'Ordering Team Awards',
+                'url': '/order/awards/',
+                'external': False,
+                }),
             athlete_info = ""
             for level in Level.objects.all():
                 level_count = Gymnast.objects.filter(meet=MEET, level=level, is_scratched=False).count()
@@ -180,23 +185,28 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                     })
                 links.append({
+                    'title': 'Labels',
+                    'url': '/labels/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
                     'title': 'Warm-Up & Competition Rotations',
                     'url': '/rotations/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
-                    'title': 'For Announcer: Rotations',
+                    'title': 'Announcer: Teams at Meet Start ',
                     'url': '/announcer/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
-                    'title': 'Scoresheet',
+                    'title': 'Program Book: Scoresheet',
                     'url': '/scoresheet/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
-                    'title': 'Labels',
-                    'url': '/labels/{}'.format(session.id),
+                    'title': 'Coaches Hospitality',
+                    'url': '/coaches/hospitality/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
