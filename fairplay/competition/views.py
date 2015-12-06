@@ -98,6 +98,79 @@ def download_roster(request):
     return response
 
 
+@csrf_exempt
+def download_athlete_labels(request, id):
+    session = models.Session.objects.get(id=id)
+    athletes = models.Athlete.objects.filter(division__session=id).\
+        order_by('team', 'division', 'last_name', 'first_name').\
+        select_related()
+    # teams = Team.objects.filter(gymnasts__division__session=session).\
+    #     order_by('team').\
+    #     distinct()
+
+    response = HttpResponse(content_type='text/csv')
+    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
+    # force download.
+    response['Content-Disposition'] = 'attachment;filename=labels_'+timestamp+'.csv'
+    # the csv writer
+    writer = csv.writer(response)
+
+    writer.writerow([
+        'ID',
+        'First Name',
+        'Last Name',
+        'Team',
+        'Level',
+        'Division',
+        'Session'
+    ])
+
+    for athlete in athletes:
+        writer.writerow([
+            athlete.athlete_id,
+            athlete.first_name,
+            athlete.last_name,
+            athlete.team.team,
+            athlete.level,
+            athlete.division.short_name,
+            session.name
+        ])
+
+    return response
+
+
+@csrf_exempt
+def download_team_labels(request, id):
+    session = models.Session.objects.get(id=id)
+    teams = Team.objects.filter(gymnasts__division__session=session).\
+        order_by('team').\
+        distinct()
+
+    response = HttpResponse(content_type='text/csv')
+    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
+    # force download.
+    response['Content-Disposition'] = 'attachment;filename=labels_'+timestamp+'.csv'
+    # the csv writer
+    writer = csv.writer(response)
+
+    writer.writerow([
+        'Team',
+        'Session',
+        'Levels',
+    ])
+
+    levels = ','.join(sorted(session.levels))
+
+    for team in teams:
+        writer.writerow([
+            team.team,
+            session.name,
+            levels
+        ])
+
+    return response
+
+
 class SessionCeremonyView(TemplateView):
     template_name = "session_ceremony.html"
 
