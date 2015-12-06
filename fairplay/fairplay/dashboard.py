@@ -120,9 +120,19 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                 },
                 {
-                'title': 'Coaches Sign In',
-                'url': '/coaches/signin/',
-                'external': False,
+                    'title': 'Download Athlete Labels',
+                    'url': '/labels/athlete/',
+                    'external': False,
+                },
+                {
+                    'title': 'Download Team Labels',
+                    'url': '/labels/team/',
+                    'external': False,
+                },
+                {
+                    'title': 'Coaches Sign In',
+                    'url': '/coaches/signin/',
+                    'external': False,
                 },
             ],
             post_content=roster_html
@@ -207,16 +217,6 @@ class CustomIndexDashboard(Dashboard):
                 links.append({
                     'title': 'Coaches Hospitality',
                     'url': '/coaches/hospitality/{}'.format(session.id),
-                    'external': False,
-                    })
-				links.append({
-                    'title': 'Download Athlete Labels',
-                    'url': '/labels/athlete/{}'.format(session.id),
-                    'external': False,
-                    })
-                links.append({
-                    'title': 'Download Team Labels',
-                    'url': '/labels/team/{}'.format(session.id),
                     'external': False,
                     })
                 links.append({
