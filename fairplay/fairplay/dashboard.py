@@ -219,7 +219,7 @@ class CustomIndexDashboard(Dashboard):
                     'url': '/coaches/hospitality/{}'.format(session.id),
                     'external': False,
                     })
-				links.append({
+                links.append({
                     'title': 'Download Athlete Labels',
                     'url': '/labels/athlete/{}'.format(session.id),
                     'external': False,

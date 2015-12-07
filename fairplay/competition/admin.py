@@ -1,4 +1,5 @@
 import csv
+import math
 
 from datetime import date, timedelta
 from collections import OrderedDict
@@ -314,11 +315,22 @@ class AthleteEventAdmin(admin.ModelAdmin):
         return qs.filter(event__meet=meet)
 
 
+def meet_awards_percentage(modeladmin, request, queryset):
+    meet = models.Meet.objects.filter(is_current_meet=True)[0]
+    for division in queryset:
+        division.event_award_count = math.ceil(len(division.athletes.all()) * meet.event_award_percentage)
+        division.all_around_award_count = math.ceil(len(division.athletes.all()) * meet.all_around_award_percentage)
+        division.save()
+
+meet_awards_percentage.short_description = "Set to meet awards percentage"
+
+
 class DivisionAdmin(admin.ModelAdmin):
     list_display = ('name', 'level', 'num_gymnasts', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     list_editable = ('min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     ordering = ('level', 'min_age')
     exclude = ('meet',)
+    actions = [meet_awards_percentage, ]
 
     def get_queryset(self, request):
         """ Restrict display of items in the admin by those belonging to the current Meet """

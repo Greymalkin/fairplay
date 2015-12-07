@@ -8,6 +8,8 @@ class Meet(models.Model):
     host = models.CharField(max_length=200, blank=False, null=False)
     date = models.DateField()
     is_current_meet = models.BooleanField('Current Meet?', default=False)
+    event_award_percentage = models.FloatField(default=0.45)
+    all_around_award_percentage = models.FloatField(default=0.5)
 
     max_sessions_per_day = models.IntegerField(
         "Max Sessions",
