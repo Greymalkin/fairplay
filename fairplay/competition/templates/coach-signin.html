@@ -18,8 +18,16 @@
         page-break-inside: inherit; 
       }
       td {
-        height: 50px;
+        height: 30px;
       }
+      .gray {
+        background-color: #ddd;
+      }
+      @media print {
+      tr.gray, td.gray {
+          background-color: #ddd !important;
+          -webkit-print-color-adjust: exact; 
+      }}      
     </style>
   </head>
 
@@ -29,15 +37,14 @@
   <h3> Coaches Sign In Sheet</h3>
 
   <p>Coaches: By signing below you are certifying that you are a current USA Gymnatics Professional member
-      in good standing, with current safety/risk management and background check certification, along with the proper discipline level to 
-      participate in stated sanctioned events.</p>
+      in good standing, with current safety/risk management and background check certification, along with the proper discipline level to participate in stated sanctioned events.</p>
 
   <p>If your name is printed below, your credentials have been verified through the USAG database, if your name does
       not appear below, please show proof of current USAG membership, safety and background certifications.</p>
 
   <table border="1" >
     <thead>
-      <tr style="background-color: #ddd">
+      <tr class="gray">
         <th>Club</th>
         <th>Name</th>
         <th style="width: 400px;">Signature</th>
@@ -55,16 +62,17 @@
         <td>{{ coach.first_name }} {{ coach.last_name }}</td>
         <td>&nbsp;</td>
         <td class="center">{{ coach.usag }} </td>
-        <td style="background-color: #ccc">&nbsp;</td>
-        <td style="background-color: #ccc">&nbsp;</td>
-        <td style="background-color: #ccc">&nbsp;</td>
+        <td class="gray">&nbsp;</td>
+        <td class="gray">&nbsp;</td>
+        <td class="gray">&nbsp;</td>
       </tr>
     </tbody>
     {% endfor %}
-    <!-- Add 2nd loop here that loos from 1-10 and prints out empty rows -->
+    <!-- Add 2nd loop here that loops several times and prints out empty rows -->
+    {% for i in "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" %}
     <tbody>
       <tr>
-        <td>&nbsp;</td>
+        <td>{{forloop.counter}}) &nbsp;</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
@@ -73,6 +81,8 @@
         <td>&nbsp;</td>
       </tr>
     </tbody>
+    {% endfor %}
+
   </table>
 
   </body>

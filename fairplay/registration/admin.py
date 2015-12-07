@@ -118,13 +118,14 @@ class CoachAdmin(admin.ModelAdmin):
 
 
 class GymnastAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'usag', 'show_team', 'level', 'age', 'dob',  'division', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
+    list_display = ('last_name', 'first_name', 'athlete_id', 'usag', 'show_team', 'level', 'age', 'dob',  'division', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
     list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     raw_id_fields = ('team',)
     actions = ['update_age', 'set_shirt_action', 'verify_with_usag', ]
     autocomplete_lookup_fields = {'fk': ['team']}
     exclude = ('meet',)
+    ordering = ('last_name', 'first_name')
 
     def get_queryset(self, request):
         """ Restrict display of items in the admin by those belonging to the current Meet """
@@ -317,7 +318,7 @@ class GymnastInline(admin.StackedInline):
 
 
 class TeamAdmin(admin.ModelAdmin):
-    list_display = ('team', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'notes')
+    list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'city', 'state', 'notes')
     list_filter = ('qualified','team_awards')
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
     search_fields = ('gym', 'team', 'usag')
@@ -385,8 +386,6 @@ class TeamAdmin(admin.ModelAdmin):
     export_with_session.short_description = "Export selected team as csv file with session"
 
 
-
-
 class LogAdmin(admin.ModelAdmin):
     """Create an admin view of the history/log table"""
     list_display = ('action_time', 'user', 'content_type', 'change_message', 'is_addition', 'is_change', 'is_deletion')
@@ -405,7 +404,6 @@ class LogAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
-
 LogEntry.is_addition.boolean = True
 LogEntry.is_change.boolean = True
 LogEntry.is_deletion.boolean = True

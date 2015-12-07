@@ -141,12 +141,12 @@ class CustomIndexDashboard(Dashboard):
         try:
             links = []
             links.append({
-                'title': 'Test',
+                'title': 'Registration Metrics',
                 'url': '/',
                 'external': False,
                 }),
             links.append({
-                'title': 'Ordering Team Awards',
+                'title': 'For Ordering Team Awards',
                 'url': '/order/awards/',
                 'external': False,
                 }),
@@ -205,7 +205,7 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                     })
                 links.append({
-                    'title': 'Announcer: Teams at Meet Start ',
+                    'title': 'Announcer Script: Teams at Meet Start ',
                     'url': '/announcer/{}'.format(session.id),
                     'external': False,
                     })
