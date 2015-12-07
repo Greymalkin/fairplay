@@ -39,6 +39,7 @@ logging.config.dictConfig({
 
 logger = logging.getLogger('manager')
 
+
 class Command(BaseCommand):
     """
     Example: $ ./manage.py upload_scores "Session 1,Session 2"
@@ -101,19 +102,27 @@ class Command(BaseCommand):
             teams = []
 
             for athlete_event in athlete_events:
-                if athlete_event.gymnast.team is not team:
+                if athlete_event.gymnast.team != team:
                     if team is not None:
+                        g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
+                        l['athletes'].append(g)
+                        t['levels'].append(l)
                         teams.append(t)
                     team = athlete_event.gymnast.team
+                    level = None
+                    gymnast = None
                     t = {'name': team.team, 'levels': []}
 
-                if athlete_event.gymnast.level is not level:
+                if athlete_event.gymnast.division.level != level:
                     if level is not None:
+                        g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
+                        l['athletes'].append(g)
                         t['levels'].append(l)
-                    level = athlete_event.gymnast.level
+                    level = athlete_event.gymnast.division.level
+                    gymnast = None
                     l = {'name': level.level, 'athletes': []}
 
-                if athlete_event.gymnast is not gymnast:
+                if athlete_event.gymnast != gymnast:
                     if gymnast is not None:
                         g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
                         l['athletes'].append(g)

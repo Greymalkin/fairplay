@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Fairland Online Scores</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport' />
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+  <link rel="stylesheet" href="css/fairplay.css">
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+</head>
+<body>
+
+  <!-- Primary Page Layout
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <div id="homeContainer" class="container">
+    <div class="row">
+    <img src="images/bwi.png" id="meetLogo" />
+    </div>
+    <div class="row">
+      <p>Welcome to the live scoring system for the 2015 Baltimore-Washington Invitational Men's Gymnastics Meet hosted by Fairland Boys Gymnastics.</p>
+      <p>You can help support our team by purchasing:
+      <ul>
+      <li>Event programs</li>
+      <li>Snacks and drinks at our two concession stands</li>
+      <li>Candy-grams for your favorite gymnast</li>
+      <li>T-Shirts and other commemerative wear</li>
+      </ul>
+      </p>
+      <p>To view live meet scores, select your session and team below and tap the View Scores button. No need to refresh, scores will be updated automatically!</p>
+      <label for="session-select">Select a session:</label>
+      <div id="sessionList">
+
+      </div>
+    </div>
+  </div>
+  <div id="scoresContainer" class="container">
+    <br>
+    <p>Please do not refresh this page. It will download new scores automatically. All rankings are by division.</p>
+  </div>
+
+  <script src="js/jquery-2.1.4.min.js"></script>
+  <script src="js/lodash.min.js"></script>
+  <script src="js/fairplay.js"></script>
+</body>
+</html>
