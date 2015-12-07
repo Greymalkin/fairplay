@@ -292,7 +292,7 @@ class AthleteInlineAdmin(admin.TabularInline):
 
 
 class TeamAwardAdmin(admin.ModelAdmin):
-    list_display = ('name', 'order', )
+    list_display = ('name', 'award_count', 'order', )
     filter_horizontal = ('levels',)
     exclude = ('meet',)
     list_editable = ('order',)
@@ -321,7 +321,6 @@ def meet_awards_percentage(modeladmin, request, queryset):
         division.event_award_count = math.ceil(len(division.athletes.all()) * meet.event_award_percentage)
         division.all_around_award_count = math.ceil(len(division.athletes.all()) * meet.all_around_award_percentage)
         division.save()
-
 meet_awards_percentage.short_description = "Set to meet awards percentage"
 
 
@@ -395,21 +394,6 @@ class LEDShowAdmin(admin.ModelAdmin):
         'description': LED_SIGN_CODES
     }),
     )
-
-
-# class TeamAdmin(admin.ModelAdmin):
-#     list_display = ('team', 'num_gymnasts', 'qualified')
-
-#     def get_queryset(self, request):
-#         """ Restrict display of items in the admin by those belonging to the current Meet """
-#         qs = super(TeamAdmin, self).get_queryset(request)
-#         meet = Meet.objects.filter(is_current_meet=True)
-#         return qs.filter(meet=meet).annotate(num_gymnasts=Count('gymnasts'))
-
-#     def num_gymnasts(self, obj):
-#         return obj.gymnasts.filter(is_scratched=False).count()
-#     num_gymnasts.short_description = 'Team Size'
-#     num_gymnasts.admin_order_field = 'num_gymnasts'
 
 
 admin.site.register(models.Division, DivisionAdmin)

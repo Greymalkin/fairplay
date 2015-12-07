@@ -9,19 +9,21 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>{{session.name}} Warm Ups and Rotations</title>
+    <title>{{session.name}} Announcer: Start of meet</title>
     <link href="/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/css/rotations.css" rel="stylesheet">
 
+    <style>
+      .main {width: 100%;}
+    </style>
   </head>
 
   <body>
-  <!-- HEY!  This page will print correctly in Firefox (respecting page breaks), but NOT in Chrome. -->
 
   <div id="wrap">
     <div id="header">
     <h1> {{session.meet.name}}</h1>
-    <h3> {{ session.name }}: Rotations, Event View</h3>
+    <h3> {{ session.name }}: Announce teams at start of meet</h3>
   </div>
 
   <div id="nav">
@@ -30,29 +32,25 @@
       <li>Gymnasts: {{ session.num_gymnasts }} | </li>
       <li>Host: {{session.meet.host}} | </li>
       <li>Date: {{session.meet.date}} | </li>
-  {% if session.warmup = "Traditional" %} 
-      <li>Warm-up time per event: 10 minutes  </li>
-  {% endif %}
-     </ul>
-     <ul>       
-      <li>Open Warm-Up: <input type="text"></li>      
-      <li>Timed Warm-Up: <input type="text"></li>      
-    </ul>
 
   </div>
 
+  <hr>
+  <p style="padding-left: 10px;"> (**) Teams with astrices are split on two events, announce both sides at the same time. </p>
+  <hr>
 
-  <div {% if session.warmup != "Traditional" %}id="main" {%else%}id="sidebar"{%endif%}>
-    <h2>Competition Rotation</h2>
+  <div id="main">
+    <!-- <h2>Competition Rotation</h2> -->
     {% for event in events %}
-    <h4 class="event_group">{{event.event.name}} </h4>
+    <h4 class="event_group">On {{event.event.name}} ... </h4>
       {% for team in event.rotation %}
         <div class="team_item">
           <span class="show_count"></span>
-          {{team.team.team }} 
-            {% if session.levels.count > 1 %} 
-            <span class="divisions">(Level{{team.levels.count|pluralize}} {{team.levels|join:", "}})</span>
+            {% if team.num_starting_events > 1 %} 
+            <span class="divisions">(**)</span>
             {% endif %}
+
+            From {{team.team.city}}, {{team.team.state}} ...  <strong>{{team.team.gym }}</strong> 
         </div>
       {% endfor %}
       <p>&nbsp;</p>
@@ -61,65 +59,7 @@
 
   </div>
 
-    {% if session.warmup = "Traditional" %} 
-    <div id="main">
-        <h2>Warm-up Rotation</h2>
 
-        {% for event in events %}
-        <h4 class="event_group">{{event.event.name}} </h4>
-          {% for team in event.warmup %}
-            <div class="team_item">
-              <span class="show_count"></span>
-              {{team.team.team }} 
-                {% if session.levels.count > 1 %} 
-                <span class="divisions">(Level{{team.levels.count|pluralize}} {{team.levels|join:", "}})</span>
-                {% endif %}
-            </div>
-          {% endfor %}
-          <p>&nbsp;</p>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-  <div class="page-break"></div>
-  <div id="header">
-    <h1> {{session.meet.name}}</h1>
-    <h3> {{ session.name }}: Rotations, Team View</h3>
-  </div>
-
-  <div id="nav">
-    <ul>
-      <li>Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}} | </li>
-      <li>Gymnasts: {{ session.num_gymnasts }} | </li>
-      <li>Host: {{session.meet.host}} | </li>
-      <li>Date: {{session.meet.date}} | </li>      
-    </ul>
-  </div>
-
-  <div id="footer">
-    {% for team in teams %}
-    <div class="team_container">
-    <!-- <div class="team_group">{{team.team.team}} </div> -->
-    <ul>
-      <li>
-          <div class="team_group">{{team.team.team}} </div>
-        {% for event in team.starting_events %}
-          <div class="warm {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
-            {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} 
-            {{ event.starting_event.warmup_event_starthere }} <span class="divisions">(Warm-up)</span>
-          </div>
-          <div class="start">
-            <!-- {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} --> 
-            {{ event.starting_event }} <span class="divisions">(Competition)</span>
-          </div>
-        {% endfor %}
-      </li>
-    </ul>
-    <p>&nbsp;</p>
-    </div>
-    {% endfor %}
-  </div>
-</div>
 
   </body>
 </html>

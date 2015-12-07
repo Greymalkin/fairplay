@@ -573,33 +573,21 @@ class SessionAnnouncerView(TemplateView):
         context = super(SessionAnnouncerView, self).get_context_data(**kwargs)
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
         context['events'] = []
-        context['warmup'] = []
-        context['teams'] = []
+
         for event in models.Event.objects.filter(meet=MEET):
             event_info = {}
             event_info['event'] = event
-            event_info['warmup'] = []
             event_info['rotation'] = []
 
             for team in self.teams_on_event(context['session'], event):
                 team_info = {}
                 team_info['team'] = team
+                team_info['num_starting_events'] = self.num_team_starting_events(context['session'], team)
                 team_info['divisions'] = self.divisions_in_rotation(context['session'], event, team)
                 team_info['levels'] = self.levels_in_rotation(context['session'], event, team)
                 event_info['rotation'].append(team_info)
 
-            for team in self.teams_on_event(context['session'], event.warmup_event_endhere):
-                team_info = {}
-                team_info['team'] = team
-                team_info['divisions'] = self.divisions_in_rotation(context['session'], event.warmup_event_endhere, team)
-                team_info['levels'] = self.levels_in_rotation(context['session'], event.warmup_event_endhere, team)
-                event_info['warmup'].append(team_info)
             context['events'].append(event_info)
-        for team in self.teams_in_session(context['session']):
-            team_info = {}
-            team_info['team'] = team
-            team_info['starting_events'] = self.team_starting_events(context['session'], team)
-            context['teams'].append(team_info)
         return context
 
     def teams_on_event(self, session, event):
@@ -614,14 +602,9 @@ class SessionAnnouncerView(TemplateView):
         levels = Level.objects.filter(divisions__session=session, divisions__athletes__team=team, divisions__athletes__starting_event=event).distinct()
         return levels
 
-    def teams_in_session(self, session):
-        teams = Team.objects.filter(gymnasts__division__session=session, gymnasts__is_scratched=False).distinct()
-        return teams
-
-    def team_starting_events(self, session, team):
-        events = team.gymnasts.filter(division__session=session, is_scratched=False).distinct('starting_event').order_by()
-        return events
-
+    def num_team_starting_events(self, session, team):
+        qs = models.Athlete.objects.filter(team=team, division__session=session).order_by().distinct('starting_event')
+        return qs.count()
 
 
 class SessionCoachHospitalityView(TemplateView):
@@ -632,7 +615,6 @@ class SessionCoachHospitalityView(TemplateView):
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         return context
-
 
 
 class CoachSignInView(TemplateView):
