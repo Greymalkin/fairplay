@@ -1,72 +1,170 @@
-import json
-import os
-
-from django.core.management.base import BaseCommand
 import competition
+import json
 import meet
-import registration
-import tempfile
-from django.conf import settings
+import os
+import signal
+import time
+import logging
 
+from django.conf import settings
+from django.core.management.base import BaseCommand
+
+from io import StringIO
+
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,  # this fixes the problem
+
+    'formatters': {
+        'standard': {
+            'format': "%(asctime)s.%(msecs).03d %(levelname)s [%(module)s:%(lineno)s] %(message)s",
+            'datefmt': "%Y-%m-%d %H:%M:%S"
+        },
+    },
+    'handlers': {
+        'default': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+        },
+    },
+    'loggers': {
+        'manager': {
+            'handlers': ['default'],
+            'level': 'INFO',
+            'propagate': True
+        }
+    }
+})
+
+logger = logging.getLogger('manager')
 
 class Command(BaseCommand):
     """
-    Example: $ ./manage.py upload_scores
+    Example: $ ./manage.py upload_scores "Session 1,Session 2"
     """
+    args = "session"
+
     def handle(self, *args, **kwargs):
+        self.running = True
+        signal.signal(signal.SIGTERM, self.on_signal)
+        signal.signal(signal.SIGINT, self.on_signal)
+        self.session_names = args[0].split(',')
+
+        while self.running:
+            file_paths = self.generate_scores(self.session_names)
+            self.upload_files(file_paths)
+            time.sleep(settings.ONLINE_SCORES_RATE)
+
+    def on_signal(self, sig, frame):
+        self.running = False
+
+    def generate_scores(self, session_names):
         currentMeet = meet.models.Meet.objects.get(is_current_meet=True)
         currentSessions = competition.models.Session.objects.filter(meet=currentMeet)
 
-        temp_dir = tempfile.mkdtemp()
-        sessions = []
+        session_info = []
+        file_paths = []
 
-        for s in currentSessions:
-            sessions.append({
-                'name': s.name,
-                'path': 'session_{}.json'.format(s.id)
-            })
-
-            teams = []
-
-            for t in registration.models.Team.objects.all().order_by('team'):
-                levels = []
-
-                for l in registration.models.Level.objects.all():
-                    athletes = []
-
-                    for a in competition.models.Athlete.objects.filter(team=t, division__level=l, division__in=s.divisions.all()).order_by('last_name', 'first_name'):
-                        scores = []
-                        for e in competition.models.Event.objects.all():
-                            ae = competition.models.AthleteEvent.objects.get(gymnast=a, event=e)
-                            scores.append([e.initials.upper(), ae.score, ae.rank])
-                        scores.append(["AA", a.overall_score, a.rank])
-
-                        athlete = {
-                            'id': a.athlete_id,
-                            'division': a.division.name,
-                            'last_name': a.last_name,
-                            'first_name': a.first_name,
-                            'scores': scores
-                        }
-                        athletes.append(athlete)
-
-                    if len(athletes) > 0:
-                        levels.append({'name': l.level, 'athletes': athletes})
-
-                if len(levels) > 0:
-                    teams.append({'name': t.team, 'levels': levels})
-
-            session = {'name': s.name, 'teams': teams}
-
-            with open(os.path.join(temp_dir, 'session_{}.json'.format(s.id)), 'w') as f:
-                f.write(json.dumps(session))
+        # handle overall data for meet
+        for session in currentSessions:
+            session_info.append([session.id, session.name, 'session_{}.json'.format(session.id)])
 
         meetData = {
             'name': currentMeet.name,
-            'sessions': sessions,
+            'sessions': session_info,
         }
 
-        with open(os.path.join(temp_dir, 'meet.json'), 'w') as f:
+        file_path = 'meet.json'
+        file_paths.append(file_path)
+        with open(file_path, 'w') as f:
             f.write(json.dumps(meetData))
 
-        print(temp_dir)
+        # handle current session
+        sessions = competition.models.Session.objects.filter(meet=currentMeet, name__in=session_names)
+
+        for session in sessions:
+
+            athlete_events = competition.models.AthleteEvent.objects.filter(gymnast__division__session=session).order_by(
+                'gymnast__team',
+                'gymnast__level',
+                'gymnast__last_name',
+                'gymnast__first_name',
+                'event',)
+
+            team = None
+            level = None
+            gymnast = None
+            t = None
+            l = None
+            g = None
+            teams = []
+
+            for athlete_event in athlete_events:
+                if athlete_event.gymnast.team is not team:
+                    if team is not None:
+                        teams.append(t)
+                    team = athlete_event.gymnast.team
+                    t = {'name': team.team, 'levels': []}
+
+                if athlete_event.gymnast.level is not level:
+                    if level is not None:
+                        t['levels'].append(l)
+                    level = athlete_event.gymnast.level
+                    l = {'name': level.level, 'athletes': []}
+
+                if athlete_event.gymnast is not gymnast:
+                    if gymnast is not None:
+                        g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
+                        l['athletes'].append(g)
+                    gymnast = athlete_event.gymnast
+                    g = {
+                        'id': gymnast.athlete_id,
+                        'division': gymnast.division.name,
+                        'last_name': gymnast.last_name,
+                        'first_name': gymnast.first_name,
+                        'scores': []
+                    }
+
+                g['scores'].append([
+                    athlete_event.event.initials.upper(),
+                    athlete_event.score,
+                    athlete_event.rank])
+
+            s = {'name': session.name, 'teams': teams}
+
+            session_path = 'session_{}.json'.format(session.id)
+            file_paths.append(session_path)
+            with open(session_path, 'w') as f:
+                f.write(json.dumps(s))
+
+        return file_paths
+
+    def upload_files(self, file_paths):
+        try:
+            import paramiko
+            key_string = StringIO(settings.ONLINE_SCORES_KEY)
+            key = paramiko.RSAKey.from_private_key(key_string)
+            transport = paramiko.Transport((settings.ONLINE_SCORES_HOST, settings.ONLINE_SCORES_PORT))
+
+            transport.connect(None, settings.ONLINE_SCORES_USER, pkey=key)
+            sftp = paramiko.SFTPClient.from_transport(transport)
+
+            for file_path in file_paths:
+                sftp.put(file_path, os.path.join(settings.ONLINE_SCORES_PATH, file_path + ".incoming"))
+
+            for file_path in file_paths:
+                try:
+                    sftp.remove(os.path.join(settings.ONLINE_SCORES_PATH, file_path))
+                except:
+                    pass
+                sftp.rename(
+                    os.path.join(settings.ONLINE_SCORES_PATH, file_path + ".incoming"),
+                    os.path.join(settings.ONLINE_SCORES_PATH, file_path))
+
+            sftp.close()
+            transport.close()
+
+            logger.info('Uploaded new scores for {}'.format(', '.join(self.session_names)))
+        except:
+            logger.error('Problem uploading scores for {}'.format(', '.join(self.session_names)))
