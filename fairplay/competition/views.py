@@ -99,14 +99,11 @@ def download_roster(request):
 
 
 @csrf_exempt
-def download_athlete_labels(request, id):
-    session = models.Session.objects.get(id=id)
-    athletes = models.Athlete.objects.filter(division__session=id).\
-        order_by('team', 'division', 'last_name', 'first_name').\
+def download_athlete_labels(request):
+    athletes = models.Athlete.objects.filter(meet=MEET).\
+        exclude(is_scratched=True, athlete_id=None).\
+        order_by('division__session', 'team', 'division', 'last_name', 'first_name').\
         select_related()
-    # teams = Team.objects.filter(gymnasts__division__session=session).\
-    #     order_by('team').\
-    #     distinct()
 
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
@@ -133,18 +130,15 @@ def download_athlete_labels(request, id):
             athlete.team.team,
             athlete.level,
             athlete.division.short_name,
-            session.name
+            athlete.division.session.first().name
         ])
 
     return response
 
 
 @csrf_exempt
-def download_team_labels(request, id):
-    session = models.Session.objects.get(id=id)
-    teams = Team.objects.filter(gymnasts__division__session=session).\
-        order_by('team').\
-        distinct()
+def download_team_labels(request):
+    sessions = models.Session.objects.filter(meet=MEET)
 
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
@@ -159,14 +153,19 @@ def download_team_labels(request, id):
         'Levels',
     ])
 
-    levels = ','.join(sorted(session.levels))
 
-    for team in teams:
-        writer.writerow([
-            team.team,
-            session.name,
-            levels
-        ])
+    for session in sessions:
+        levels = ','.join(sorted(session.levels))
+
+        teams = Team.objects.filter(meet=MEET, gymnasts__division__session=session).\
+            order_by('gymnasts__division__session', 'team').distinct()
+
+        for team in teams:
+            writer.writerow([
+                team.team,
+                session.name,
+                levels
+            ])
 
     return response
 

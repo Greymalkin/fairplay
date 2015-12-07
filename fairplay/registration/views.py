@@ -22,7 +22,7 @@ class MeetBreakdownView(TemplateView):
     template_name = 'breakdown.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SessionLabelsView, self).get_context_data(**kwargs)
+        context = super(MeetBreakdownView, self).get_context_data(**kwargs)
         context['athletes'] = {}
         athlete_info = []
         # for level in models.Level.objects.all():
