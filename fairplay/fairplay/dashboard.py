@@ -166,9 +166,14 @@ class CustomIndexDashboard(Dashboard):
                 links = []
                 links.append({
                     'title': 'Awards Ceremony',
-                    'url': '/results/ceremony/{}'.format(session.id),
+                    'url': '/results/ceremony/event/{}'.format(session.id),
                     'external': False,
                     })
+                # links.append({
+                #     'title': 'Awards Ceremony (By division)',
+                #     'url': '/results/ceremony/division/{}'.format(session.id),
+                #     'external': False,
+                #     })
                 links.append({
                     'title': 'Individual Results',
                     'url': '/results/individual/{}'.format(session.id),
@@ -194,16 +199,16 @@ class CustomIndexDashboard(Dashboard):
                     'url': '/scoresheet/{}'.format(session.id),
                     'external': False,
                     })
-                links.append({
-                    'title': 'Download Athlete Labels',
-                    'url': '/labels/athlete/{}'.format(session.id),
-                    'external': False,
-                    })
-                links.append({
-                    'title': 'Download Team Labels',
-                    'url': '/labels/team/{}'.format(session.id),
-                    'external': False,
-                    })
+                # links.append({
+                #     'title': 'Download Athlete Labels',
+                #     'url': '/labels/athlete/{}'.format(session.id),
+                #     'external': False,
+                #     })
+                # links.append({
+                #     'title': 'Download Team Labels',
+                #     'url': '/labels/team/{}'.format(session.id),
+                #     'external': False,
+                #     })
                 links.append({
                     'title': 'Individual Teams Rosters',
                     'url': '/team/roster/{}'.format(session.id),
