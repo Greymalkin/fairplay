@@ -59,8 +59,8 @@ class Division(models.Model):
     short_name = models.CharField(max_length=10, help_text='For printing in report columns.')
     min_age = models.PositiveSmallIntegerField(default=6)
     max_age = models.PositiveSmallIntegerField(default=18)
-    event_award_count = models.PositiveSmallIntegerField(default=3)
-    all_around_award_count = models.PositiveSmallIntegerField(verbose_name="All-around award count", default=3)
+    event_award_count = models.PositiveSmallIntegerField(default=3, help_text="Number of places individual awards will go out to")
+    all_around_award_count = models.PositiveSmallIntegerField(verbose_name="All-around award count", default=3, help_text="Number of places all around awards will go out to")
 
     class Meta():
         ordering = ['level', 'min_age', ]
@@ -125,7 +125,7 @@ class TeamAward(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_awards')
     name = models.CharField(max_length=255)
     levels = models.ManyToManyField(Level)
-    award_count = models.PositiveSmallIntegerField(default=3)
+    award_count = models.PositiveSmallIntegerField(default=3, help_text='Number of places team awards will go out to')
     order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
@@ -146,6 +146,10 @@ class TeamAwardRank(models.Model):
     def __str__(self):
         return "{} - {}".format(self.team_award, self.team)
 
+    class Meta:
+        verbose_name = 'Team Award Rank'
+        verbose_name_plural = 'Team Award Ranks'
+
 
 class TeamAwardRankAthleteEvent(models.Model):
     team_award_rank = models.ForeignKey(TeamAwardRank, related_name='athlete_event_rankings')
@@ -155,6 +159,10 @@ class TeamAwardRankAthleteEvent(models.Model):
 
     def __str__(self):
         return "{} - {} - {} - {} ({})".format(self.team_award_rank.team_award, self.team_award_rank.team, self.event, self.athlete_event.gymnast, self.rank)
+
+    class Meta:
+        verbose_name = 'Team Award Rank Athlete Event'
+        verbose_name_plural = 'Team Award Rank Athlete Events'
 
 
 class AthleteEvent(models.Model):

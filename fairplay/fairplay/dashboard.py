@@ -90,6 +90,7 @@ class CustomIndexDashboard(Dashboard):
                 'competition.models.Team',
                 'competition.models.TeamAward',
                 'competition.models.TeamAwardRank',
+                'competition.models.TeamAwardRankAthleteEvent',
                 ),
         ))
 

@@ -303,6 +303,14 @@ class TeamAwardAdmin(admin.ModelAdmin):
         }
 
 
+class TeamAwardRankAdmin(admin.ModelAdmin):
+    list_display = ('team', 'team_award', 'rank', 'score')
+
+
+class TeamAwardRankAthleteEventAdmin(admin.ModelAdmin):
+    list_display = ('team_award_rank', 'event', 'athlete_event', 'rank')
+
+
 class AthleteEventAdmin(admin.ModelAdmin):
     fields = ('gymnast', 'event', 'score',)
     list_display = ('gymnast', 'event', 'score',)
@@ -404,8 +412,8 @@ admin.site.register(models.LEDShow, LEDShowAdmin)
 admin.site.register(models.Session, SessionAdmin)
 admin.site.register(models.Athlete, AthleteAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)
-admin.site.register(models.TeamAwardRank)
-admin.site.register(models.TeamAwardRankAthleteEvent)
+admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
+admin.site.register(models.TeamAwardRankAthleteEvent, TeamAwardRankAthleteEventAdmin)
 admin.site.add_action(export_as_csv)
 
 
