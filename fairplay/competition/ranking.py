@@ -16,12 +16,12 @@ def update_division_ranking(division):
     from . import models
 
     # All athletes in division (age division), including their event score, overall score, and max score
-    division_athletes = models.AthleteEvent.objects.filter(gymnast__division=division).annotate(total_score=Sum('gymnast__events__score'), max_score=Max('gymnast__events__score'))
+    division_athletes = models.AthleteEvent.objects.filter(gymnast__division=division).annotate(total_score=Sum('gymnast__events__score'))
 
     for event in models.Event.objects.all():
         athletes = []
         # Sub Select for athletes in a single event.
-        for a in division_athletes.filter(event=event).order_by('-score', '-total_score', '-max_score'):
+        for a in division_athletes.filter(event=event).order_by('-score', '-total_score', '-gymnast__tie_break'):
             athlete = {
                 'athlete_id': a.gymnast.athlete_id,
                 'last_name': a.gymnast.last_name,
@@ -29,7 +29,7 @@ def update_division_ranking(division):
                 'team': a.gymnast.team.team,
                 'score': a.score,
                 'total_score': a.total_score,
-                'max_score': a.max_score,
+                'tie_break': a.gymnast.tie_break,
                 'athlete_event': a
             }
             athletes.append(athlete)
@@ -37,7 +37,7 @@ def update_division_ranking(division):
         rank = 0
         last_score = None
         last_total_score = None
-        last_max_score = None
+        last_tie_break = None
         # Set ranks, break ties.
         for athlete in athletes:
             # print('athlete score:', athlete['score'])
@@ -46,13 +46,13 @@ def update_division_ranking(division):
             if athlete['score'] is None:
                 continue
 
-            if athlete['score'] == last_score and athlete['total_score'] == last_total_score and athlete['max_score'] == last_max_score:
+            if athlete['score'] == last_score and athlete['total_score'] == last_total_score and athlete['tie_break'] == last_tie_break:
                 pass
             else:
                 rank += 1
             last_score = athlete['score']
             last_total_score = athlete['total_score']
-            last_max_score = athlete['max_score']
+            last_tie_break = athlete['tie_break']
             athlete['rank'] = rank
 
             athlete['athlete_event'].rank = athlete['rank']
@@ -72,6 +72,7 @@ def update_division_ranking(division):
             'athlete_id': a.athlete_id,
             'last_name': a.last_name,
             'first_name': a.first_name,
+            'tie_break': a.tie_break,
             'team': a.team.team,
         }
         info = models.AthleteEvent.objects.filter(gymnast=a).aggregate(total_score=Sum('score'), max_score=Max('score'))
@@ -81,17 +82,17 @@ def update_division_ranking(division):
 
     athletes = multikeysort(athletes, ('total_score', 'max_score'))
 
-    # rank them by total_score, and max_score
+    # rank them by total_score, and tie_break
     rank = 0
     last_total_score = None
-    last_max_score = None
+    last_tie_break = None
     for athlete in athletes:
-        if athlete['total_score'] == last_total_score and athlete['max_score'] == last_max_score:
+        if athlete['total_score'] == last_total_score and athlete['tie_break'] == last_tie_break:
             pass
         else:
             rank += 1
         last_total_score = athlete['total_score']
-        last_max_score = athlete['max_score']
+        last_tie_break = athlete['tie_break']
         athlete['rank'] = rank
         athlete['score'] = athlete['total_score']
 

@@ -110,8 +110,8 @@ class AthleteAdmin(admin.ModelAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (AthleteEventInlineAdmin, )
     fields = ('usag', 'athlete_id', 'is_scratched', 'last_name', 'first_name', 'team',
-              'dob', 'age', 'division', 'starting_event', 'overall_score', 'rank', )
-    readonly_fields = ('overall_score', 'rank')
+              'dob', 'age', 'division', 'starting_event', 'overall_score', 'rank', 'tie_break' )
+    readonly_fields = ('overall_score', 'rank', 'tie_break')
     list_filter = ('team', 'division', 'level', SessionFilter, 'starting_event')
     list_per_page = 50
 

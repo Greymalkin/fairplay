@@ -119,6 +119,7 @@ class Gymnast(Person):
     division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True)
     starting_event = models.ForeignKey('competition.Event', null=True, blank=True)
     overall_score = models.FloatField(null=True, blank=True)
+    tie_break = models.BigIntegerField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)
     athlete_id = models.PositiveSmallIntegerField(unique=True, blank=True, null=True, verbose_name='Athlete ID', help_text='For use during competition')
 

@@ -15,8 +15,8 @@
     <tr class="events">\
       <th>FX</th>\
       <th>PH</th>\
-      <th>VT</th>\
       <th>SR</th>\
+      <th>VT</th>\
       <th>PB</th>\
       <th>HB</th>\
       <th>AA</th>\
@@ -26,8 +26,8 @@
     <tr class="scores">\
       <td id="<%- id %>_FX_score">-</td>\
       <td id="<%- id %>_PH_score">-</td>\
-      <td id="<%- id %>_VT_score">-</td>\
       <td id="<%- id %>_SR_score">-</td>\
+      <td id="<%- id %>_VT_score">-</td>\
       <td id="<%- id %>_PB_score">-</td>\
       <td id="<%- id %>_HB_score">-</td>\
       <td id="<%- id %>_AA_score">-</td>\
@@ -35,8 +35,8 @@
     <tr class="rankings">\
       <td id="<%- id %>_FX_rank">-</td>\
       <td id="<%- id %>_PH_rank">-</td>\
-      <td id="<%- id %>_VT_rank">-</td>\
       <td id="<%- id %>_SR_rank">-</td>\
+      <td id="<%- id %>_VT_rank">-</td>\
       <td id="<%- id %>_PB_rank">-</td>\
       <td id="<%- id %>_HB_rank">-</td>\
       <td id="<%- id %>_AA_rank">-</td>\
@@ -69,7 +69,11 @@
                         var rankID = "#" + athlete.id + "_" + score[0] + "_rank";
 
                         if (updateTable[scoreID] != score[1] && score[1] != null) {
-                            $(scoreID).text(score[1]);
+                            var str = String(score[1]);
+                            if (str.indexOf(".") == -1) {
+                              str += ".0";
+                            }
+                            $(scoreID).text(str);
                             updateTable[scoreID] = score[1];
                             ++scoreCount;
                         }

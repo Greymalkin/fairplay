@@ -86,7 +86,7 @@ class Command(BaseCommand):
 
         for session in sessions:
 
-            athlete_events = competition.models.AthleteEvent.objects.filter(gymnast__division__session=session).order_by(
+            athlete_events = competition.models.AthleteEvent.objects.filter(gymnast__division__session=session, gymnast__is_scratched=False).order_by(
                 'gymnast__team',
                 'gymnast__level',
                 'gymnast__last_name',
@@ -140,6 +140,11 @@ class Command(BaseCommand):
                     athlete_event.score,
                     athlete_event.rank])
 
+            # make sure to append the last one
+            g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
+            l['athletes'].append(g)
+            t['levels'].append(l)
+            teams.append(t)
             s = {'name': session.name, 'teams': teams}
 
             session_path = 'session_{}.json'.format(session.id)

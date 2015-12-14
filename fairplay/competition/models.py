@@ -1,3 +1,5 @@
+import math
+
 from django.db import models
 from django.db.models.signals import post_save
 
@@ -277,7 +279,23 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
         dispatch_uid='update_rankings')
 
     if update_fields is None or 'rank' not in update_fields:
+        athlete_events = AthleteEvent.objects.filter(gymnast=instance.gymnast).order_by("score")
+        tie_break = 0
+
+        try:
+            p = 0
+            for athlete_event in athlete_events:
+                if athlete_event.score is not None:
+                    tie_break += int(int(athlete_event.score * 10) * math.pow(10, p))
+                p += 3
+
+            instance.gymnast.tie_break = tie_break
+            instance.gymnast.save()
+        except:
+            print('Problem calculating tie break for athlete {}'.format(instance.athlete_id))
+
         ranking.update_division_ranking(instance.gymnast.division)
+        print('Re-ranking for division ')
 
     post_save.connect(
         update_rankings,
