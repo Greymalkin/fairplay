@@ -7,6 +7,8 @@ from meet.models import Meet
 from registration.models import Team, Gymnast, Level
 from . import ranking
 
+MEET = Meet.objects.get(is_current_meet=True)
+
 
 class LEDSign(models.Model):
     name = models.CharField(max_length=255)
@@ -186,7 +188,7 @@ class AthleteEvent(models.Model):
 
 class AthleteManager(models.Manager):
     def get_queryset(self):
-        return super(AthleteManager, self).get_queryset().filter(is_scratched=False)
+        return super(AthleteManager, self).get_queryset().filter(is_scratched=False, meet=MEET)
 
 
 class Athlete(Gymnast):

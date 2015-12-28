@@ -3,6 +3,8 @@ from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from meet.models import Meet
 
+MEET = Meet.objects.get(is_current_meet=True)
+
 
 class Team(models.Model):
     meet = models.ForeignKey(Meet, related_name='teams')
@@ -114,7 +116,7 @@ class Gymnast(Person):
     age = models.PositiveSmallIntegerField('Age', blank=True, null=True, help_text='Competitive Age (as of 9/1)')
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
     shirt = models.ForeignKey('ShirtSize', blank=True, null=True)
-    level = models.ForeignKey('Level', blank=True, null=True)
+    level = models.ForeignKey('Level', blank=True, null=True, limit_choices_to={'meet': MEET})
     is_scratched = models.BooleanField('Scratched?', default=False)
     division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True)
     starting_event = models.ForeignKey('competition.Event', null=True, blank=True)

@@ -10,6 +10,7 @@ from django.db.models import Count, Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
+from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -317,7 +318,16 @@ class GymnastInline(admin.StackedInline):
         js = ('/static/js/competitionAge.js','/static/js/moment.min.js')
 
 
+class TeamForm(forms.ModelForm): 
+    def __init__(self, *args, **kwargs):
+        super(TeamForm, self).__init__(*args, **kwargs)
+        meet = Meet.objects.filter(is_current_meet=True)
+        wtf = TeamAward.objects.filter(meet=meet);
+        self.fields['team_awards'].widget.choices = [(choice.id, choice.name) for choice in wtf]
+
+
 class TeamAdmin(admin.ModelAdmin):
+    form = TeamForm
     list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'city', 'state', 'notes')
     list_filter = ('qualified','team_awards')
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)

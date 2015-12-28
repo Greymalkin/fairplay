@@ -4,6 +4,7 @@ import math
 from datetime import date, timedelta
 from collections import OrderedDict
 
+from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.contrib import admin, messages
 from django.conf import settings
@@ -15,8 +16,12 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 
 from . import models
 from meet.models import Meet
+from registration.models import Level
 
 from django.utils.translation import ugettext_lazy as _
+
+MEET = Meet.objects.filter(is_current_meet=True)
+
 
 LED_SIGN_CODES = """
 The following are special codes you can use to customize the LED sign display<br>
@@ -174,7 +179,8 @@ class AthleteAdmin(admin.ModelAdmin):
     all_around.short_description = 'AA'
 
     def __getattr__(self, attr):
-        event = models.Event.objects.get(initials=attr)
+        meet = Meet.objects.get(is_current_meet=True)
+        event = models.Event.objects.get(initials=attr, meet=meet)
 
         def get_score(athlete):
             return athlete.events.get(event=event).score
@@ -291,7 +297,15 @@ class AthleteInlineAdmin(admin.TabularInline):
     fields = ('athlete_id', 'last_name', 'first_name', 'starting_event')
 
 
+class TeamAwardForm(forms.ModelForm): 
+    def __init__(self, *args, **kwargs):
+        super(TeamAwardForm, self).__init__(*args, **kwargs)
+        wtf = Level.objects.filter(meet=MEET);
+        self.fields['levels'].widget.choices = [(choice.id, choice.level) for choice in wtf]
+
+
 class TeamAwardAdmin(admin.ModelAdmin):
+    form = TeamAwardForm
     list_display = ('name', 'award_count', 'order', )
     filter_horizontal = ('levels',)
     exclude = ('meet',)
@@ -306,9 +320,19 @@ class TeamAwardAdmin(admin.ModelAdmin):
 class TeamAwardRankAdmin(admin.ModelAdmin):
     list_display = ('team', 'team_award', 'rank', 'score')
 
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(TeamAwardRankAdmin, self).get_queryset(request)
+        return qs.filter(team_award__meet=MEET)
+
 
 class TeamAwardRankAthleteEventAdmin(admin.ModelAdmin):
     list_display = ('team_award_rank', 'event', 'athlete_event', 'rank')
+
+    def get_queryset(self, request):
+        """ Restrict display of items in the admin by those belonging to the current Meet """
+        qs = super(TeamAwardRankAthleteEventAdmin, self).get_queryset(request)
+        return qs.filter(event__meet=MEET)
 
 
 class AthleteEventAdmin(admin.ModelAdmin):
@@ -357,7 +381,16 @@ class EventAdmin(admin.ModelAdmin):
         return qs.filter(meet=meet)
 
 
+class SessionForm(forms.ModelForm): 
+    def __init__(self, *args, **kwargs):
+        super(SessionForm, self).__init__(*args, **kwargs)
+        meet = Meet.objects.filter(is_current_meet=True)
+        wtf = models.Division.objects.filter(meet=meet);
+        self.fields['divisions'].widget.choices = [(choice.id, choice.name) for choice in wtf]
+
+
 class SessionAdmin(admin.ModelAdmin):
+    form = SessionForm
     list_display = ('name', 'num_gymnasts', 'warmup')
     filter_horizontal = ('divisions',)
     exclude = ('meet',)

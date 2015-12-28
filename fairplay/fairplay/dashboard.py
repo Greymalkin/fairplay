@@ -152,7 +152,7 @@ class CustomIndexDashboard(Dashboard):
                 'external': False,
                 }),
             athlete_info = ""
-            for level in Level.objects.all():
+            for level in Level.objects.filter(meet=MEET):
                 level_count = Gymnast.objects.filter(meet=MEET, level=level, is_scratched=False).count()
                 athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
                 for age in range(4, 19):
