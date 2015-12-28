@@ -450,12 +450,12 @@ admin.site.register(models.TeamAwardRankAthleteEvent, TeamAwardRankAthleteEventA
 admin.site.add_action(export_as_csv)
 
 
-@receiver(pre_save, sender=models.TeamAward)
-@receiver(pre_save, sender=models.Division)
-@receiver(pre_save, sender=models.Event)
-@receiver(pre_save, sender=models.Session)
-@receiver(pre_save, sender=models.TeamAward)
-@receiver(pre_save, sender=models.Athlete)
+@receiver(pre_save, sender=models.TeamAward, dispatch_uid='save_current_meet_award')
+@receiver(pre_save, sender=models.Division, dispatch_uid='save_current_meet_division')
+@receiver(pre_save, sender=models.Event, dispatch_uid='save_current_meet_event')
+@receiver(pre_save, sender=models.Session, dispatch_uid='save_current_meet_session')
+@receiver(pre_save, sender=models.TeamAward, dispatch_uid='save_current_meet_teamaward')
+@receiver(pre_save, sender=models.Athlete, dispatch_uid='save_current_meet_athlete')
 def save_current_meet(sender, instance, **kwargs):
     meet = models.Meet.objects.get(is_current_meet=True)
     instance.meet = meet

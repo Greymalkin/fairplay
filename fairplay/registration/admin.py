@@ -449,13 +449,14 @@ admin.site.register(models.LevelPricing, LevelPricingAdmin)
 admin.site.register(models.ShirtSize)
 
 
-@receiver(pre_save, sender=models.Level)
-@receiver(pre_save, sender=models.Team)
-@receiver(pre_save, sender=models.Gymnast)
-@receiver(pre_save, sender=models.Coach)
-@receiver(pre_save, sender=models.LevelPricing)
-@receiver(pre_save, sender=models.GymnastPricing)
+@receiver(pre_save, sender=models.Level, dispatch_uid='save_current_meet_level')
+@receiver(pre_save, sender=models.Team, dispatch_uid='save_current_meet_team')
+@receiver(pre_save, sender=models.Gymnast, dispatch_uid='save_current_meet_gymnast')
+@receiver(pre_save, sender=models.Coach, dispatch_uid='save_current_meet_coach')
+@receiver(pre_save, sender=models.LevelPricing, dispatch_uid='save_current_meet_levelpricing')
+@receiver(pre_save, sender=models.GymnastPricing, dispatch_uid='save_current_meet_gymnastpricing')
 def save_current_meet(sender, instance, **kwargs):
+    print('*** FIRING save current meet')
     meet = Meet.objects.get(is_current_meet=True)
     instance.meet = meet
 
