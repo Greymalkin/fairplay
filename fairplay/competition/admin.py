@@ -121,7 +121,7 @@ class AthleteAdmin(admin.ModelAdmin):
     list_per_page = 50
 
     def get_actions(self, request):
-        actions = [make_event_action(q) for q in models.Event.objects.all()]
+        actions = [make_event_action(q) for q in models.Event.objects.filter(meet=MEET)]
         actions.insert(0, ('create_events', (self.create_events, 'create_events', '03. Create events for athlete')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
@@ -168,7 +168,7 @@ class AthleteAdmin(admin.ModelAdmin):
 
     def get_list_display(self, request):
         result = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
-        events = models.Event.objects.all()
+        events = models.Event.objects.filter(meet=MEET)
         result += [e.initials for e in events]
         result += ['all_around', ]
         return result
@@ -179,9 +179,7 @@ class AthleteAdmin(admin.ModelAdmin):
     all_around.short_description = 'AA'
 
     def __getattr__(self, attr):
-        meet = Meet.objects.get(is_current_meet=True)
-        event = models.Event.objects.get(initials=attr, meet=meet)
-
+        event = models.Event.objects.get(initials=attr, meet=MEET)
         def get_score(athlete):
             return athlete.events.get(event=event).score
         get_score.short_description = attr.upper()
@@ -386,7 +384,7 @@ class SessionForm(forms.ModelForm):
         super(SessionForm, self).__init__(*args, **kwargs)
         meet = Meet.objects.filter(is_current_meet=True)
         wtf = models.Division.objects.filter(meet=meet);
-        self.fields['divisions'].widget.choices = [(choice.id, choice.name) for choice in wtf]
+        self.fields['divisions'].widget.choices = [(choice.id, choice.__str__()) for choice in wtf]
 
 
 class SessionAdmin(admin.ModelAdmin):
