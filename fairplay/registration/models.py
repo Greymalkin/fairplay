@@ -121,12 +121,13 @@ class Gymnast(Person):
     overall_score = models.FloatField(null=True, blank=True)
     tie_break = models.BigIntegerField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)
-    athlete_id = models.PositiveSmallIntegerField(unique=True, blank=True, null=True, verbose_name='Athlete ID', help_text='For use during competition')
+    athlete_id = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='Athlete ID', help_text='For use during competition')
 
     class Meta:
         verbose_name_plural = 'Gymnasts'
         verbose_name = 'Gymnast'
         ordering = ('athlete_id', 'last_name', 'first_name', )
+        unique_together = ('meet', 'athlete_id')
 
     def __str__(self):
         flagged = 'FLAGGED! ' if self.is_flagged else ''

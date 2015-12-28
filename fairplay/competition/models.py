@@ -25,7 +25,7 @@ class Event(models.Model):
     order = models.PositiveSmallIntegerField()
     name = models.CharField(max_length=255, help_text="Event name")
     initials = models.CharField(max_length=2, help_text="Event initials")
-    sign = models.ForeignKey(LEDSign)
+    sign = models.ForeignKey(LEDSign, blank=True, null=True)
 
     class Meta():
         ordering = ['order', ]
@@ -90,7 +90,7 @@ class Division(models.Model):
 class Session(models.Model):
     meet = models.ForeignKey(Meet, related_name='sessions')
     name = models.CharField(max_length=255, help_text="Session name")
-    divisions = models.ManyToManyField(Division, related_name='session')
+    divisions = models.ManyToManyField(Division, related_name='session', blank=True)
     TRADITIONAL = 'Traditional'
     COMPETE = 'Warm-up/Compete'
     WARMUP = ((TRADITIONAL, TRADITIONAL), (COMPETE, COMPETE))
@@ -245,7 +245,8 @@ def populate_athlete(instance, created, raw, **kwargs):
 
     instance.save()
 
-    for event in Event.objects.all():
+    meet = Meet.objects.get(is_current_meet=True)
+    for event in Event.objects.filter(meet=meet):
         ae = AthleteEvent.objects.get_or_create(event=event, gymnast=instance)
         if instance.is_scratched:
             ae.score = 0
@@ -259,7 +260,8 @@ def populate_event(instance, created, raw, **kwargs):
 
     instance.save()
 
-    for athlete in Athlete.objects.all():
+    meet = Meet.objects.get(is_current_meet=True)
+    for athlete in Athlete.objects.filter(meet=meet):
         ae = AthleteEvent.objects.get_or_create(event=instance, gymnast=athlete)
         if athlete.is_scratched:
             ae.score = 0
@@ -312,10 +314,10 @@ post_save.connect(
     sender=Athlete,
     dispatch_uid='populate_athlete')
 
-post_save.connect(
-    populate_event,
-    sender=Event,
-    dispatch_uid='populate_event')
+# post_save.connect(
+#     populate_event,
+#     sender=Event,
+#     dispatch_uid='populate_event')
 
 post_save.connect(
     update_rankings,
