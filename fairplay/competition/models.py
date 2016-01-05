@@ -42,7 +42,7 @@ class Event(models.Model):
         try:
             warmup = Event.objects.filter(meet=self.meet, order__gt=self.order)[0]
         except:
-            warmup = Event.objects.first()
+            warmup = Event.objects.filter(meet=self.meet).order_by('order')[0]
         return warmup
 
     @property
@@ -52,7 +52,7 @@ class Event(models.Model):
         try:
             warmup = Event.objects.filter(meet=self.meet, order__lt=self.order).order_by('-order')[0]
         except:
-            warmup = Event.objects.last()
+            warmup = Event.objects.filter(meet=self.meet).order_by('-order')[0]
         return warmup
 
 

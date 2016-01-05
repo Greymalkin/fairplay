@@ -87,11 +87,72 @@ class SessionFilter(admin.SimpleListFilter):
     parameter_name = 'session'
 
     def lookups(self, request, model_admin):
-        return [(s.id, s.name) for s in models.Session.objects.all()]
+        return [(s.id, s.name) for s in models.Session.objects.filter(meet=MEET)]
 
     def queryset(self, request, queryset):
         if self.value() is not None:
             return queryset.filter(division__session__id=self.value())
+        else:
+            return queryset
+
+
+class LevelFilter(admin.SimpleListFilter):
+    title = _('level')
+    parameter_name = 'level'
+
+    def lookups(self, request, model_admin):
+        return [(s.id, s.level) for s in Level.objects.filter(meet=MEET)]
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(level__id=self.value())
+        else:
+            return queryset
+
+class DivisionFilter(admin.SimpleListFilter):
+    title = _('division')
+    parameter_name = 'division'
+
+    def lookups(self, request, model_admin):
+        return [(s.id, s.name) for s in models.Division.objects.filter(meet=MEET)]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value is not None:
+            return queryset.filter(division__id=value)
+        else:
+            return queryset
+
+
+class TeamFilter(admin.SimpleListFilter):
+    title = _('team')
+    parameter_name = 'team'
+
+    def lookups(self, request, model_admin):
+        return [(s.id, s.team) for s in models.Team.objects.filter(meet=MEET)]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value is not None:
+            return queryset.filter(team__id=value)
+        else:
+            return queryset
+
+
+class StartingEventFilter(admin.SimpleListFilter):
+    title = _('starting event')
+    parameter_name = 'event'
+
+    def lookups(self, request, model_admin):
+        lookups = [(s.id, s.name) for s in models.Event.objects.filter(meet=MEET)]
+        lookups.append(('', '(None)'))
+        return lookups
+
+    def queryset(self, request, queryset):
+        if self.value() is '':
+            return queryset.filter(starting_event__isnull=True)
+        elif self.value() is not None:
+            return queryset.filter(starting_event__id=self.value())
         else:
             return queryset
 
@@ -117,7 +178,7 @@ class AthleteAdmin(admin.ModelAdmin):
     fields = ('usag', 'athlete_id', 'is_scratched', 'last_name', 'first_name', 'team',
               'dob', 'age', 'division', 'starting_event', 'overall_score', 'rank', 'tie_break' )
     readonly_fields = ('overall_score', 'rank', 'tie_break')
-    list_filter = ('team', 'division', 'level', SessionFilter, 'starting_event')
+    list_filter = (TeamFilter, DivisionFilter, LevelFilter, SessionFilter, StartingEventFilter)
     list_per_page = 50
 
     def get_actions(self, request):
