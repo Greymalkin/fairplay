@@ -22,7 +22,7 @@ class Team(models.Model):
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
     per_level_cost = models.ForeignKey('LevelPricing', null=True, blank=False)
     per_gymnast_cost = models.ForeignKey('GymnastPricing', null=True, blank=False)
-    team_awards = models.ManyToManyField('competition.TeamAward', blank=True, related_name='teams', verbose_name="Team Awards Levels", limit_choices_to={'meet': MEET})
+    team_awards = models.ManyToManyField('competition.TeamAward', blank=True, related_name='teams', verbose_name="Team Awards Levels")
     gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
     level_cost = models.DecimalField('Level Cost', decimal_places=2, max_digits=6, default=0)
     total_cost = models.DecimalField('Total Registration Cost', decimal_places=2, max_digits=6, default=0)
@@ -99,7 +99,7 @@ class Person(models.Model):
 
 class Coach(Person):
     meet = models.ForeignKey(Meet, related_name='coaches')
-    team = models.ForeignKey(Team, related_name="coaches", limit_choices_to={'meet': MEET})
+    team = models.ForeignKey(Team, related_name="coaches")
     usag_expire_date = models.DateField('USAG Expires', blank=True, null=True)
     safety_expire_date = models.DateField('Safety Expires', blank=True, null=True)
     background_expire_date = models.DateField('Background Expires', blank=True, null=True)
@@ -111,15 +111,15 @@ class Coach(Person):
 
 class Gymnast(Person):
     meet = models.ForeignKey(Meet, related_name='gymnasts')
-    team = models.ForeignKey(Team, related_name="gymnasts", limit_choices_to={'meet': MEET})
+    team = models.ForeignKey(Team, related_name="gymnasts")
     dob = models.DateField(blank=True, null=True)
     age = models.PositiveSmallIntegerField('Age', blank=True, null=True, help_text='Competitive Age (as of 9/1)')
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
     shirt = models.ForeignKey('ShirtSize', blank=True, null=True)
     level = models.ForeignKey('Level', blank=True, null=True, limit_choices_to={'meet': MEET})
     is_scratched = models.BooleanField('Scratched?', default=False)
-    division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True, limit_choices_to={'meet': MEET})
-    starting_event = models.ForeignKey('competition.Event', null=True, blank=True, limit_choices_to={'meet': MEET})
+    division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True)
+    starting_event = models.ForeignKey('competition.Event', null=True, blank=True)
     overall_score = models.FloatField(null=True, blank=True)
     tie_break = models.BigIntegerField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)

@@ -524,8 +524,6 @@ class SessionRotationView(TemplateView):
             event_info['warmup'] = []
             event_info['rotation'] = []
 
-            print('*** testing', event, self.gymnasts_in_rotation_event(context['session'], event))
-
             for team in self.teams_on_event(context['session'], event):
                 team_info = {}
                 team_info['team'] = team
@@ -566,10 +564,6 @@ class SessionRotationView(TemplateView):
     def team_starting_events(self, session, team):
         events = team.gymnasts.filter(division__session=session, is_scratched=False).distinct('starting_event').order_by()
         return events
-
-    def gymnasts_in_rotation_event(self, session, event):
-        gymnasts = models.Athlete.objects.filter(session=session, starting_event=event, is_scratched=False).order_by('team')
-        return gymnasts
 
 
 class SessionAnnouncerView(TemplateView):

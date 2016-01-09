@@ -42,7 +42,7 @@ class Event(models.Model):
         try:
             warmup = Event.objects.filter(meet=self.meet, order__gt=self.order)[0]
         except:
-            warmup = Event.objects.filter(meet=self.meet).order_by('order')[0]
+            warmup = Event.objects.first()
         return warmup
 
     @property
@@ -52,13 +52,13 @@ class Event(models.Model):
         try:
             warmup = Event.objects.filter(meet=self.meet, order__lt=self.order).order_by('-order')[0]
         except:
-            warmup = Event.objects.filter(meet=self.meet).order_by('-order')[0]
+            warmup = Event.objects.last()
         return warmup
 
 
 class Division(models.Model):
     meet = models.ForeignKey(Meet, related_name='divisions')
-    level = models.ForeignKey(Level, related_name='divisions', limit_choices_to={'meet': MEET})
+    level = models.ForeignKey(Level, related_name='divisions')
     name = models.CharField(max_length=50)
     short_name = models.CharField(max_length=10, help_text='For printing in report columns.')
     min_age = models.PositiveSmallIntegerField(default=6)
@@ -142,8 +142,8 @@ class TeamAward(models.Model):
 
 
 class TeamAwardRank(models.Model):
-    team = models.ForeignKey(Team, limit_choices_to={'meet': MEET})
-    team_award = models.ForeignKey(TeamAward, limit_choices_to={'meet': MEET})
+    team = models.ForeignKey(Team)
+    team_award = models.ForeignKey(TeamAward)
     rank = models.PositiveSmallIntegerField(null=True)
     score = models.FloatField(null=True)
 
@@ -156,9 +156,9 @@ class TeamAwardRank(models.Model):
 
 
 class TeamAwardRankAthleteEvent(models.Model):
-    team_award_rank = models.ForeignKey(TeamAwardRank, related_name='athlete_event_rankings', limit_choices_to={'team_award__meet': MEET})
-    event = models.ForeignKey('Event', limit_choices_to={'meet': MEET})
-    athlete_event = models.ForeignKey('AthleteEvent', related_name='team_award_rankings', limit_choices_to={'event__meet': MEET})
+    team_award_rank = models.ForeignKey(TeamAwardRank, related_name='athlete_event_rankings')
+    event = models.ForeignKey('Event')
+    athlete_event = models.ForeignKey('AthleteEvent', related_name='team_award_rankings')
     rank = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
@@ -170,8 +170,8 @@ class TeamAwardRankAthleteEvent(models.Model):
 
 
 class AthleteEvent(models.Model):
-    gymnast = models.ForeignKey(Gymnast, related_name="events", limit_choices_to={'meet': MEET})
-    event = models.ForeignKey(Event, related_name="gymnasts", limit_choices_to={'meet': MEET})
+    gymnast = models.ForeignKey(Gymnast, related_name="events")
+    event = models.ForeignKey(Event, related_name="gymnasts")
     score = models.FloatField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True)
 

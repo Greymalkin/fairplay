@@ -87,72 +87,11 @@ class SessionFilter(admin.SimpleListFilter):
     parameter_name = 'session'
 
     def lookups(self, request, model_admin):
-        return [(s.id, s.name) for s in models.Session.objects.filter(meet=MEET)]
+        return [(s.id, s.name) for s in models.Session.objects.all()]
 
     def queryset(self, request, queryset):
         if self.value() is not None:
             return queryset.filter(division__session__id=self.value())
-        else:
-            return queryset
-
-
-class LevelFilter(admin.SimpleListFilter):
-    title = _('level')
-    parameter_name = 'level'
-
-    def lookups(self, request, model_admin):
-        return [(s.id, s.level) for s in Level.objects.filter(meet=MEET)]
-
-    def queryset(self, request, queryset):
-        if self.value() is not None:
-            return queryset.filter(level__id=self.value())
-        else:
-            return queryset
-
-class DivisionFilter(admin.SimpleListFilter):
-    title = _('division')
-    parameter_name = 'division'
-
-    def lookups(self, request, model_admin):
-        return [(s.id, s.name) for s in models.Division.objects.filter(meet=MEET)]
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value is not None:
-            return queryset.filter(division__id=value)
-        else:
-            return queryset
-
-
-class TeamFilter(admin.SimpleListFilter):
-    title = _('team')
-    parameter_name = 'team'
-
-    def lookups(self, request, model_admin):
-        return [(s.id, s.team) for s in models.Team.objects.filter(meet=MEET)]
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value is not None:
-            return queryset.filter(team__id=value)
-        else:
-            return queryset
-
-
-class StartingEventFilter(admin.SimpleListFilter):
-    title = _('starting event')
-    parameter_name = 'event'
-
-    def lookups(self, request, model_admin):
-        lookups = [(s.id, s.name) for s in models.Event.objects.filter(meet=MEET)]
-        lookups.append(('', '(None)'))
-        return lookups
-
-    def queryset(self, request, queryset):
-        if self.value() is '':
-            return queryset.filter(starting_event__isnull=True)
-        elif self.value() is not None:
-            return queryset.filter(starting_event__id=self.value())
         else:
             return queryset
 
@@ -178,11 +117,11 @@ class AthleteAdmin(admin.ModelAdmin):
     fields = ('usag', 'athlete_id', 'is_scratched', 'last_name', 'first_name', 'team',
               'dob', 'age', 'division', 'starting_event', 'overall_score', 'rank', 'tie_break' )
     readonly_fields = ('overall_score', 'rank', 'tie_break')
-    list_filter = (TeamFilter, DivisionFilter, LevelFilter, SessionFilter, StartingEventFilter)
+    list_filter = ('team', 'division', 'level', SessionFilter, 'starting_event')
     list_per_page = 50
 
     def get_actions(self, request):
-        actions = [make_event_action(q) for q in models.Event.objects.filter(meet=MEET)]
+        actions = [make_event_action(q) for q in models.Event.objects.all()]
         actions.insert(0, ('create_events', (self.create_events, 'create_events', '03. Create events for athlete')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
@@ -229,7 +168,7 @@ class AthleteAdmin(admin.ModelAdmin):
 
     def get_list_display(self, request):
         result = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
-        events = models.Event.objects.filter(meet=MEET)
+        events = models.Event.objects.all()
         result += [e.initials for e in events]
         result += ['all_around', ]
         return result
@@ -240,7 +179,9 @@ class AthleteAdmin(admin.ModelAdmin):
     all_around.short_description = 'AA'
 
     def __getattr__(self, attr):
-        event = models.Event.objects.get(initials=attr, meet=MEET)
+        meet = Meet.objects.get(is_current_meet=True)
+        event = models.Event.objects.get(initials=attr, meet=meet)
+
         def get_score(athlete):
             return athlete.events.get(event=event).score
         get_score.short_description = attr.upper()
@@ -445,7 +386,7 @@ class SessionForm(forms.ModelForm):
         super(SessionForm, self).__init__(*args, **kwargs)
         meet = Meet.objects.filter(is_current_meet=True)
         wtf = models.Division.objects.filter(meet=meet);
-        self.fields['divisions'].widget.choices = [(choice.id, choice.__str__()) for choice in wtf]
+        self.fields['divisions'].widget.choices = [(choice.id, choice.name) for choice in wtf]
 
 
 class SessionAdmin(admin.ModelAdmin):
