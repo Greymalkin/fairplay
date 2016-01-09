@@ -16,6 +16,15 @@ class MeetAdmin(admin.ModelAdmin):
             self.model.objects.all().exclude(id=obj.id).update(is_current_meet=False)
         obj.save()
 
+    def delete_model(self, request, obj):
+        if self.model.objects.count() > 1:
+            if obj.is_current_meet:
+                q = self.model.objects.filter(is_current_meet=False).order_by('-id')[:1]
+                new_active = q[0]
+                new_active.is_current_meet = True
+                new_active.save()
+            obj.delete()
+
     def copy_meet(self, request, queryset):
         current_meet = queryset[0]
         levels = Level.objects.filter(meet=current_meet)
