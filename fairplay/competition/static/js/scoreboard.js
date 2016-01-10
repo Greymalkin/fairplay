@@ -51,6 +51,8 @@
         $("#message-select").change();
 
         $("#athlete-id-entry").focus();
+
+        window.location.hash = $("#event-select option:selected").text();
     }
 
     function onChangeAthleteID(event) {
@@ -180,7 +182,13 @@
         $("#event-select").empty();
 
         for (var i=0; i<data.length; ++i) {
-            $("#event-select").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+            if ("#" + data[i].name == window.location.hash) {
+
+                $("#event-select").append('<option value="' + data[i].id + '" selected>' + data[i].name + '</option>');
+            } else {
+                $("#event-select").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+            }
+
             eventList.push(data[i]);
             eventTable[data[i].id] = data[i];
         }

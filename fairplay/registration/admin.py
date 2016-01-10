@@ -327,7 +327,7 @@ class GymnastInline(admin.StackedInline):
         js = ('/static/js/competitionAge.js','/static/js/moment.min.js')
 
 
-class TeamForm(forms.ModelForm): 
+class TeamForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(TeamForm, self).__init__(*args, **kwargs)
         meet = Meet.objects.filter(is_current_meet=True)
@@ -390,7 +390,7 @@ class TeamAdmin(admin.ModelAdmin):
         with_session.append('Session')
         # Write a first row with header information
         writer.writerow(with_session)
-        
+
         # Write data rows
         for obj in queryset:
             gymnasts = models.Gymnast.objects.filter(team=obj).order_by('is_scratched', 'level', 'division', 'last_name')
@@ -465,7 +465,8 @@ admin.site.register(models.ShirtSize)
 @receiver(pre_save, sender=models.LevelPricing, dispatch_uid='save_current_meet_levelpricing')
 @receiver(pre_save, sender=models.GymnastPricing, dispatch_uid='save_current_meet_gymnastpricing')
 def save_current_meet(sender, instance, **kwargs):
-    print('*** FIRING save current meet')
-    meet = Meet.objects.get(is_current_meet=True)
-    instance.meet = meet
+    if instance.pk is None:
+        print('*** FIRING save current meet')
+        meet = Meet.objects.get(is_current_meet=True)
+        instance.meet = meet
 

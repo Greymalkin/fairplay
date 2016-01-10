@@ -30,7 +30,7 @@ MEET, created = meetconfig.Meet.objects.get_or_create(
 
 @csrf_exempt
 def led_sign(request):
-    print(request.body.decode())
+    # print(request.body.decode())
     data = json.loads(request.body.decode())
 
     if 'device' in data and 'message' in data:
