@@ -10,6 +10,7 @@ class Command(BaseCommand):
         for athlete in models.Athlete.objects.all():
             athlete.overall_score = None
             athlete.rank = None
+            athlete.tie_break = None
             athlete.save()
 
         for athlete_event in models.AthleteEvent.objects.all():
