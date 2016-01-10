@@ -41,6 +41,7 @@ try:
 except:
     MEET = None
 
+# print('Current Meet:', MEET.id)
 
 class CustomIndexDashboard(Dashboard):
     """
