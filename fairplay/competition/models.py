@@ -82,6 +82,8 @@ class Division(models.Model):
     event_award_count = models.PositiveSmallIntegerField(default=3, help_text="Number of places individual awards will go out to")
     all_around_award_count = models.PositiveSmallIntegerField(verbose_name="All-around award count", default=3, help_text="Number of places all around awards will go out to")
 
+    objects = MeetManager()
+
     class Meta():
         ordering = ['level', 'min_age', ]
 

@@ -120,7 +120,7 @@ class DivisionFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value is not None:
+        if queryset and value is not None:
             return queryset.filter(division__id=value)
         else:
             return queryset
@@ -417,18 +417,31 @@ def meet_awards_percentage(modeladmin, request, queryset):
 meet_awards_percentage.short_description = "Set to meet awards percentage"
 
 
-class DivisionAdmin(admin.ModelAdmin):
+# TODO: Come back to this one
+class DivisionAdmin(MeetDependentAdmin):
     list_display = ('name', 'level', 'num_gymnasts', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     list_editable = ('min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     ordering = ('level', 'min_age')
-    exclude = ('meet',)
     actions = [meet_awards_percentage, ]
 
+    def num_gymnasts(self, obj):
+        return obj.athletes.all().count()
+    num_gymnasts.short_description = "Gymnasts"
+
+
     def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
+        # TODO: annotate query with num_gymnasts, so the column can be sortable in the admin
         qs = super(DivisionAdmin, self).get_queryset(request)
-        meet = models.Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet)
+        return qs
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(DivisionAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {
+            'fields': ('level', 'name', 'short_name', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count'),
+            'description': ''
+            }),
+        )
+        return fieldsets
 
 
 class EventAdmin(MeetDependentAdmin):
@@ -501,8 +514,8 @@ class LEDShowAdmin(admin.ModelAdmin):
     )
 
 
-# admin.site.register(models.Division, DivisionAdmin)
-# admin.site.register(models.LEDSign, LEDSignAdmin)
+admin.site.register(models.Division, DivisionAdmin)
+admin.site.register(models.LEDSign, LEDSignAdmin)
 admin.site.register(models.Event, EventAdmin)
 # admin.site.register(models.AthleteEvent, AthleteEventAdmin)
 # admin.site.register(models.LEDShow, LEDShowAdmin)
