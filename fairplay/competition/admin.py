@@ -109,6 +109,7 @@ class LevelFilter(admin.SimpleListFilter):
         else:
             return queryset
 
+
 class DivisionFilter(admin.SimpleListFilter):
     title = _('division')
     parameter_name = 'division'
