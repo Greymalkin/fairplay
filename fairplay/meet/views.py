@@ -21,7 +21,10 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
         omit_serializer: true
         """
         try:
+            models.Meet.objects.all().exclude(id=int(pk)).update(is_current_meet=False)
             meet = models.Meet.objects.get(id=int(pk))
+            meet.is_current_meet = True
+            meet.save()
         except:
             request.session['meet'] = {}
             return Response({"status": "active meet cleared"}, status=status.HTTP_200_OK)

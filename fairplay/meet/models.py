@@ -28,7 +28,7 @@ class Meet(models.Model):
     class Meta:
         verbose_name = 'Meet'
         verbose_name_plural = 'Meets'
-        ordering = ('is_current_meet', '-date', 'name')
+        ordering = ('-is_current_meet', 'name')
 
     def __str__(self):
         return '{} {}'.format(self.short_name, self.date.strftime('%Y-%m-%d'))

@@ -11,7 +11,7 @@ from registration.models import Level, Team, Coach
 from competition.models import Event, TeamAward, AthleteEvent
 
 class MeetAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'host', 'date', 'is_current_meet', 'set_meet')
+    list_display = ('short_name', 'host', 'date',  'set_meet')
     actions = ['copy_meet']
 
     def set_meet(self, obj):
