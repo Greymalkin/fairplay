@@ -1,17 +1,24 @@
 import datetime
 from copy import deepcopy, copy
 from django.db.models.signals import pre_save, post_save
+from django.conf import settings
 from django.contrib import admin, messages
-from request_provider.signals import get_request
 from django.contrib.admin import SimpleListFilter
+from django.contrib.admin.sites import site
+from django.contrib.admin.widgets import ManyToManyRawIdWidget, ForeignKeyRawIdWidget
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
+from django.utils.html import escape
 
+from request_provider.signals import get_request
 
 from . import models
 from registration.models import Level, Team, Coach
 from competition.models import Event, TeamAward, AthleteEvent
 
 class MeetAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'host', 'date',  'set_meet')
+    list_display = ('short_name', 'host', 'date', 'set_meet')
     actions = ['copy_meet']
 
     def set_meet(self, obj):
@@ -28,7 +35,7 @@ class MeetAdmin(admin.ModelAdmin):
             # only alllow a single default
             self.model.objects.all().exclude(id=obj.id).update(is_current_meet=False)
 
-            # Set current project in session
+            # Set current meet in session
             request.session['meet'] = {
                 "id": obj.id,
                 "name": obj.name,
@@ -52,10 +59,10 @@ class MeetAdmin(admin.ModelAdmin):
             obj.delete()
 
     def get_formsets_with_inlines(self, request, obj=None):
-        # if there's a session project, but you're not editing the session project, do not display inlines.
-        # necessary because the macro phases and channels of a non-active project are filtered out by the inlines'
-        # model managers when there's a session project, giving the appearance that you've lost data.
-        # you haven't, you just aren't allowed to see it until the project is set to be active.
+        # if there's a session meet, but you're not editing the session meet, do not display inlines.
+        # necessary because the macro phases and channels of a non-active meet are filtered out by the inlines'
+        # model managers when there's a session meet, giving the appearance that you've lost data.
+        # you haven't, you just aren't allowed to see it until the meet is set to be active.
         if request.session.get('meet', {}) and request.session['meet'].get('id', '') != obj.id:
             return []
         return super(MeetAdmin, self).get_formsets_with_inlines(request, obj)
@@ -98,8 +105,8 @@ class MeetAdmin(admin.ModelAdmin):
         js = ("/static/js/meet.js",)
 
 
-# Base form that all admins with a FK to Project inherit from
-# Enforces ties to the currently active Project (saved in Session variable) when creating new instances
+# Base form that all admins with a FK to meet inherit from
+# Enforces ties to the currently active meet (saved in Session variable) when creating new instances
 
 # Filters 
 
@@ -118,9 +125,59 @@ class MeetFilter(SimpleListFilter):
         return queryset
 
 
+# Add lnked raw id field functionality
+
+class VerboseForeignKeyRawIdWidget(ForeignKeyRawIdWidget):
+    def label_for_value(self, value):
+        key = self.rel.get_related_field().name
+        try:
+            obj = self.rel.to._default_manager.using(self.db).get(**{key: value})
+            change_url = reverse(
+                "admin:%s_%s_change" % (obj._meta.app_label, obj._meta.object_name.lower()),
+                args=(obj.pk,)
+            )
+            return '&nbsp;<strong><a href="%s">%s</a></strong>' % (change_url, escape(obj))
+        except (ValueError, self.rel.to.DoesNotExist):
+            return '???'
+
+
+class VerboseManyToManyRawIdWidget(ManyToManyRawIdWidget):
+    def label_for_value(self, value):
+        values = value.split(',')
+        str_values = []
+        key = self.rel.get_related_field().name
+        for v in values:
+            try:
+                obj = self.rel.to._default_manager.using(self.db).get(**{key: v})
+                # x = smart_unicode(obj)
+                x = obj
+                change_url = reverse(
+                    "admin:%s_%s_change" % (obj._meta.app_label, obj._meta.object_name.lower()),
+                    args=(obj.pk,)
+                )
+                str_values += ['<strong><a href="%s">%s</a></strong>' % (change_url, escape(x))]
+            except self.rel.to.DoesNotExist:
+                str_values += [u'???']
+        return u', '.join(str_values)
+
+
+class ImproveRawIdFieldsStackedInline(admin.StackedInline):
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name in self.raw_id_fields:
+            kwargs.pop("request", None)
+            type = db_field.rel.__class__.__name__
+            if type == "ManyToOneRel":
+                kwargs['widget'] = VerboseForeignKeyRawIdWidget(db_field.rel, site)
+            elif type == "ManyToManyRel":
+                kwargs['widget'] = VerboseManyToManyRawIdWidget(db_field.rel, site)
+            return db_field.formfield(**kwargs)
+        return super(ImproveRawIdFieldsStackedInline, self).formfield_for_dbfield(db_field, **kwargs)
+
+
+
 class MeetDependentAdmin(admin.ModelAdmin):
-    """ Project field must be the first field in the first fieldset.
-        The admin will need to dynamically make project editable or read only, so needs to know where to find the field consistently. """
+    """ meet field must be the first field in the first fieldset.
+        The admin will need to dynamically make meet editable or read only, so needs to know where to find the field consistently. """
     fieldsets = ((None, {
         'fields': ('meet', ),
         'description': ''
@@ -128,11 +185,21 @@ class MeetDependentAdmin(admin.ModelAdmin):
     )
     list_filter = [MeetFilter]
 
-    # class Media:
-    #     css = {"all": ("{}css/expand_textfield_maxwidth.css".format(settings.STATIC_URL),)}
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        # Add lnked raw id field functionality
+        if db_field.name in self.raw_id_fields:
+            kwargs.pop("request", None)
+            type = db_field.rel.__class__.__name__
+            if type == "ManyToOneRel":
+                kwargs['widget'] = VerboseForeignKeyRawIdWidget(db_field.rel, site)
+            elif type == "ManyToManyRel":
+                kwargs['widget'] = VerboseManyToManyRawIdWidget(db_field.rel, site)
+            return db_field.formfield(**kwargs)
+        return super(MeetDependentAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
     def get_readonly_fields(self, request, obj=None):
-        # when the session knows the current project, don't let meet be editable
+        # when the session knows the current meet, don't let meet be editable
         # meet will be automatically set to the session meet when model is saved
         if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', ''):
             self.readonly_fields += ('meet',)
@@ -142,7 +209,7 @@ class MeetDependentAdmin(admin.ModelAdmin):
             return []
 
     def save_model(self, request, obj, form, change):
-        # when model is saved, test for existence of project
+        # when model is saved, test for existence of meet
         # if none, pull meet from session
         # if none in session, error thrown, however shouldn't happen since normal form validation on meet field fires first
         try:
@@ -154,48 +221,48 @@ class MeetDependentAdmin(admin.ModelAdmin):
 
 
     # def get_formsets_with_inlines(self, request, obj=None):
-    #     # when an inline formset is rendered, make the project field read only
+    #     # when an inline formset is rendered, make the meet field read only
     #     for inline in self.get_inline_instances(request, obj):
     #         formset = inline.get_formset(request, obj)
     #         form = formset.form
-    #         if request.session.get('project', {}) and request.session['project'].get('id', ''):
-    #             inline.readonly_fields += ('project',)
-    #             inline.empty_value_display = request.session['project'].get('name', '???')
+    #         if request.session.get('meet', {}) and request.session['meet'].get('id', ''):
+    #             inline.readonly_fields += ('meet',)
+    #             inline.empty_value_display = request.session['meet'].get('name', '???')
     #         yield inline.get_formset(request, obj), inline
 
     def save_formset(self, request, form, formset, change):
-        # when an inline formset is saved, make the set the project from the session if it's not already there
+        # when an inline formset is saved, make the set the meet from the session if it's not already there
         instances = formset.save(commit=False)
         for obj in formset.deleted_objects:
             obj.delete()
         for instance in instances:
             print('**** in save_formset during a not-delete')
             try:
-                project = instance.project
+                meet = instance.meet
             except (ObjectDoesNotExist, AttributeError):
-                instance.project = models.Project.objects.get(id=request.session['project']['id'])
+                instance.meet = models.Meet.objects.get(id=request.session['meet']['id'])
             instance.save()
         formset.save_m2m()
 
     def changelist_view(self, request, *args, **kwargs):
-        # Sets the Project Filter to current project saved in session by default
-        # ?project=1
-        if request.session.get('project', ''):
+        # Sets the meet Filter to current meet saved in session by default
+        # ?meet=1
+        if request.session.get('meet', ''):
             try:
                 test = request.META['HTTP_REFERER'].split(request.META['PATH_INFO'])
-                project_filter = 'project={}'.format(request.session['project'].get('id', 0))
-                project_filter = (project_filter,)
+                meet_filter = 'meet={}'.format(request.session['meet'].get('id', 0))
+                meet_filter = (meet_filter,)
                 if test and test[-1] and not test[-1].startswith('?'):
                     url = reverse('admin:{}_{}_changelist'.format(self.opts.app_label, self.opts.model_name))
                     default_filters = []
-                    for filter in project_filter:
+                    for filter in meet_filter:
                         key = filter.split('=')[0]
                         if key not in request.GET:
                             default_filters.append(filter)
                     if default_filters:
                         return HttpResponseRedirect("{}?{}".format(url, "&".join(default_filters)))
             except: pass
-        return super(ProjectDependentAdmin, self).changelist_view(request, *args, **kwargs)
+        return super(MeetDependentAdmin, self).changelist_view(request, *args, **kwargs)
 
 
 

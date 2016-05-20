@@ -16,6 +16,7 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 
 from . import models
 from meet.models import Meet
+from meet.admin import MeetDependentAdmin 
 from registration.models import Level
 
 from django.utils.translation import ugettext_lazy as _
@@ -24,29 +25,29 @@ MEET = Meet.objects.filter(is_current_meet=True)
 
 
 LED_SIGN_CODES = """
-The following are special codes you can use to customize the LED sign display<br>
-<strong>MODES (defaults to rotate)<strong><br>
-|MODE_ROTATE|
-|MODE_HOLD|
-|MODE_FLASH|
-|MODE_ROLL_UP|
-|MODE_ROLL_DOWN|
-|MODE_ROLL_LEFT|
-|MODE_ROLL_RIGHT|
-|MODE_WIPE_UP|
-|MODE_WIPE_DOWN|
-|MODE_WIPE_RIGHT|
-|MODE_SCROLL|
-|MODE_AUTO_MODE|
-|MODE_ROLL_IN|
-|MODE_ROLL_OUT|
-|MODE_WIPE_IN|
-|MODE_WIPE_OUT|
-|MODE_TWINKLE|
-|MODE_SPARKLE|
-|MODE_SNOW|
-|MODE_INTERLOCK|
-|MODE_SWITCH|
+    The following are special codes you can use to customize the LED sign display<br>
+    <strong>MODES (defaults to rotate)<strong><br>
+    |MODE_ROTATE|
+    |MODE_HOLD|
+    |MODE_FLASH|
+    |MODE_ROLL_UP|
+    |MODE_ROLL_DOWN|
+    |MODE_ROLL_LEFT|
+    |MODE_ROLL_RIGHT|
+    |MODE_WIPE_UP|
+    |MODE_WIPE_DOWN|
+    |MODE_WIPE_RIGHT|
+    |MODE_SCROLL|
+    |MODE_AUTO_MODE|
+    |MODE_ROLL_IN|
+    |MODE_ROLL_OUT|
+    |MODE_WIPE_IN|
+    |MODE_WIPE_OUT|
+    |MODE_TWINKLE|
+    |MODE_SPARKLE|
+    |MODE_SNOW|
+    |MODE_INTERLOCK|
+    |MODE_SWITCH|
 
 """
 
@@ -430,15 +431,18 @@ class DivisionAdmin(admin.ModelAdmin):
         return qs.filter(meet=meet)
 
 
-class EventAdmin(admin.ModelAdmin):
+class EventAdmin(MeetDependentAdmin):
     list_display = ('name', 'initials', 'order',)
-    exclude = ('meet',)
 
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(EventAdmin, self).get_queryset(request)
-        meet = models.Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet)
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(EventAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {
+            'fields': ('name', 'initials', 'sign', 'order'),
+            'description': ''
+            }),
+        )
+        return fieldsets
+
 
 
 class SessionForm(forms.ModelForm): 
@@ -499,7 +503,7 @@ class LEDShowAdmin(admin.ModelAdmin):
 
 # admin.site.register(models.Division, DivisionAdmin)
 # admin.site.register(models.LEDSign, LEDSignAdmin)
-# admin.site.register(models.Event, EventAdmin)
+admin.site.register(models.Event, EventAdmin)
 # admin.site.register(models.AthleteEvent, AthleteEventAdmin)
 # admin.site.register(models.LEDShow, LEDShowAdmin)
 # admin.site.register(models.Session, SessionAdmin)

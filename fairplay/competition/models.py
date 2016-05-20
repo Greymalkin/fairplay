@@ -10,6 +10,8 @@ from . import ranking
 
 MEET = Meet.objects.get(is_current_meet=True)
 
+# Restrict display of items in the admin by those belonging to the current Meet
+
 class MeetManager(models.Manager):
     def get_queryset(self):
         qs = super(MeetManager, self).get_queryset()
@@ -40,6 +42,8 @@ class Event(models.Model):
     name = models.CharField(max_length=255, help_text="Event name")
     initials = models.CharField(max_length=2, help_text="Event initials")
     sign = models.ForeignKey(LEDSign, blank=True, null=True)
+
+    objects = MeetManager()
 
     class Meta():
         ordering = ['order', ]
