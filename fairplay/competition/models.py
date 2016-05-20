@@ -116,6 +116,8 @@ class Session(models.Model):
     WARMUP = ((TRADITIONAL, TRADITIONAL), (COMPETE, COMPETE))
     warmup = models.CharField(max_length=25, choices=WARMUP, default=TRADITIONAL)
 
+    objects = MeetManager()
+
     def __str__(self):
         return self.name
 

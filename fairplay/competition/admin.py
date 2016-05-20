@@ -457,31 +457,23 @@ class EventAdmin(MeetDependentAdmin):
         return fieldsets
 
 
-
-class SessionForm(forms.ModelForm): 
-    def __init__(self, *args, **kwargs):
-        super(SessionForm, self).__init__(*args, **kwargs)
-        meet = Meet.objects.filter(is_current_meet=True)
-        wtf = models.Division.objects.filter(meet=meet);
-        self.fields['divisions'].widget.choices = [(choice.id, choice.__str__()) for choice in wtf]
-
-
-class SessionAdmin(admin.ModelAdmin):
-    form = SessionForm
+class SessionAdmin(MeetDependentAdmin):
     list_display = ('name', 'num_gymnasts', 'warmup')
     filter_horizontal = ('divisions',)
-    exclude = ('meet',)
-
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(SessionAdmin, self).get_queryset(request)
-        meet = models.Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet)
 
     class Media:
         css = {
             "all": ("{}css/filter-horizontal-adjustment.css".format(settings.STATIC_URL),)
         }
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(SessionAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {
+            'fields': ('name', 'divisions', 'warmup'),
+            'description': ''
+            }),
+        )
+        return fieldsets
 
 
 class LEDSignAdmin(admin.ModelAdmin):
@@ -519,7 +511,7 @@ admin.site.register(models.LEDSign, LEDSignAdmin)
 admin.site.register(models.Event, EventAdmin)
 # admin.site.register(models.AthleteEvent, AthleteEventAdmin)
 # admin.site.register(models.LEDShow, LEDShowAdmin)
-# admin.site.register(models.Session, SessionAdmin)
+admin.site.register(models.Session, SessionAdmin)
 # admin.site.register(models.Athlete, AthleteAdmin)
 # admin.site.register(models.TeamAward, TeamAwardAdmin)
 # admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
