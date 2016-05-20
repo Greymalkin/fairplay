@@ -497,25 +497,25 @@ class LEDShowAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(models.Division, DivisionAdmin)
-admin.site.register(models.LEDSign, LEDSignAdmin)
-admin.site.register(models.Event, EventAdmin)
-admin.site.register(models.AthleteEvent, AthleteEventAdmin)
-admin.site.register(models.LEDShow, LEDShowAdmin)
-admin.site.register(models.Session, SessionAdmin)
-admin.site.register(models.Athlete, AthleteAdmin)
-admin.site.register(models.TeamAward, TeamAwardAdmin)
-admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
-admin.site.register(models.TeamAwardRankAthleteEvent, TeamAwardRankAthleteEventAdmin)
-admin.site.add_action(export_as_csv)
+# admin.site.register(models.Division, DivisionAdmin)
+# admin.site.register(models.LEDSign, LEDSignAdmin)
+# admin.site.register(models.Event, EventAdmin)
+# admin.site.register(models.AthleteEvent, AthleteEventAdmin)
+# admin.site.register(models.LEDShow, LEDShowAdmin)
+# admin.site.register(models.Session, SessionAdmin)
+# admin.site.register(models.Athlete, AthleteAdmin)
+# admin.site.register(models.TeamAward, TeamAwardAdmin)
+# admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
+# admin.site.register(models.TeamAwardRankAthleteEvent, TeamAwardRankAthleteEventAdmin)
+# admin.site.add_action(export_as_csv)
 
 
-@receiver(pre_save, sender=models.TeamAward, dispatch_uid='save_current_meet_award')
-@receiver(pre_save, sender=models.Division, dispatch_uid='save_current_meet_division')
-@receiver(pre_save, sender=models.Event, dispatch_uid='save_current_meet_event')
-@receiver(pre_save, sender=models.Session, dispatch_uid='save_current_meet_session')
-@receiver(pre_save, sender=models.TeamAward, dispatch_uid='save_current_meet_teamaward')
-@receiver(pre_save, sender=models.Athlete, dispatch_uid='save_current_meet_athlete')
-def save_current_meet(sender, instance, **kwargs):
-    meet = models.Meet.objects.get(is_current_meet=True)
-    instance.meet = meet
+# @receiver(pre_save, sender=models.TeamAward, dispatch_uid='save_current_meet_award')
+# @receiver(pre_save, sender=models.Division, dispatch_uid='save_current_meet_division')
+# @receiver(pre_save, sender=models.Event, dispatch_uid='save_current_meet_event')
+# @receiver(pre_save, sender=models.Session, dispatch_uid='save_current_meet_session')
+# @receiver(pre_save, sender=models.TeamAward, dispatch_uid='save_current_meet_teamaward')
+# @receiver(pre_save, sender=models.Athlete, dispatch_uid='save_current_meet_athlete')
+# def save_current_meet(sender, instance, **kwargs):
+#     meet = models.Meet.objects.get(is_current_meet=True)
+#     instance.meet = meet

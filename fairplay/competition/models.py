@@ -1,15 +1,25 @@
 import math
-
 from colorama import Fore
-
 from django.db import models
 from django.db.models.signals import post_save
+from request_provider.signals import get_request
 
 from meet.models import Meet
 from registration.models import Team, Gymnast, Level
 from . import ranking
 
 MEET = Meet.objects.get(is_current_meet=True)
+
+class MeetManager(models.Manager):
+    def get_queryset(self):
+        qs = super(MeetManager, self).get_queryset()
+        request = get_request()
+        try:
+            current_meet = Meet.objects.get(id=request.session['meet']['id'])
+            return qs.filter(meet=current_meet)
+        except: pass
+        return qs
+
 
 
 class LEDSign(models.Model):

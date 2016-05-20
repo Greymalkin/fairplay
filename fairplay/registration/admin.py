@@ -448,25 +448,25 @@ class LevelPricingAdmin(admin.ModelAdmin):
         return qs.filter(meet=meet)
 
 
-admin.site.register(LogEntry, LogAdmin)
-admin.site.register(models.Gymnast, GymnastAdmin)
-admin.site.register(models.Level, LevelAdmin)
-admin.site.register(models.Coach, CoachAdmin)
-admin.site.register(models.Team, TeamAdmin)
-admin.site.register(models.GymnastPricing, GymnastPricingAdmin)
-admin.site.register(models.LevelPricing, LevelPricingAdmin)
-admin.site.register(models.ShirtSize)
+# admin.site.register(LogEntry, LogAdmin)
+# admin.site.register(models.Gymnast, GymnastAdmin)
+# admin.site.register(models.Level, LevelAdmin)
+# admin.site.register(models.Coach, CoachAdmin)
+# admin.site.register(models.Team, TeamAdmin)
+# admin.site.register(models.GymnastPricing, GymnastPricingAdmin)
+# admin.site.register(models.LevelPricing, LevelPricingAdmin)
+# admin.site.register(models.ShirtSize)
 
 
-@receiver(pre_save, sender=models.Level, dispatch_uid='save_current_meet_level')
-@receiver(pre_save, sender=models.Team, dispatch_uid='save_current_meet_team')
-@receiver(pre_save, sender=models.Gymnast, dispatch_uid='save_current_meet_gymnast')
-@receiver(pre_save, sender=models.Coach, dispatch_uid='save_current_meet_coach')
-@receiver(pre_save, sender=models.LevelPricing, dispatch_uid='save_current_meet_levelpricing')
-@receiver(pre_save, sender=models.GymnastPricing, dispatch_uid='save_current_meet_gymnastpricing')
-def save_current_meet(sender, instance, **kwargs):
-    if instance.pk is None:
-        print('*** FIRING save current meet')
-        meet = Meet.objects.get(is_current_meet=True)
-        instance.meet = meet
+# @receiver(pre_save, sender=models.Level, dispatch_uid='save_current_meet_level')
+# @receiver(pre_save, sender=models.Team, dispatch_uid='save_current_meet_team')
+# @receiver(pre_save, sender=models.Gymnast, dispatch_uid='save_current_meet_gymnast')
+# @receiver(pre_save, sender=models.Coach, dispatch_uid='save_current_meet_coach')
+# @receiver(pre_save, sender=models.LevelPricing, dispatch_uid='save_current_meet_levelpricing')
+# @receiver(pre_save, sender=models.GymnastPricing, dispatch_uid='save_current_meet_gymnastpricing')
+# def save_current_meet(sender, instance, **kwargs):
+#     if instance.pk is None:
+#         print('*** FIRING save current meet')
+#         meet = Meet.objects.get(is_current_meet=True)
+#         instance.meet = meet
 

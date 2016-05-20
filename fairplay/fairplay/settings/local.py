@@ -3,6 +3,10 @@ from .base import *
 DEBUG = True
 TEMPLATE_DEBUG = True
 
+INSTALLED_APPS += (
+    'django_extensions',
+)
+
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
@@ -19,3 +23,6 @@ DATABASES = {
 }
 
 STATIC_ROOT = 'local_static'
+
+# Django Debug Toolbar
+INTERNAL_IPS = ('127.0.0.1', 'localhost')
