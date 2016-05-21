@@ -2,26 +2,10 @@ import math
 from colorama import Fore
 from django.db import models
 from django.db.models.signals import post_save
-from request_provider.signals import get_request
 
-from meet.models import Meet
+from meet.models import Meet, MeetManager
 from registration.models import Team, Gymnast, Level
 from . import ranking
-
-MEET = Meet.objects.get(is_current_meet=True)
-
-# Restrict display of items in the admin by those belonging to the current Meet
-
-class MeetManager(models.Manager):
-    def get_queryset(self):
-        qs = super(MeetManager, self).get_queryset()
-        request = get_request()
-        try:
-            current_meet = Meet.objects.get(id=request.session['meet']['id'])
-            return qs.filter(meet=current_meet)
-        except: pass
-        return qs
-
 
 
 class LEDSign(models.Model):
@@ -74,7 +58,7 @@ class Event(models.Model):
 
 class Division(models.Model):
     meet = models.ForeignKey(Meet, related_name='divisions')
-    level = models.ForeignKey(Level, related_name='divisions', limit_choices_to={'meet': MEET})
+    level = models.ForeignKey(Level, related_name='divisions')
     name = models.CharField(max_length=50)
     short_name = models.CharField(max_length=10, help_text='For printing in report columns.')
     min_age = models.PositiveSmallIntegerField(default=6)
@@ -152,6 +136,8 @@ class TeamAward(models.Model):
     award_count = models.PositiveSmallIntegerField(default=3, help_text='Number of places team awards will go out to')
     order = models.PositiveSmallIntegerField(default=0)
 
+    objects = MeetManager()
+
     class Meta:
         verbose_name = "Team Award"
         verbose_name_plural = "Team Awards"
@@ -162,8 +148,8 @@ class TeamAward(models.Model):
 
 
 class TeamAwardRank(models.Model):
-    team = models.ForeignKey(Team, limit_choices_to={'meet': MEET})
-    team_award = models.ForeignKey(TeamAward, limit_choices_to={'meet': MEET})
+    team = models.ForeignKey(Team)
+    team_award = models.ForeignKey(TeamAward)
     rank = models.PositiveSmallIntegerField(null=True)
     score = models.FloatField(null=True)
 
@@ -176,9 +162,9 @@ class TeamAwardRank(models.Model):
 
 
 class TeamAwardRankAthleteEvent(models.Model):
-    team_award_rank = models.ForeignKey(TeamAwardRank, related_name='athlete_event_rankings', limit_choices_to={'team_award__meet': MEET})
-    event = models.ForeignKey('Event', limit_choices_to={'meet': MEET})
-    athlete_event = models.ForeignKey('AthleteEvent', related_name='team_award_rankings', limit_choices_to={'event__meet': MEET})
+    team_award_rank = models.ForeignKey(TeamAwardRank, related_name='athlete_event_rankings')
+    event = models.ForeignKey('Event')
+    athlete_event = models.ForeignKey('AthleteEvent', related_name='team_award_rankings')
     rank = models.PositiveSmallIntegerField(null=True)
 
     def __str__(self):
@@ -190,8 +176,8 @@ class TeamAwardRankAthleteEvent(models.Model):
 
 
 class AthleteEvent(models.Model):
-    gymnast = models.ForeignKey(Gymnast, related_name="events", limit_choices_to={'meet': MEET})
-    event = models.ForeignKey(Event, related_name="gymnasts", limit_choices_to={'meet': MEET})
+    gymnast = models.ForeignKey(Gymnast, related_name="events")
+    event = models.ForeignKey(Event, related_name="gymnasts")
     score = models.FloatField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True)
 
@@ -206,9 +192,9 @@ class AthleteEvent(models.Model):
             self.score)
 
 
-class AthleteManager(models.Manager):
+class AthleteManager(MeetManager):
     def get_queryset(self):
-        return super(AthleteManager, self).get_queryset().filter(is_scratched=False, meet=MEET)
+        return super(AthleteManager, self).get_queryset().filter(is_scratched=False)
 
 
 class Athlete(Gymnast):

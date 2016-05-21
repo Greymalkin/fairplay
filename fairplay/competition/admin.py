@@ -21,9 +21,6 @@ from registration.models import Level
 
 from django.utils.translation import ugettext_lazy as _
 
-MEET = Meet.objects.filter(is_current_meet=True)
-
-
 LED_SIGN_CODES = """
     The following are special codes you can use to customize the LED sign display<br>
     <strong>MODES (defaults to rotate)<strong><br>
@@ -79,6 +76,8 @@ def export_as_csv(self, request, queryset):
 export_as_csv.short_description = "Export selected objects as csv file"
 
 
+# Filters
+
 class SessionFilter(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
@@ -88,7 +87,7 @@ class SessionFilter(admin.SimpleListFilter):
     parameter_name = 'session'
 
     def lookups(self, request, model_admin):
-        return [(s.id, s.name) for s in models.Session.objects.filter(meet=MEET)]
+        return [(s.id, s.name) for s in models.Session.objects.all()]
 
     def queryset(self, request, queryset):
         if self.value() is not None:
@@ -102,7 +101,7 @@ class LevelFilter(admin.SimpleListFilter):
     parameter_name = 'level'
 
     def lookups(self, request, model_admin):
-        return [(s.id, s.level) for s in Level.objects.filter(meet=MEET)]
+        return [(s.id, s.level) for s in Level.objects.all()]
 
     def queryset(self, request, queryset):
         if self.value() is not None:
@@ -116,7 +115,7 @@ class DivisionFilter(admin.SimpleListFilter):
     parameter_name = 'division'
 
     def lookups(self, request, model_admin):
-        return [(s.id, s.name) for s in models.Division.objects.filter(meet=MEET)]
+        return [(s.id, s.name) for s in models.Division.objects.all()]
 
     def queryset(self, request, queryset):
         value = self.value()
@@ -131,7 +130,7 @@ class TeamFilter(admin.SimpleListFilter):
     parameter_name = 'team'
 
     def lookups(self, request, model_admin):
-        return [(s.id, s.team) for s in models.Team.objects.filter(meet=MEET)]
+        return [(s.id, s.team) for s in models.Team.objects.all()]
 
     def queryset(self, request, queryset):
         value = self.value()
@@ -146,7 +145,7 @@ class StartingEventFilter(admin.SimpleListFilter):
     parameter_name = 'event'
 
     def lookups(self, request, model_admin):
-        lookups = [(s.id, s.name) for s in models.Event.objects.filter(meet=MEET)]
+        lookups = [(s.id, s.name) for s in models.Event.objects.all()]
         lookups.append(('', '(None)'))
         return lookups
 
@@ -158,6 +157,8 @@ class StartingEventFilter(admin.SimpleListFilter):
         else:
             return queryset
 
+
+# Admins 
 
 class AthleteEventInlineFormset(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
@@ -174,17 +175,32 @@ class AthleteEventInlineAdmin(admin.TabularInline):
     fields = ('event', 'score',)
 
 
-class AthleteAdmin(admin.ModelAdmin):
+class AthleteAdmin(MeetDependentAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (AthleteEventInlineAdmin, )
-    fields = ('usag', 'athlete_id', 'is_scratched', 'last_name', 'first_name', 'team',
-              'dob', 'age', 'division', 'starting_event', 'overall_score', 'rank', 'tie_break' )
     readonly_fields = ('overall_score', 'rank', 'tie_break')
     list_filter = (TeamFilter, DivisionFilter, LevelFilter, SessionFilter, StartingEventFilter)
     list_per_page = 50
 
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(AthleteAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {'fields': ('athlete_id', 'usag', 'last_name', 'first_name', 'team'), }),
+                     ('Meet', {'fields': ('is_scratched', 'division', 'level', 'age', 'starting_event', 'overall_score', 'rank', 'tie_break',), }),
+                     )
+
+        return fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        # copying this from MeetDependentAdmin because I need the empty value display to be different here (empty string)
+        if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', ''):
+            self.readonly_fields += ('meet',)
+            self.empty_value_display = ''
+            return self.readonly_fields
+        else:
+            return []
+
     def get_actions(self, request):
-        actions = [make_event_action(q) for q in models.Event.objects.filter(meet=MEET)]
+        actions = [make_event_action(q) for q in models.Event.objects.all()]
         actions.insert(0, ('create_events', (self.create_events, 'create_events', '03. Create events for athlete')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
@@ -229,24 +245,29 @@ class AthleteAdmin(admin.ModelAdmin):
         qs = qs.annotate(aa=Sum('events__score'))
         return qs
 
-    def get_list_display(self, request):
-        result = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
-        events = models.Event.objects.filter(meet=MEET)
-        result += [e.initials for e in events]
-        result += ['all_around', ]
-        return result
-
     def all_around(self, obj):
         return obj.aa
     all_around.admin_order_field = 'aa'
     all_around.short_description = 'AA'
 
-    def __getattr__(self, attr):
-        event = models.Event.objects.get(initials=attr, meet=MEET)
-        def get_score(athlete):
-            return athlete.events.get(event=event).score
-        get_score.short_description = attr.upper()
-        return get_score
+    # TODO: This is takes a really really long time... it runs for every field, but we only need it to run for the events/scores
+    def get_list_display(self, request):
+        result = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
+        # events = models.Event.objects.all()
+        # result += [e.initials for e in events]
+        # result += ['all_around', ]
+        return result
+
+    # TODO: This is takes a really really long time... it runs for every field, but we only need it to run for the events/scores
+    # def __getattr__(self, attr):
+    #     try:
+    #         event = models.Event.objects.get(initials=attr)
+    #         def get_score(athlete):
+    #             return athlete.events.get(event=event).score
+    #         get_score.short_description = attr.upper()
+    #         return get_score
+    #     except:
+    #         return ''
 
     def show_team(self, obj):
         return obj.team.team
@@ -264,7 +285,7 @@ class AthleteAdmin(admin.ModelAdmin):
         for a in queryset:
             # Check to see if we've calculated the max id for this level before.  If so, grab that id.
             if a.level.level  not in level_max_athlete_id:
-                max_id = models.Athlete.objects.filter(level=a.level, meet=a.meet).aggregate(Max('athlete_id'))
+                max_id = models.Athlete.objects.filter(level=a.level).aggregate(Max('athlete_id'))
                 max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
                 # First one: ID begins with level number. level 4 = 400
                 if max_id == 0:
@@ -290,12 +311,11 @@ class AthleteAdmin(admin.ModelAdmin):
         ''' Admin action meant to be performed once on all athletes at once.
             However, it can be performed multiple times without harm, and also on only a few athletes.
         '''
-        meet = Meet.objects.get(is_current_meet=True)
         divisions_by_level = {}
         rows_updated = queryset.count()
 
         # Build dictionary of all divisions
-        divisions = models.Division.objects.filter(meet=meet)
+        divisions = models.Division.objects.all()
         for d in divisions:
             if d.level.level not in divisions_by_level:
                 divisions_by_level[d.level.level] = {}
@@ -307,7 +327,7 @@ class AthleteAdmin(admin.ModelAdmin):
         for athlete in queryset:
             if athlete.dob:
                 try:
-                    age = self.competition_age(athlete, meet)
+                    age = self.competition_age(athlete, athlete.meet)
                     athlete.division = divisions_by_level[athlete.level.level][age]
                     athlete.save()
                 except:
@@ -358,18 +378,9 @@ class AthleteInlineAdmin(admin.TabularInline):
     fields = ('athlete_id', 'last_name', 'first_name', 'starting_event')
 
 
-class TeamAwardForm(forms.ModelForm): 
-    def __init__(self, *args, **kwargs):
-        super(TeamAwardForm, self).__init__(*args, **kwargs)
-        wtf = Level.objects.filter(meet=MEET);
-        self.fields['levels'].widget.choices = [(choice.id, choice.level) for choice in wtf]
-
-
-class TeamAwardAdmin(admin.ModelAdmin):
-    form = TeamAwardForm
+class TeamAwardAdmin(MeetDependentAdmin):
     list_display = ('name', 'award_count', 'order', )
     filter_horizontal = ('levels',)
-    exclude = ('meet',)
     list_editable = ('order',)
 
     class Media:
@@ -377,35 +388,28 @@ class TeamAwardAdmin(admin.ModelAdmin):
             "all": ("{}css/filter-horizontal-adjustment.css".format(settings.STATIC_URL),)
         }
 
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(TeamAwardAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {
+            'fields': ('name', 'levels', 'award_count', 'order',),
+            'description': ''
+            }),
+        )
+        return fieldsets
+
 
 class TeamAwardRankAdmin(admin.ModelAdmin):
     list_display = ('team', 'team_award', 'rank', 'score')
 
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(TeamAwardRankAdmin, self).get_queryset(request)
-        return qs.filter(team_award__meet=MEET)
-
 
 class TeamAwardRankAthleteEventAdmin(admin.ModelAdmin):
     list_display = ('team_award_rank', 'event', 'athlete_event', 'rank')
-
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(TeamAwardRankAthleteEventAdmin, self).get_queryset(request)
-        return qs.filter(event__meet=MEET)
 
 
 class AthleteEventAdmin(admin.ModelAdmin):
     fields = ('gymnast', 'event', 'score',)
     list_display = ('gymnast', 'event', 'score',)
     search_fields = ['gymnast', 'id', ]
-
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(AthleteEventAdmin, self).get_queryset(request)
-        meet = models.Meet.objects.filter(is_current_meet=True)
-        return qs.filter(event__meet=meet)
 
 
 def meet_awards_percentage(modeladmin, request, queryset):
@@ -481,11 +485,10 @@ class LEDSignAdmin(admin.ModelAdmin):
 
     def connect(self, obj):
         return '<a href="#" onClick="connectSign({});">Connect Sign</a>'.format(obj.device)
-
     connect.allow_tags = True
 
     class Media:
-        js = ("/static/js/ledsign.js",)
+        js = ("{}js/ledsign.js".format(settings.STATIC_URL),)
 
 
 class LEDShowMessageInline(admin.TabularInline):
@@ -509,22 +512,11 @@ class LEDShowAdmin(admin.ModelAdmin):
 admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
 admin.site.register(models.Event, EventAdmin)
-# admin.site.register(models.AthleteEvent, AthleteEventAdmin)
-# admin.site.register(models.LEDShow, LEDShowAdmin)
+admin.site.register(models.AthleteEvent, AthleteEventAdmin)
+admin.site.register(models.LEDShow, LEDShowAdmin)
 admin.site.register(models.Session, SessionAdmin)
-# admin.site.register(models.Athlete, AthleteAdmin)
-# admin.site.register(models.TeamAward, TeamAwardAdmin)
-# admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
-# admin.site.register(models.TeamAwardRankAthleteEvent, TeamAwardRankAthleteEventAdmin)
+admin.site.register(models.Athlete, AthleteAdmin)
+admin.site.register(models.TeamAward, TeamAwardAdmin)
+admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
+admin.site.register(models.TeamAwardRankAthleteEvent, TeamAwardRankAthleteEventAdmin)
 # admin.site.add_action(export_as_csv)
-
-
-# @receiver(pre_save, sender=models.TeamAward, dispatch_uid='save_current_meet_award')
-# @receiver(pre_save, sender=models.Division, dispatch_uid='save_current_meet_division')
-# @receiver(pre_save, sender=models.Event, dispatch_uid='save_current_meet_event')
-# @receiver(pre_save, sender=models.Session, dispatch_uid='save_current_meet_session')
-# @receiver(pre_save, sender=models.TeamAward, dispatch_uid='save_current_meet_teamaward')
-# @receiver(pre_save, sender=models.Athlete, dispatch_uid='save_current_meet_athlete')
-# def save_current_meet(sender, instance, **kwargs):
-#     meet = models.Meet.objects.get(is_current_meet=True)
-#     instance.meet = meet

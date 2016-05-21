@@ -60,7 +60,7 @@ class Command(BaseCommand):
             meet.is_current_meet = False
             meet.save()
 
-        meet = Meet(name=meet_name, short_name=meet_name, host=meet_name, date=meet_date, is_current_meet=True)
+        meet = Meet(name=meet_name, short_name=meet_name, host=meet_name, date=meet_date, is_current_meet=False)
         meet.save()
 
         # then events...

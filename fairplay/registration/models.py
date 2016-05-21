@@ -1,10 +1,8 @@
 from django.db import models
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
-from meet.models import Meet
 
-MEET = Meet.objects.get(is_current_meet=True)
-
+from meet.models import Meet, MeetManager
 
 class Team(models.Model):
     meet = models.ForeignKey(Meet, related_name='teams')
@@ -22,7 +20,7 @@ class Team(models.Model):
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
     per_level_cost = models.ForeignKey('LevelPricing', null=True, blank=False)
     per_gymnast_cost = models.ForeignKey('GymnastPricing', null=True, blank=False)
-    team_awards = models.ManyToManyField('competition.TeamAward', blank=True, related_name='teams', verbose_name="Team Awards Levels", limit_choices_to={'meet': MEET})
+    team_awards = models.ManyToManyField('competition.TeamAward', blank=True, related_name='teams', verbose_name="Team Awards Levels")
     gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
     level_cost = models.DecimalField('Level Cost', decimal_places=2, max_digits=6, default=0)
     total_cost = models.DecimalField('Total Registration Cost', decimal_places=2, max_digits=6, default=0)
@@ -33,6 +31,8 @@ class Team(models.Model):
     paid_in_full = models.BooleanField('Paid In Full?', default=False)
     notes = models.TextField(blank=True, null=True)
     qualified = models.BooleanField(default=True, help_text="Qualifies for team awards")
+
+    objects = MeetManager()
 
     class Meta:
         verbose_name = 'Team'
@@ -99,10 +99,12 @@ class Person(models.Model):
 
 class Coach(Person):
     meet = models.ForeignKey(Meet, related_name='coaches')
-    team = models.ForeignKey(Team, related_name="coaches", limit_choices_to={'meet': MEET})
+    team = models.ForeignKey(Team, related_name="coaches")
     usag_expire_date = models.DateField('USAG Expires', blank=True, null=True)
     safety_expire_date = models.DateField('Safety Expires', blank=True, null=True)
     background_expire_date = models.DateField('Background Expires', blank=True, null=True)
+
+    objects = MeetManager()
 
     class Meta:
         verbose_name_plural = 'Coaches'
@@ -111,19 +113,21 @@ class Coach(Person):
 
 class Gymnast(Person):
     meet = models.ForeignKey(Meet, related_name='gymnasts')
-    team = models.ForeignKey(Team, related_name="gymnasts", limit_choices_to={'meet': MEET})
+    team = models.ForeignKey(Team, related_name="gymnasts")
     dob = models.DateField(blank=True, null=True)
     age = models.PositiveSmallIntegerField('Age', blank=True, null=True, help_text='Competitive Age (as of 9/1)')
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
     shirt = models.ForeignKey('ShirtSize', blank=True, null=True)
-    level = models.ForeignKey('Level', blank=True, null=True, limit_choices_to={'meet': MEET})
+    level = models.ForeignKey('Level', blank=True, null=True)
     is_scratched = models.BooleanField('Scratched?', default=False)
-    division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True, limit_choices_to={'meet': MEET})
-    starting_event = models.ForeignKey('competition.Event', null=True, blank=True, limit_choices_to={'meet': MEET})
+    division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True)
+    starting_event = models.ForeignKey('competition.Event', null=True, blank=True)
     overall_score = models.FloatField(null=True, blank=True)
     tie_break = models.BigIntegerField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)
     athlete_id = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='Athlete ID', help_text='For use during competition')
+
+    objects = MeetManager()
 
     class Meta:
         verbose_name_plural = 'Gymnasts'
@@ -143,6 +147,8 @@ class Level(models.Model):
     level = models.CharField(max_length=5)
     order = models.PositiveSmallIntegerField(default=0)
 
+    objects = MeetManager()
+
     class Meta:
         verbose_name = 'Level'
         verbose_name_plural = 'Levels'
@@ -157,6 +163,8 @@ class GymnastPricing(models.Model):
     price = models.PositiveSmallIntegerField(default=0)
     name = models.CharField(max_length=100)
 
+    objects = MeetManager()
+
     class Meta:
         verbose_name = 'Gymnast Pricing'
         verbose_name_plural = 'Gymnast Pricing'
@@ -170,6 +178,8 @@ class LevelPricing(models.Model):
     meet = models.ForeignKey(Meet, related_name='level_pricing')
     price = models.PositiveSmallIntegerField(default=0)
     name = models.CharField(max_length=100)
+
+    objects = MeetManager()
 
     class Meta:
         verbose_name = 'Level Pricing'

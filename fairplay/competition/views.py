@@ -19,15 +19,6 @@ from ledsign.bigdot import BigDotUDP
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
-MEET, created = meetconfig.Meet.objects.get_or_create(
-    is_current_meet=True,
-    defaults={
-        'name': 'AUTO CREATED',
-        'short_name': 'AUTO CREATED',
-        'host': 'AUTO CREATED',
-        'date': datetime.today(), })
-
-
 @csrf_exempt
 def led_sign(request):
     # print(request.body.decode())
@@ -57,8 +48,8 @@ def led_sign(request):
 
 @csrf_exempt
 def download_roster(request):
-    athletes = models.Athlete.objects.filter(meet=MEET).order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
-    events = models.Event.objects.filter(meet=MEET)
+    athletes = models.Athlete.objects.all().order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
+    events = models.Event.objects.all()
 
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
@@ -100,7 +91,7 @@ def download_roster(request):
 
 @csrf_exempt
 def download_athlete_labels(request):
-    athletes = models.Athlete.objects.filter(meet=MEET).\
+    athletes = models.Athlete.objects.all().\
         exclude(is_scratched=True, athlete_id=None).\
         order_by('division__session', 'team', 'division', 'last_name', 'first_name').\
         select_related()
@@ -138,7 +129,7 @@ def download_athlete_labels(request):
 
 @csrf_exempt
 def download_team_labels(request):
-    sessions = models.Session.objects.filter(meet=MEET)
+    sessions = models.Session.objects.all()
 
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
@@ -157,7 +148,7 @@ def download_team_labels(request):
     for session in sessions:
         levels = ','.join(sorted(session.levels))
 
-        teams = Team.objects.filter(meet=MEET, gymnasts__division__session=session).\
+        teams = Team.objects.filter(gymnasts__division__session=session).\
             order_by('gymnasts__division__session', 'team').distinct()
 
         for team in teams:
@@ -183,14 +174,14 @@ class SessionCeremonyDivisionView(TemplateView):
         # start populating the context
         context['session'] = session
         context['divisions'] = []
-        context['events'] = models.Event.objects.filter(meet=MEET)
+        context['events'] = models.Event.objects.all()
         context['rankings'] = {}
 
         for division in session.divisions.all().order_by('level', 'min_age'):
             leaderboards = []
 
             # division per event leaderboard
-            for event in models.Event.objects.filter(meet=MEET):
+            for event in models.Event.objects.all():
                 event_leaderboard = []
                 athlete_events = models.AthleteEvent.objects.filter(event=event, gymnast__division=division).order_by("rank")
                 total_count = len(athlete_events)
@@ -217,7 +208,7 @@ class SessionCeremonyDivisionView(TemplateView):
 
             # overall leaderboard for division
             aa_leaderboard = []
-            athletes = models.Athlete.objects.filter(meet=MEET, division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
+            athletes = models.Athlete.objects.filter(division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
             total_count = len(athletes)
             # award_count = math.ceil(total_count * MEET.all_around_award_percentage)
             award_count = division.all_around_award_count
@@ -252,7 +243,7 @@ class SessionCeremonyDivisionView(TemplateView):
                 session_levels.append(division.level)
 
         team_awards = []
-        for team_award in models.TeamAward.objects.filter(meet=MEET, levels__in=session_levels).distinct():
+        for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
             ranking.update_team_ranking(team_award)
 
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
@@ -282,7 +273,7 @@ class SessionCeremonyEventView(TemplateView):
         # start populating the context
         context['session'] = session
         context['events'] = []
-        events = models.Event.objects.filter(meet=MEET)
+        events = models.Event.objects.all()
 
         for event in events:
             leaderboards = []
@@ -324,7 +315,7 @@ class SessionCeremonyEventView(TemplateView):
         for division in session.divisions.all().order_by('level', 'min_age'):
             # overall leaderboard for division
             aa_leaderboard = []
-            athletes = models.Athlete.objects.filter(meet=MEET, division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
+            athletes = models.Athlete.objects.filter(division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
             total_count = len(athletes)
 
             award_count = division.all_around_award_count
@@ -360,7 +351,7 @@ class SessionCeremonyEventView(TemplateView):
                 session_levels.append(division.level)
 
         team_awards = []
-        for team_award in models.TeamAward.objects.filter(meet=MEET, levels__in=session_levels).distinct():
+        for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
             ranking.update_team_ranking(team_award)
 
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
@@ -382,12 +373,12 @@ class SessionIndividualView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionIndividualView, self).get_context_data(**kwargs)
-        context['meet'] = MEET
+        context['meet'] = self.request.session.get('meet', {})
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         # calculate_session_ranking(context['session'])
 
-        context['events'] = models.Event.objects.filter(meet=MEET)
+        context['events'] = models.Event.objects.all()
         context['divisions'] = []
         for division in context['session'].divisions.all().order_by('level', 'min_age'):
             athletes = []
@@ -409,7 +400,7 @@ class SessionTeamView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionTeamView, self).get_context_data(**kwargs)
-        context['meet'] = MEET
+        context['meet'] = self.request.session.get('meet', {})
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         session_levels = []
@@ -518,7 +509,7 @@ class SessionRotationView(TemplateView):
         context['events'] = []
         context['warmup'] = []
         context['teams'] = []
-        for event in models.Event.objects.filter(meet=MEET):
+        for event in models.Event.objects.all():
             event_info = {}
             event_info['event'] = event
             event_info['warmup'] = []
@@ -574,7 +565,7 @@ class SessionAnnouncerView(TemplateView):
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
         context['events'] = []
 
-        for event in models.Event.objects.filter(meet=MEET):
+        for event in models.Event.objects.all():
             event_info = {}
             event_info['event'] = event
             event_info['rotation'] = []
@@ -622,8 +613,8 @@ class CoachSignInView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CoachSignInView, self).get_context_data(**kwargs)
-        context['meet'] = MEET
-        context['coaches'] = Coach.objects.filter(meet=MEET).order_by('team', 'last_name', 'first_name')
+        context['meet'] = self.request.session.get('meet', {})
+        context['coaches'] = Coach.objects.all().order_by('team', 'last_name', 'first_name')
         return context
 
 
