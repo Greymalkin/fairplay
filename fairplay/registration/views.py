@@ -4,7 +4,7 @@ from django.conf import settings
 from django.views.generic import TemplateView
 
 from rest_framework import viewsets
-from . import models
+from . import models, serializers
 
 
 class MeetBreakdownView(TemplateView):
@@ -35,3 +35,10 @@ class OrderingAwardsView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(OrderingAwardsView, self).get_context_data(**kwargs)
         return context
+
+class TeamViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset automatically provides `list` and `detail` actions.
+    """
+    queryset = models.Team.objects.all()
+    serializer_class = serializers.TeamSerializer

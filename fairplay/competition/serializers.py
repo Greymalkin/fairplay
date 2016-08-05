@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from . import models
-from competition.models import Team
+from registration.models import Team
 
 
 class DivisionField(serializers.RelatedField):

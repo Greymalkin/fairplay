@@ -627,7 +627,7 @@ class EventViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = models.Event.objects.all()
+    queryset = models.Event.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.EventSerializer
 
 
@@ -635,7 +635,7 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = Team.objects.all()
+    queryset = Team.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.TeamSerializer
 
 
@@ -643,7 +643,7 @@ class AthleteViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = models.Athlete.objects.all()
+    queryset = models.Athlete.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.AthleteSerializer
     lookup_field = 'athlete_id'
 
@@ -652,7 +652,7 @@ class AthleteEventViewSet(viewsets.ModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = models.AthleteEvent.objects.all()
+    queryset = models.AthleteEvent.objects.filter(event__meet__is_current_meet=True)
     serializer_class = serializers.AthleteEventSerializer
 
 
@@ -660,5 +660,5 @@ class SessionViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset automatically provides `list` and `detail` actions.
     """
-    queryset = models.Session.objects.all()
+    queryset = models.Session.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.SessionSerializer
