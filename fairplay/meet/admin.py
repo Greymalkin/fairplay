@@ -18,17 +18,18 @@ from registration.models import Level, Team, Coach
 from competition.models import Event, TeamAward, GymnastEvent
 
 class MeetAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'host', 'date', 'set_meet')
+    list_display = ('short_name', 'host', 'date', 'show_current_meet', 'set_meet')
     actions = ['copy_meet']
 
     def set_meet(self, obj):
-        request = get_request()
-        meet = request.session.get('meet', {})
-        if meet.get('id', '') == obj.id:
-            return "<strong>Active Meet</strong>"
         return "<a class='setMeet' href='#' data-meet={}>Set Active Meet</a>".format(obj.id)
-    set_meet.short_description = "Active Meet"
+    set_meet.short_description = ""
     set_meet.allow_tags = True
+
+    def show_current_meet(self, obj):
+        return obj.is_current_meet
+    show_current_meet.short_description = "Active Meet"
+    show_current_meet.boolean = True
 
     def save_model(self, request, obj, form, change):
         if obj.is_current_meet:
@@ -60,10 +61,10 @@ class MeetAdmin(admin.ModelAdmin):
 
     def get_formsets_with_inlines(self, request, obj=None):
         # if there's a session meet, but you're not editing the session meet, do not display inlines.
-        # necessary because the macro phases and channels of a non-active meet are filtered out by the inlines'
-        # model managers when there's a session meet, giving the appearance that you've lost data.
-        # you haven't, you just aren't allowed to see it until the meet is set to be active.
-        if request.session.get('meet', {}) and request.session['meet'].get('id', '') != obj.id:
+        # protects from the appearance of having lost data, when you haven't, you just aren't 
+        # allowed to see it until the meet is set to be active.
+        current_meet = models.Meet.objects.filter(is_current_meet=True)
+        if current_meet.count() != 1 or current_meet[0].id != obj.id:
             return []
         return super(MeetAdmin, self).get_formsets_with_inlines(request, obj)
 
@@ -184,6 +185,7 @@ class MeetDependentAdmin(admin.ModelAdmin):
         }),
     )
     list_filter = [MeetFilter]
+    current_meet = models.Meet.objects.filter(is_current_meet=True)
 
 
     def formfield_for_dbfield(self, db_field, **kwargs):
@@ -218,18 +220,6 @@ class MeetDependentAdmin(admin.ModelAdmin):
             obj.meet = models.Meet.objects.get(id=request.session['meet']['id'])
         return super(MeetDependentAdmin, self).save_model(request, obj, form, change)
 
-
-
-    # def get_formsets_with_inlines(self, request, obj=None):
-    #     # when an inline formset is rendered, make the meet field read only
-    #     for inline in self.get_inline_instances(request, obj):
-    #         formset = inline.get_formset(request, obj)
-    #         form = formset.form
-    #         if request.session.get('meet', {}) and request.session['meet'].get('id', ''):
-    #             inline.readonly_fields += ('meet',)
-    #             inline.empty_value_display = request.session['meet'].get('name', '???')
-    #         yield inline.get_formset(request, obj), inline
-
     def save_formset(self, request, form, formset, change):
         # when an inline formset is saved, make the set the meet from the session if it's not already there
         instances = formset.save(commit=False)
@@ -263,6 +253,38 @@ class MeetDependentAdmin(admin.ModelAdmin):
                         return HttpResponseRedirect("{}?{}".format(url, "&".join(default_filters)))
             except: pass
         return super(MeetDependentAdmin, self).changelist_view(request, *args, **kwargs)
+
+    def has_change_permission(self, request, obj=None):
+        if self.current_meet.count() != 1: # or self.current_meet[0].id != obj.meet.id:
+            return False
+        return True
+
+    def has_add_permission(self, request, obj=None):
+        if self.current_meet.count() != 1: #or self.current_meet[0].id != obj.meet.id:
+            return False
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+    # # Using has_change_perission instead of get_fieldsets to stop users from editing meet dependent models without a meet having been set first
+    # def get_fieldsets(self, request, obj=None):
+    #     fieldsets = super(MeetDependentAdmin, self).get_fieldsets(request, obj)
+    #     if self.current_meet.count() != 1 or self.current_meet[0].id != obj.meet.id:
+    #         #TODO: add admin link back to meet page as part of description
+    #         fieldsets = ((None, {
+    #             'fields': ('meet', ),
+    #             'description': '''Please set a current meet from the Meet Change List. Until then, all fields will remain hidden.'''.format('')
+    #             }),
+    #         )
+    #     else:
+    #         # TODO: Create method that returns a tuple of field names (hard coded), and add to each inheritor of Meet Dependent Admin
+    #         fieldsets += ((None, {
+    #             'fields': ('name', '...', '...', '...',),
+    #             'description': ''
+    #             }),
+    #         )
+    #     return fieldsets
 
 
 
