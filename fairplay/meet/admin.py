@@ -15,7 +15,7 @@ from request_provider.signals import get_request
 
 from . import models
 from registration.models import Level, Team, Coach
-from competition.models import Event, TeamAward, AthleteEvent
+from competition.models import Event, TeamAward, GymnastEvent
 
 class MeetAdmin(admin.ModelAdmin):
     list_display = ('short_name', 'host', 'date', 'set_meet')
@@ -94,10 +94,10 @@ class MeetAdmin(admin.ModelAdmin):
             old_obj.id = None 
             old_obj.meet = new_meet
             pre_save.disconnect(receiver=None, sender=Event, dispatch_uid='save_current_meet_event')
-            post_save.disconnect(receiver=None, sender=AthleteEvent, dispatch_uid='update_rankings')
+            post_save.disconnect(receiver=None, sender=GymnastEvent, dispatch_uid='update_rankings')
             post_save.disconnect(receiver=None, sender=Event, dispatch_uid='populate_event')
             old_obj.save()
-            # post_save.connect(receiver=None, sender=AthleteEvent, dispatch_uid='update_rankings')
+            # post_save.connect(receiver=None, sender=GymnastEvent, dispatch_uid='update_rankings')
 
         messages.success(request, 'New meet {} copied from {}'.format(new_meet.name, current_meet.name))
 

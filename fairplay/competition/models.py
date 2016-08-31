@@ -148,10 +148,13 @@ class TeamAward(models.Model):
 
 
 class TeamAwardRank(models.Model):
+    meet = models.ForeignKey(Meet, related_name='team_ranks')
     team = models.ForeignKey(Team)
     team_award = models.ForeignKey(TeamAward)
     rank = models.PositiveSmallIntegerField(null=True)
     score = models.FloatField(null=True)
+
+    objects = MeetManager()
 
     def __str__(self):
         return "{} - {}".format(self.team_award, self.team)
@@ -161,25 +164,31 @@ class TeamAwardRank(models.Model):
         verbose_name_plural = 'Team Award Ranks'
 
 
-class TeamAwardRankAthleteEvent(models.Model):
-    team_award_rank = models.ForeignKey(TeamAwardRank, related_name='athlete_event_rankings')
-    event = models.ForeignKey('Event')
-    athlete_event = models.ForeignKey('AthleteEvent', related_name='team_award_rankings')
+class TeamAwardRankEvent(models.Model):
+    meet = models.ForeignKey(Meet, related_name='team_event_rankings')
+    team_award_rank = models.ForeignKey(TeamAwardRank, related_name='team_event_rankings')
+    event = models.ForeignKey('Event', related_name='team_event_rankings')
+    gymnast_event = models.ForeignKey('GymnastEvent', related_name='team_event_rankings')
     rank = models.PositiveSmallIntegerField(null=True)
 
+    objects = MeetManager()
+
     def __str__(self):
-        return "{} - {} - {} - {} ({})".format(self.team_award_rank.team_award, self.team_award_rank.team, self.event, self.athlete_event.gymnast, self.rank)
+        return "{} - {} - {} - {} ({})".format(self.team_award_rank.team_award, self.team_award_rank.team, self.event, self.gymnast_event.gymnast, self.rank)
 
     class Meta:
         verbose_name = 'Team Award Rank Athlete Event'
         verbose_name_plural = 'Team Award Rank Athlete Events'
 
 
-class AthleteEvent(models.Model):
+class GymnastEvent(models.Model):
+    meet = models.ForeignKey(Meet, related_name='gymnast_events')
     gymnast = models.ForeignKey(Gymnast, related_name="events")
     event = models.ForeignKey(Event, related_name="gymnasts")
     score = models.FloatField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True)
+
+    objects = MeetManager()
 
     class Meta():
         ordering = ['gymnast', 'event']
@@ -192,13 +201,23 @@ class AthleteEvent(models.Model):
             self.score)
 
 
-class AthleteManager(MeetManager):
+class CompetitionGymnastManager(MeetManager):
+    # def get_queryset(self):
+    #     return super(CompetitionGymnastManager, self).get_queryset().filter(is_scratched=False)
+
     def get_queryset(self):
-        return super(AthleteManager, self).get_queryset().filter(is_scratched=False)
+        qs = super(CompetitionGymnastManager, self).get_queryset().filter(is_scratched=False)
+        # request = get_request()
+        try:
+            # current_meet = Meet.objects.get(id=request.session['meet']['id'])
+            current_meet = Meet.objects.get(is_current_meet=True)[0]
+            return qs.filter(meet=current_meet)
+        except: pass
+        return qs
 
 
-class Athlete(Gymnast):
-    objects = AthleteManager()
+class Gymnast(Gymnast):
+    objects = CompetitionGymnastManager()
 
     class Meta:
         proxy = True
@@ -211,16 +230,18 @@ class Athlete(Gymnast):
         return ""
 
     @property
-    def as_athlete_firstlast(self):
+    def name_firstlast(self):
         return "{0} {1} {2}".format(self.athlete_id, self.first_name, self.last_name)
 
     @property
-    def as_athlete_lastfirst(self):
+    def name_lastfirst(self):
         return "{0} {2}, {1}".format(self.athlete_id, self.first_name, self.last_name)
 
 
 class Team(Team):
     pass
+
+    objects = MeetManager()
 
     class Meta:
         proxy = True
@@ -255,7 +276,7 @@ def populate_athlete(instance, created, raw, **kwargs):
 
     meet = Meet.objects.get(is_current_meet=True)
     for event in Event.objects.filter(meet=meet):
-        ae = AthleteEvent.objects.get_or_create(event=event, gymnast=instance)
+        ae = GymnastEvent.objects.get_or_create(event=event, gymnast=instance, meet=meet)
         if instance.is_scratched:
             ae.score = 0
             ae.save()
@@ -269,14 +290,14 @@ def populate_event(instance, created, raw, **kwargs):
     instance.save()
 
     meet = Meet.objects.get(is_current_meet=True)
-    for athlete in Athlete.objects.filter(meet=meet):
-        ae = AthleteEvent.objects.get_or_create(event=instance, gymnast=athlete)
+    for athlete in Gymnast.objects.filter(meet=meet):
+        ae = GymnastEvent.objects.get_or_create(event=instance, gymnast=athlete, meet=meet)
         if athlete.is_scratched:
             ae.score = 0
             ae.save()
 
 
-def scratch_athlete(instance, created, raw, **kwargs):
+def scratch(instance, created, raw, **kwargs):
     if instance.is_scratched:
         ae = instance.events.all().exclude(score__isnull=False)
         ae.update(score=0)
@@ -285,17 +306,17 @@ def scratch_athlete(instance, created, raw, **kwargs):
 def update_rankings(sender, instance, created, raw, using, update_fields, **kwargs):
     post_save.disconnect(
         None,
-        sender=AthleteEvent,
+        sender=GymnastEvent,
         dispatch_uid='update_rankings')
 
     if update_fields is None or 'rank' not in update_fields:
-        athlete_events = AthleteEvent.objects.filter(gymnast=instance.gymnast).order_by("score")
+        gymnast_events = GymnastEvent.objects.filter(gymnast=instance.gymnast).order_by("score")
         tie_break = 0
 
         p = 0
-        for athlete_event in athlete_events:
-            if athlete_event.score is not None:
-                tie_break += int(int(athlete_event.score * 10) * math.pow(10, p))
+        for gymnast_event in gymnast_events:
+            if gymnast_event.score is not None:
+                tie_break += int(int(gymnast_event.score * 10) * math.pow(10, p))
             p += 3
 
         instance.gymnast.tie_break = tie_break
@@ -312,17 +333,17 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
 
     post_save.connect(
         update_rankings,
-        sender=AthleteEvent,
+        sender=GymnastEvent,
         dispatch_uid='update_rankings')
 
 post_save.connect(
-    scratch_athlete,
-    sender=Athlete,
-    dispatch_uid='scratch_athlete')
+    scratch,
+    sender=Gymnast,
+    dispatch_uid='scratch')
 
 post_save.connect(
     populate_athlete,
-    sender=Athlete,
+    sender=Gymnast,
     dispatch_uid='populate_athlete')
 
 # post_save.connect(
@@ -332,5 +353,5 @@ post_save.connect(
 
 post_save.connect(
     update_rankings,
-    sender=AthleteEvent,
+    sender=GymnastEvent,
     dispatch_uid='update_rankings')

@@ -34,7 +34,7 @@ class Command(BaseCommand):
             for team in models.Team.objects.filter(meet=meet_settings, gymnasts__level=level).order_by('team').distinct('team'):
                 writer.writerow((team.team,))
                 for agediv in divisions:
-                    athletes = models.Athlete.objects.filter(team=team, division=agediv, is_scratched=False)
+                    athletes = models.Gymnast.objects.filter(team=team, division=agediv, is_scratched=False)
                     if len(athletes) > 0:
                         writer.writerow((agediv.name,))
                         for athlete in athletes:
@@ -42,7 +42,7 @@ class Command(BaseCommand):
                             print(row)
 
                             for event in events:
-                                ae = models.AthleteEvent.objects.get(gymnast=athlete, event=event)
+                                ae = models.GymnastEvent.objects.get(gymnast=athlete, event=event)
                                 row.append(ae.score)
                                 row.append(ae.rank)
 

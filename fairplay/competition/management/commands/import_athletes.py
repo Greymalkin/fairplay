@@ -16,7 +16,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
 
         # First, clear out athletes, teams, age groups in the db
-        models.Athlete.objects.all().delete()
+        models.Gymnast.objects.all().delete()
         models.Team.objects.all().delete()
         models.Group.objects.all().delete()
         models.Session.objects.all().delete()
@@ -37,7 +37,7 @@ class Command(BaseCommand):
                     age_group=row[settings.IMPORT_ATHLETES_AGE_GROUP_COL],
                     order=int(re.findall(r'\d+', row[settings.IMPORT_ATHLETES_AGE_GROUP_COL])[0]))
                 # Make the athlete and associate to teams/groups
-                athlete = models.Athlete.objects.create(**{
+                athlete = models.Gymnast.objects.create(**{
                     'athlete_id': int(row[settings.IMPORT_ATHLETES_ATHLETE_ID_COL]),
                     'last_name': row[settings.IMPORT_ATHLETES_LASTNAME_COL],
                     'first_name': row[settings.IMPORT_ATHLETES_FIRSTNAME_COL],

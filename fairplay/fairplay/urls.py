@@ -10,7 +10,7 @@ router.register(r'meet', meet.views.MeetViewSet)
 router.register(r'events', competition.views.EventViewSet)
 router.register(r'teams', competition.views.TeamViewSet)
 router.register(r'athletes', competition.views.AthleteViewSet)
-router.register(r'athleteevents', competition.views.AthleteEventViewSet)
+router.register(r'athleteevents', competition.views.GymnastEventViewSet)
 router.register(r'sessions', competition.views.SessionViewSet)
 router.register(r'ledshows', competition.views.LEDShowViewSet)
 

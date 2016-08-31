@@ -147,7 +147,7 @@ class Command(BaseCommand):
         #         age_group=record['AGEDIV'],
         #         order=int(re.findall(r'\d+', record['AGEDIV'])[0]))
         #     # Make the athlete and associate to teams/groups
-        #     athlete = models.Athlete.objects.create(
+        #     athlete = models.Gymnast.objects.create(
         #         **{
         #             'athlete_id': int(record['COMPNO']),
         #             'usag_id': int(record['USAG']),

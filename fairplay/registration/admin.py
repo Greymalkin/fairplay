@@ -19,7 +19,7 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 from meet.models import Meet
 from meet.admin import MeetDependentAdmin, MeetFilter
 
-from competition.models import Event, AthleteEvent, TeamAward
+from competition.models import Event, GymnastEvent, TeamAward
 from . import models
 from . import forms as actionforms
 
@@ -335,7 +335,8 @@ class GymnastInline(admin.StackedInline):
     fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'shirt', 'level', 'is_scratched', 'is_flagged', 'is_verified', 'notes')
 
     class Media:
-        js = ('/static/js/competitionAge.js','/static/js/moment.min.js')
+        js = ('{}js/competitionAge.js'.format(settings.STATIC_URL),
+              '{}js/moment.min.js'.format(settings.STATIC_URL))
 
 
 class TeamAdmin(MeetDependentAdmin):

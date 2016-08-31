@@ -86,7 +86,7 @@ class Command(BaseCommand):
 
         for session in sessions:
 
-            athlete_events = competition.models.AthleteEvent.objects.filter(gymnast__division__session=session, gymnast__is_scratched=False).order_by(
+            gymnast_events = competition.models.GymnastEvent.objects.filter(gymnast__division__session=session, gymnast__is_scratched=False).order_by(
                 'gymnast__team',
                 'gymnast__level',
                 'gymnast__last_name',
@@ -101,32 +101,32 @@ class Command(BaseCommand):
             g = None
             teams = []
 
-            for athlete_event in athlete_events:
-                if athlete_event.gymnast.team != team:
+            for gymnast_event in gymnast_events:
+                if gymnast_event.gymnast.team != team:
                     if team is not None:
                         g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
                         l['athletes'].append(g)
                         t['levels'].append(l)
                         teams.append(t)
-                    team = athlete_event.gymnast.team
+                    team = gymnast_event.gymnast.team
                     level = None
                     gymnast = None
                     t = {'name': team.team, 'levels': []}
 
-                if athlete_event.gymnast.division.level != level:
+                if gymnast_event.gymnast.division.level != level:
                     if level is not None:
                         g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
                         l['athletes'].append(g)
                         t['levels'].append(l)
-                    level = athlete_event.gymnast.division.level
+                    level = gymnast_event.gymnast.division.level
                     gymnast = None
                     l = {'name': level.level, 'athletes': []}
 
-                if athlete_event.gymnast != gymnast:
+                if gymnast_event.gymnast != gymnast:
                     if gymnast is not None:
                         g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
                         l['athletes'].append(g)
-                    gymnast = athlete_event.gymnast
+                    gymnast = gymnast_event.gymnast
                     g = {
                         'id': gymnast.athlete_id,
                         'division': gymnast.division.name,
@@ -136,9 +136,9 @@ class Command(BaseCommand):
                     }
 
                 g['scores'].append([
-                    athlete_event.event.initials.upper(),
-                    athlete_event.score,
-                    athlete_event.rank])
+                    gymnast_event.event.initials.upper(),
+                    gymnast_event.score,
+                    gymnast_event.rank])
 
             # make sure to append the last one
             g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])

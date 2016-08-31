@@ -16,7 +16,7 @@ def update_division_ranking(division):
     from . import models
 
     # All athletes in division (age division), including their event score, overall score, and max score
-    division_athletes = models.AthleteEvent.objects.filter(gymnast__division=division).annotate(total_score=Sum('gymnast__events__score'))
+    division_athletes = models.GymnastEvent.objects.filter(gymnast__division=division).annotate(total_score=Sum('gymnast__events__score'))
 
     for event in models.Event.objects.all():
         athletes = []
@@ -30,7 +30,7 @@ def update_division_ranking(division):
                 'score': a.score,
                 'total_score': a.total_score,
                 'tie_break': a.gymnast.tie_break,
-                'athlete_event': a
+                'gymnast_event': a
             }
             athletes.append(athlete)
 
@@ -55,19 +55,19 @@ def update_division_ranking(division):
             last_tie_break = athlete['tie_break']
             athlete['rank'] = rank
 
-            athlete['athlete_event'].rank = athlete['rank']
-            athlete['athlete_event'].save(update_fields=('rank', ))
+            athlete['gymnast_event'].rank = athlete['rank']
+            athlete['gymnast_event'].save(update_fields=('rank', ))
 
         # rank all of the no-shows last
         rank += 1
         for athlete in athletes:
             if athlete['score'] is None:
-                athlete['athlete_event'].rank = rank
-                athlete['athlete_event'].save(update_fields=('rank', ))
+                athlete['gymnast_event'].rank = rank
+                athlete['gymnast_event'].save(update_fields=('rank', ))
 
     # make a list of all athletes in this division
     athletes = []
-    for a in models.Athlete.objects.filter(division=division):
+    for a in models.Gymnast.objects.filter(division=division):
         athlete = {
             'athlete_id': a.athlete_id,
             'last_name': a.last_name,
@@ -75,7 +75,7 @@ def update_division_ranking(division):
             'tie_break': a.tie_break,
             'team': a.team.team,
         }
-        info = models.AthleteEvent.objects.filter(gymnast=a).aggregate(total_score=Sum('score'), max_score=Max('score'))
+        info = models.GymnastEvent.objects.filter(gymnast=a).aggregate(total_score=Sum('score'), max_score=Max('score'))
         athlete['total_score'] = info['total_score']
         athlete['max_score'] = info['max_score']
         athletes.append(athlete)
@@ -97,7 +97,7 @@ def update_division_ranking(division):
         athlete['score'] = athlete['total_score']
 
         # save rank/score data for overall
-        a = models.Athlete.objects.get(athlete_id=athlete['athlete_id'])
+        a = models.Gymnast.objects.get(athlete_id=athlete['athlete_id'])
         a.overall_score = athlete['score']
         a.rank = athlete['rank']
         a.save()
@@ -116,7 +116,7 @@ def update_team_ranking(team_award):
             team=models.Team.objects.get(id=team['id']),
             team_award=team_award)
 
-        models.TeamAwardRankAthleteEvent.objects.filter(team_award_rank=tar).delete()
+        models.TeamAwardRankEvent.objects.filter(team_award_rank=tar).delete()
 
         for event in models.Event.objects.all():
             divisions = []
@@ -125,7 +125,7 @@ def update_team_ranking(team_award):
                 for division in level.divisions.all():
                     divisions.append(division)
 
-            top_3 = models.AthleteEvent.objects.filter(
+            top_3 = models.GymnastEvent.objects.filter(
                 event=event,
                 gymnast__team=t
             ).filter(
@@ -135,7 +135,7 @@ def update_team_ranking(team_award):
 
             if len(top_3) == 3:
                 for index, ae in enumerate(top_3):
-                    tarae = models.TeamAwardRankAthleteEvent(team_award_rank=tar, event=event, athlete_event=ae, rank=(index + 1))
+                    tarae = models.TeamAwardRankEvent(team_award_rank=tar, event=event, gymnast_event=ae, rank=(index + 1))
                     tarae.save()
 
                 score = top_3.aggregate(total=Sum('score'))

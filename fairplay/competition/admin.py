@@ -160,32 +160,38 @@ class StartingEventFilter(admin.SimpleListFilter):
 
 # Admins 
 
-class AthleteEventInlineFormset(BaseInlineFormSet):
+class GymnastEventInlineFormset(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
-        super(AthleteEventInlineFormset, self).__init__(*args, **kwargs)
+        super(GymnastEventInlineFormset, self).__init__(*args, **kwargs)
         self.can_delete = False
 
 
-class AthleteEventInlineAdmin(admin.TabularInline):
-    model = models.AthleteEvent
-    formset = AthleteEventInlineFormset
+class GymnastEventInlineAdmin(admin.TabularInline):
+    model = models.GymnastEvent
+    formset = GymnastEventInlineFormset
     extra = 0
     max_num = 0
     readonly_fields = ('event', )
     fields = ('event', 'score',)
 
 
-class AthleteAdmin(MeetDependentAdmin):
+class GymnastAdmin(MeetDependentAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
-    inlines = (AthleteEventInlineAdmin, )
+    inlines = (GymnastEventInlineAdmin, )
     readonly_fields = ('overall_score', 'rank', 'tie_break')
     list_filter = (TeamFilter, DivisionFilter, LevelFilter, SessionFilter, StartingEventFilter)
     list_per_page = 50
 
     def get_fieldsets(self, request, obj=None):
-        fieldsets = super(AthleteAdmin, self).get_fieldsets(request, obj)
+        fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {'fields': ('athlete_id', 'usag', 'last_name', 'first_name', 'team'), }),
-                     ('Meet', {'fields': ('is_scratched', 'division', 'level', 'age', 'starting_event', 'overall_score', 'rank', 'tie_break',), }),
+                     ('Meet', {'fields': ('is_scratched',
+                                          'division',
+                                          'level',
+                                          'age',
+                                          'starting_event',
+                                          'overall_score',
+                                          'rank','tie_break',), }),
                      )
 
         return fieldsets
@@ -214,20 +220,20 @@ class AthleteAdmin(MeetDependentAdmin):
 
         post_save.disconnect(
             None,
-            sender=models.AthleteEvent,
+            sender=models.GymnastEvent,
             dispatch_uid='update_rankings')
 
         for athlete in qset:
             print('creating events for {}'.format(athlete))
             for event in events:
-                ae = models.AthleteEvent.objects.get_or_create(event=event, gymnast=athlete)
+                ae = models.GymnastEvent.objects.get_or_create(event=event, gymnast=athlete, meet=meet)
                 if athlete.is_scratched:
                     ae.score = 0
                     ae.save()
 
         post_save.connect(
             models.update_rankings,
-            sender=models.AthleteEvent,
+            sender=models.GymnastEvent,
             dispatch_uid='update_rankings')
 
     def clear_event(self, modeladmin, request, queryset):
@@ -236,12 +242,12 @@ class AthleteAdmin(MeetDependentAdmin):
             item.save()
     clear_event.short_description = "Set starting event to empty"
 
-    def session(self, athlete):
-        return models.Session.objects.get(divisions=athlete.division).name
+    def session(self, gymnast):
+        return models.Session.objects.get(divisions=gymnast.division).name
     session.admin_order_field = 'division__session__name'
 
     def get_queryset(self, request):
-        qs = super(AthleteAdmin, self).get_queryset(request)
+        qs = super(GymnastAdmin, self).get_queryset(request)
         qs = qs.annotate(aa=Sum('events__score'))
         return qs
 
@@ -285,7 +291,7 @@ class AthleteAdmin(MeetDependentAdmin):
         for a in queryset:
             # Check to see if we've calculated the max id for this level before.  If so, grab that id.
             if a.level.level  not in level_max_athlete_id:
-                max_id = models.Athlete.objects.filter(level=a.level).aggregate(Max('athlete_id'))
+                max_id = models.Gymnast.objects.filter(level=a.level).aggregate(Max('athlete_id'))
                 max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
                 # First one: ID begins with level number. level 4 = 400
                 if max_id == 0:
@@ -324,22 +330,22 @@ class AthleteAdmin(MeetDependentAdmin):
                     divisions_by_level[d.level.level][age] = d
 
         # Calc comptition age and retrieve correct division for age + level combination
-        for athlete in queryset:
-            if athlete.dob:
+        for gymnast in queryset:
+            if gymnast.dob:
                 try:
-                    age = self.competition_age(athlete, athlete.meet)
-                    athlete.division = divisions_by_level[athlete.level.level][age]
-                    athlete.save()
+                    age = self.competition_age(gymnast, gymnast.meet)
+                    gymnast.division = divisions_by_level[gymnast.level.level][age]
+                    gymnast.save()
                 except:
-                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(athlete, age, athlete.level))
+                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(gymnast, age, gymnast.level))
 
         if rows_updated == 1:
-            message_bit = '1 athelete division was'
+            message_bit = '1 gymnast division was'
         else:
-            message_bit = '{} athlete divisions were'.format(rows_updated)
+            message_bit = '{} gymnast divisions were'.format(rows_updated)
 
         messages.success(request, '{} updated'.format(message_bit))
-    sort_into_divisions.short_description = "Set athlete id"
+    sort_into_divisions.short_description = "Set gymnast's athlete id"
 
     @staticmethod
     def competition_age(gymnast, meet):
@@ -372,12 +378,6 @@ class AthleteAdmin(MeetDependentAdmin):
     export_with_session.short_description = "Export selected gymnasts as csv file with session"
 
 
-class AthleteInlineAdmin(admin.TabularInline):
-    model = models.Athlete
-    extra = 1
-    fields = ('athlete_id', 'last_name', 'first_name', 'starting_event')
-
-
 class TeamAwardAdmin(MeetDependentAdmin):
     list_display = ('name', 'award_count', 'order', )
     filter_horizontal = ('levels',)
@@ -398,35 +398,41 @@ class TeamAwardAdmin(MeetDependentAdmin):
         return fieldsets
 
 
-class TeamAwardRankAdmin(admin.ModelAdmin):
+class TeamAwardRankAdmin(MeetDependentAdmin):
     list_display = ('team', 'team_award', 'rank', 'score')
 
 
-class TeamAwardRankAthleteEventAdmin(admin.ModelAdmin):
-    list_display = ('team_award_rank', 'event', 'athlete_event', 'rank')
+class TeamAwardRankEventAdmin(MeetDependentAdmin):
+    list_display = ('team_award_rank', 'event', 'gymnast_event', 'rank')
 
 
-class AthleteEventAdmin(admin.ModelAdmin):
-    fields = ('gymnast', 'event', 'score',)
+class GymnastEventAdmin(MeetDependentAdmin):
     list_display = ('gymnast', 'event', 'score',)
     search_fields = ['gymnast', 'id', ]
 
-
-def meet_awards_percentage(modeladmin, request, queryset):
-    meet = models.Meet.objects.filter(is_current_meet=True)[0]
-    for division in queryset:
-        division.event_award_count = math.ceil(len(division.athletes.all()) * meet.event_award_percentage)
-        division.all_around_award_count = math.ceil(len(division.athletes.all()) * meet.all_around_award_percentage)
-        division.save()
-meet_awards_percentage.short_description = "Set to meet awards percentage"
-
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(GymnastEventAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {
+            'fields': ('gymnast', 'event', 'score',),
+            'description': ''
+            }),
+        )
+        return fieldsets
 
 # TODO: Come back to this one
 class DivisionAdmin(MeetDependentAdmin):
     list_display = ('name', 'level', 'num_gymnasts', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     list_editable = ('min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     ordering = ('level', 'min_age')
-    actions = [meet_awards_percentage, ]
+    actions = ['meet_awards_percentage', ]
+
+    def meet_awards_percentage(self, modeladmin, request, queryset):
+        meet = models.Meet.objects.filter(is_current_meet=True)[0]
+        for division in queryset:
+            division.event_award_count = math.ceil(len(division.athletes.all()) * meet.event_award_percentage)
+            division.all_around_award_count = math.ceil(len(division.athletes.all()) * meet.all_around_award_percentage)
+            division.save()
+    meet_awards_percentage.short_description = "Set to meet awards percentage"
 
     def num_gymnasts(self, obj):
         return obj.athletes.all().count()
@@ -512,11 +518,11 @@ class LEDShowAdmin(admin.ModelAdmin):
 admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
 admin.site.register(models.Event, EventAdmin)
-admin.site.register(models.AthleteEvent, AthleteEventAdmin)
+admin.site.register(models.GymnastEvent, GymnastEventAdmin)
 admin.site.register(models.LEDShow, LEDShowAdmin)
 admin.site.register(models.Session, SessionAdmin)
-admin.site.register(models.Athlete, AthleteAdmin)
+admin.site.register(models.Gymnast, GymnastAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)
 admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
-admin.site.register(models.TeamAwardRankAthleteEvent, TeamAwardRankAthleteEventAdmin)
+admin.site.register(models.TeamAwardRankEvent, TeamAwardRankEventAdmin)
 # admin.site.add_action(export_as_csv)
