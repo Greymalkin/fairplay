@@ -42,7 +42,8 @@ class MeetManager(models.Manager):
         qs = super(MeetManager, self).get_queryset()
         request = get_request()
         try:
-            current_meet = Meet.objects.get(id=request.session['meet']['id'])
+            # current_meet = Meet.objects.get(id=request.session['meet']['id'])
+            current_meet = Meet.objects.get(is_current_meet=True)[0]
             return qs.filter(meet=current_meet)
         except: pass
         return qs

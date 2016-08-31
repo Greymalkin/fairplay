@@ -198,7 +198,9 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         # copying this from MeetDependentAdmin because I need the empty value display to be different here (empty string)
-        if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', ''):
+        # models.Meet.objects.filter(is_current_meet=True)[0]
+        # if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', ''):
+        if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and models.Meet.objects.filter(is_current_meet=True).count() == 1:
             self.readonly_fields += ('meet',)
             self.empty_value_display = ''
             return self.readonly_fields
@@ -216,7 +218,9 @@ class GymnastAdmin(MeetDependentAdmin):
         return OrderedDict(actions)
 
     def create_events(self, modeladmin, req, qset):
-        events = models.Event.objects.filter(meet=qset[0].meet)
+        meet = models.Meet.objects.filter(is_current_meet=True)[0]
+
+        events = models.Event.objects.filter(meet=meet)
 
         post_save.disconnect(
             None,
