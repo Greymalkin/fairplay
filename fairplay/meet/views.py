@@ -8,6 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from . import models, serializers
 
 
+def get_current_meet_count():
+    return models.Meet.objects.filter(is_current_meet=True).count()
+
+
 class MeetViewSet(viewsets.ReadOnlyModelViewSet):
     """ Retrieve a meet by its id """
     queryset = models.Meet.objects.all()
