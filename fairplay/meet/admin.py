@@ -107,7 +107,7 @@ class MeetAdmin(admin.ModelAdmin):
 
 
 # Base form that all admins with a FK to meet inherit from
-# Enforces ties to the currently active meet (saved in Session variable) when creating new instances
+# Enforces ties to the currently active meet when creating new instances
 
 # Filters 
 
@@ -255,37 +255,17 @@ class MeetDependentAdmin(admin.ModelAdmin):
         return super(MeetDependentAdmin, self).changelist_view(request, *args, **kwargs)
 
     def has_change_permission(self, request, obj=None):
-        if self.current_meet.count() != 1: # or self.current_meet[0].id != obj.meet.id:
+        if self.current_meet.count() != 1: 
             return False
         return True
 
     def has_add_permission(self, request, obj=None):
-        if self.current_meet.count() != 1: #or self.current_meet[0].id != obj.meet.id:
+        if self.current_meet.count() != 1:
             return False
         return True
 
     def has_delete_permission(self, request, obj=None):
         return True
-
-    # # Using has_change_perission instead of get_fieldsets to stop users from editing meet dependent models without a meet having been set first
-    # def get_fieldsets(self, request, obj=None):
-    #     fieldsets = super(MeetDependentAdmin, self).get_fieldsets(request, obj)
-    #     if self.current_meet.count() != 1 or self.current_meet[0].id != obj.meet.id:
-    #         #TODO: add admin link back to meet page as part of description
-    #         fieldsets = ((None, {
-    #             'fields': ('meet', ),
-    #             'description': '''Please set a current meet from the Meet Change List. Until then, all fields will remain hidden.'''.format('')
-    #             }),
-    #         )
-    #     else:
-    #         # TODO: Create method that returns a tuple of field names (hard coded), and add to each inheritor of Meet Dependent Admin
-    #         fieldsets += ((None, {
-    #             'fields': ('name', '...', '...', '...',),
-    #             'description': ''
-    #             }),
-    #         )
-    #     return fieldsets
-
 
 
 admin.site.register(models.Meet, MeetAdmin)
