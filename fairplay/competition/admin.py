@@ -490,7 +490,7 @@ class SessionAdmin(MeetDependentAdmin):
         return fieldsets
 
 
-class LEDSignAdmin(admin.ModelAdmin):
+class LEDSignAdmin(MeetDependentAdmin):
     list_display = ('name', 'device', 'connect')
 
     def connect(self, obj):
@@ -499,6 +499,15 @@ class LEDSignAdmin(admin.ModelAdmin):
 
     class Media:
         js = ("{}js/ledsign.js".format(settings.STATIC_URL),)
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(LEDSignAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {
+            'fields': ('name', 'device'),
+            'description': ''
+            }),
+        )
+        return fieldsets
 
 
 class LEDShowMessageInline(admin.TabularInline):

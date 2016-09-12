@@ -9,6 +9,7 @@ from . import ranking
 
 
 class LEDSign(models.Model):
+    meet = models.ForeignKey(Meet, related_name='signs')
     name = models.CharField(max_length=255)
     device = models.PositiveSmallIntegerField()
 
