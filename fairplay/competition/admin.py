@@ -263,27 +263,28 @@ class GymnastAdmin(MeetDependentAdmin):
     # TODO: This is takes a really really long time... it runs for every field, but we only need it to run for the events/scores
     def get_list_display(self, request):
         result = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
-        # events = models.Event.objects.all()
-        # result += [e.initials for e in events]
-        # result += ['all_around', ]
+        events = models.Event.objects.all()
+        result += [e.initials for e in events]
+        result += ['all_around', ]
         return result
 
     # TODO: This is takes a really really long time... it runs for every field, but we only need it to run for the events/scores
-    # def __getattr__(self, attr):
-    #     try:
-    #         event = models.Event.objects.get(initials=attr)
-    #         def get_score(athlete):
-    #             return athlete.events.get(event=event).score
-    #         get_score.short_description = attr.upper()
-    #         return get_score
-    #     except:
-    #         return ''
+    def __getattr__(self, attr):
+        try:
+            event = models.Event.objects.get(initials=attr)
+            def get_score(gymnast):
+                return gymnast.events.get(event=event).score
+            get_score.short_description = attr.upper()
+            return get_score
+        except:
+            return ''
 
     def show_team(self, obj):
         return obj.team.team
     show_team.short_description = "Team"
     show_team.admin_order_field = 'team__team'
 
+    # TODO: This will break, because of the changes to level.level
     def set_athlete_id(self, modeladmin, request, queryset):
         ''' Admin action meant to be performed once on all athletes at once.
             However, it can be performed multiple times without harm, and also on only a few athletes.
