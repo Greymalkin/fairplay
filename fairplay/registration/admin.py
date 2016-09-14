@@ -10,6 +10,7 @@ from django.db.models import Count, Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
+from django.core.urlresolvers import reverse
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.http import HttpResponse
@@ -129,6 +130,7 @@ class GymnastAdmin(MeetDependentAdmin):
     list_display = ('last_name', 'first_name', 'athlete_id', 'usag', 'show_team', 'level', 'age', 'dob',  'division', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
     list_filter = [MeetFilter,GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
+    readonly_fields = ('team',)
     # raw_id_fields = ('team',)
     actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified']
     # autocomplete_lookup_fields = {'fk': ['team']}
@@ -136,7 +138,7 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('usag', 'level', 'team', 'first_name', 'last_name', 'dob', 'notes'), }),
+        fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'level',  'dob', 'age', 'notes'), }),
                      ('Checks', {'classes': ('grp-collapse grp-closed',),
                                  'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified', 'shirt'), }),
                      ('Meet', {'classes': ('grp-collapse grp-closed',),
@@ -333,20 +335,42 @@ class GymnastInline(admin.StackedInline):
     model = models.Gymnast
     ordering = ('is_scratched', 'level', 'last_name', 'first_name')
     fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'shirt', 'level', 'is_scratched', 'is_flagged', 'is_verified', 'notes')
+    classes = ('grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-open',)
+    extra = 1
 
     class Media:
         js = ('{}js/competitionAge.js'.format(settings.STATIC_URL),
               '{}js/moment.min.js'.format(settings.STATIC_URL))
 
+class RegistrationInline(admin.StackedInline):
+    model = models.Registration
+    fields = ('received', 'per_gymnast_cost', 'per_level_cost', 'team_awards', 'add_gymnasts', 'gymnast_cost', 'level_cost', 'total_cost', 'paid_in_full', )
+    readonly_fields = ('add_gymnasts', 'gymnast_cost', 'total_cost', 'level_cost',)
+    filter_horizontal = ('team_awards',)
+    extra = 1
+    classes = ('grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-open',)
+
+    def add_gymnasts(self, instance):
+        if instance.id:
+            url = reverse('admin:{}_{}_change'.format(instance._meta.app_label,
+                                                      instance._meta.model_name), args=[instance.id])
+            return u'<a href="{}">Add Gymnasts to this Registration</a>'.format(url)
+        else:
+            return '(available after save)'    
+    add_gymnasts.short_description = "Gymnasts"
+    add_gymnasts.allow_tags = True
+
 
 class TeamAdmin(MeetDependentAdmin):
-    list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'city', 'state', 'notes')
+    list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'show_paid_in_full', 'city', 'state')
     list_filter = ('qualified','team_awards')
-    readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
+    filter_horizontal = ('team_awards', )
     search_fields = ('gym', 'team', 'usag')
-    filter_horizontal = ('team_awards',)
-    inlines = [CoachInline, GymnastInline]
+    inlines = [CoachInline, RegistrationInline] #, GymnastInline
     actions = ['export_with_session']
+    readonly_fields = ('team_awards', )
 
     class Media:
         css = {
@@ -355,12 +379,11 @@ class TeamAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(TeamAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),
+        fieldsets += ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes', 'team_awards'), }),
                      ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),
-                     ('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
-                     ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost', 'payment_postmark', 'registration_complete'), }),
+                     # ('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
+                     # ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost', 'payment_postmark', 'registration_complete'), }),
                      )
-
         return fieldsets
 
     def get_queryset(self, request):
@@ -409,6 +432,24 @@ class TeamAdmin(MeetDependentAdmin):
         return response
     export_with_session.short_description = "Export selected team as csv file with session"
 
+    def show_paid_in_full(self, obj):
+        return obj.paid_in_full
+    show_paid_in_full.short_description = "Paid in Full"
+
+
+class RegistrationAdmin(MeetDependentAdmin):
+    list_filter = ('team','received', 'per_gymnast_cost', 'paid_in_full', )
+    filter_horizontal = ('team_awards',)
+    inlines = [GymnastInline]
+    readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(RegistrationAdmin, self).get_fieldsets(request, obj)
+        fieldsets += (('Registration', {'fields': ( 'team', 'per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
+                     ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost',), }),
+                     )
+        return fieldsets
+
 
 class LogAdmin(admin.ModelAdmin):
     """Create an admin view of the history/log table"""
@@ -454,3 +495,4 @@ admin.site.register(models.Team, TeamAdmin)
 admin.site.register(models.GymnastPricing, PricingAdmin)
 admin.site.register(models.LevelPricing, PricingAdmin)
 admin.site.register(models.ShirtSize)
+admin.site.register(models.Registration, RegistrationAdmin)

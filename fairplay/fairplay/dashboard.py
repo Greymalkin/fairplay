@@ -67,6 +67,7 @@ class CustomIndexDashboard(Dashboard):
             collapsible=False,
             models=(
                 'registration.models.Team',
+                'registration.models.Registration',
                 'registration.models.Coach',
                 'registration.models.Gymnast',
                 'registration.models.LevelPricing',
