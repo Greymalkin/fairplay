@@ -131,7 +131,7 @@ class GymnastAdmin(MeetDependentAdmin):
     list_filter = [MeetFilter,GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     readonly_fields = ('team',)
-    # raw_id_fields = ('team',)
+    raw_id_fields = ('team',)
     actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified']
     # autocomplete_lookup_fields = {'fk': ['team']}
     ordering = ('last_name', 'first_name')
@@ -169,7 +169,7 @@ class GymnastAdmin(MeetDependentAdmin):
             {'title': u'Choose tshirt size',
                 'objects': queryset,
                 'form': form})
-    set_shirt_action.short_description = u'Update shirt size of selected gymnast'
+    set_shirt_action.short_description = u'Update shirt size'
 
     def verify_with_usag(self, request, queryset):
         credentials = {
@@ -279,7 +279,7 @@ class GymnastAdmin(MeetDependentAdmin):
         else:
             message_bit = '{} gymnast\'s competition ages were'.format(rows_updated)
         messages.success(request, '{} updated'.format(message_bit))
-    update_age.short_description = "Update gymnast competition age"
+    update_age.short_description = "Update competition age"
 
     # TODO: DELET? I think this is wrongly copied over from competition
     def sort_into_divisions(self, model_admin, request, queryset):
@@ -326,9 +326,11 @@ class GymnastAdmin(MeetDependentAdmin):
     set_verified.short_description = "Mark selected gymnasts as verified"
 
 
-class CoachInline(admin.TabularInline):
+class CoachInline(admin.StackedInline):
     model = models.Coach
     exclude = ('notes', 'is_flagged', 'is_verified', 'meet')
+    classes = ('grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-open',)
 
 
 class GymnastInline(admin.StackedInline):
@@ -343,12 +345,14 @@ class GymnastInline(admin.StackedInline):
         js = ('{}js/competitionAge.js'.format(settings.STATIC_URL),
               '{}js/moment.min.js'.format(settings.STATIC_URL))
 
+
 class RegistrationInline(admin.StackedInline):
     model = models.Registration
     fields = ('received', 'per_gymnast_cost', 'per_level_cost', 'team_awards', 'add_gymnasts', 'gymnast_cost', 'level_cost', 'total_cost', 'paid_in_full', )
     readonly_fields = ('add_gymnasts', 'gymnast_cost', 'total_cost', 'level_cost',)
     filter_horizontal = ('team_awards',)
-    extra = 1
+    min_num = 1
+    extra = 0
     classes = ('grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-open',)
 
@@ -381,8 +385,6 @@ class TeamAdmin(MeetDependentAdmin):
         fieldsets = super(TeamAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes', 'team_awards'), }),
                      ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),
-                     # ('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
-                     # ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost', 'payment_postmark', 'registration_complete'), }),
                      )
         return fieldsets
 
@@ -442,6 +444,7 @@ class RegistrationAdmin(MeetDependentAdmin):
     filter_horizontal = ('team_awards',)
     inlines = [GymnastInline]
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
+    raw_id_fields = ('team',)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(RegistrationAdmin, self).get_fieldsets(request, obj)
@@ -449,6 +452,16 @@ class RegistrationAdmin(MeetDependentAdmin):
                      ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost',), }),
                      )
         return fieldsets
+
+    def view_team(self, instance):
+        if instance.team:
+            url = reverse('admin:{}_{}_change'.format(instance.team._meta.app_label,
+                                                      instance.team._meta.model_name), args=[instance.team.id])
+            return u'<a href="{}">View Team</a>'.format(url)
+        else:
+            return '(available after save)'    
+    view_team.short_description = "Team"
+    view_team.allow_tags = True
 
 
 class LogAdmin(admin.ModelAdmin):

@@ -18,7 +18,11 @@ class Team(models.Model):
     last_name = models.CharField('Last Name', max_length=100)
     email = models.CharField('Email', max_length=225, blank=True, null=True)
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
-    team_awards = models.ManyToManyField('competition.TeamAward', blank=True, related_name='teams', verbose_name="Team Awards Levels")
+    team_awards = models.ManyToManyField(
+        'competition.TeamAward',
+        blank=True,
+        related_name='teams',
+        verbose_name="Team Awards Levels")
     started = models.DateTimeField('Form Started', auto_now_add=True)
     updated = models.DateTimeField('Form Last Updated', auto_now=True)
     paid_in_full = models.BooleanField('Paid In Full?', default=False)
@@ -37,9 +41,6 @@ class Team(models.Model):
 
     def contact_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
-
-    #TODO: add a property that makes a number for team_awards
-
 
     #TODO: add a property that figures out if this team qualifies for team awards
 

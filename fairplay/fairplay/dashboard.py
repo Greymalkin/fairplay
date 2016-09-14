@@ -82,7 +82,7 @@ class CustomIndexDashboard(Dashboard):
             column=1,
             collapsible=False,
             models=(
-                'competition.models.Athlete',
+                'competition.models.Gymnast',
                 'competition.models.Division',
                 'competition.models.Session',
                 'competition.models.Event',
