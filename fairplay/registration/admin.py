@@ -87,13 +87,13 @@ class CoachMissingUsagFilter(SimpleListFilter):
 
 
 class LevelAdmin(MeetDependentAdmin):
-    list_display = ('name', 'level', 'order')
+    list_display = ('name', 'group', 'level', 'order')
     list_editable = ('order',)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(LevelAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
-            'fields': ('name', 'level', 'order'),
+            'fields': ('name', 'group', 'level', 'order'),
             'description': ''
             }),
         )
@@ -137,14 +137,25 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'level',  'dob', 'age', 'notes'), }),
+        fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'level',  'dob', 'age', 'shirt', 'notes'), }),
                      ('Checks', {'classes': ('grp-collapse grp-closed',),
-                                 'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified', 'shirt'), }),
+                                 'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
                      ('Meet', {'classes': ('grp-collapse grp-closed',),
                                'fields': ('athlete_id', 'age', 'division', 'starting_event', 'overall_score', 'tie_break', 'rank'), }),
                      )
 
         return fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        # copying this from MeetDependentAdmin because I need the empty value display to be different here (empty string)
+        # models.Meet.objects.filter(is_current_meet=True)[0]
+        # if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', ''):
+        if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and models.Meet.objects.filter(is_current_meet=True).count() == 1:
+            self.readonly_fields += ('meet',)
+            self.empty_value_display = ''
+            return self.readonly_fields
+        else:
+            return []
 
     def show_team(self, obj):
         return obj.team.team
@@ -385,7 +396,6 @@ class TeamAdmin(MeetDependentAdmin):
         return fieldsets
 
     def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
         qs = super(TeamAdmin, self).get_queryset(request)
         return qs.annotate(num_gymnasts=Count('gymnasts'))
 

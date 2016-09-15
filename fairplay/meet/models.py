@@ -19,7 +19,7 @@ class Meet(models.Model):
         ordering = ('-is_current_meet', 'name')
 
     def __str__(self):
-        return '{} {}'.format(self.short_name, self.date.strftime('%Y-%m-%d'))
+        return '{}'.format(self.short_name)
 
 
 # Restrict display of items in the admin by those belonging to the current Meet

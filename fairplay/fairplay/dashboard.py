@@ -53,11 +53,29 @@ class CustomIndexDashboard(Dashboard):
         site_name = get_admin_site_name(context)
 
         self.children.append(modules.ModelList(
-            _('Meet Settings'),
+            _('Meet'),
             column=1,
             collapsible=False,
             models=(
                 'meet.models.Meet',
+                'competition.models.Session',
+                ),
+        ))
+
+        self.children.append(modules.ModelList(
+            _('Configuration'),
+            column=1,
+            collapsible=True,
+            css_classes=('grp-closed',),
+            models=(
+                'registration.models.LevelPricing',
+                'registration.models.GymnastPricing',
+                'registration.models.Level',
+                'registration.models.ShirtSize',
+                'competition.models.Division',
+                'competition.models.Event',
+                'competition.models.LEDShow',
+                'competition.models.LEDSign',
                 ),
         ))
 
@@ -70,10 +88,6 @@ class CustomIndexDashboard(Dashboard):
                 'registration.models.Registration',
                 'registration.models.Coach',
                 'registration.models.Gymnast',
-                'registration.models.LevelPricing',
-                'registration.models.GymnastPricing',
-                'registration.models.Level',
-                'registration.models.ShirtSize',
                 ),
         ))
 
@@ -83,15 +97,11 @@ class CustomIndexDashboard(Dashboard):
             collapsible=False,
             models=(
                 'competition.models.Gymnast',
-                'competition.models.Division',
-                'competition.models.Session',
-                'competition.models.Event',
-                'competition.models.LEDShow',
                 'competition.models.Team',
                 'competition.models.TeamAward',
                 'competition.models.TeamAwardRank',
                 'competition.models.TeamAwardRankEvent',
-                'competition.models.GymnastEvent',
+                # 'competition.models.GymnastEvent',
                 ),
         ))
 
@@ -102,7 +112,6 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             models=(
                 'django.contrib.*',
-                'competition.models.LEDSign',
             ),
         ))
 

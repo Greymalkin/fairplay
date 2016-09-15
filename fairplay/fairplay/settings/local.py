@@ -12,7 +12,7 @@ INSTALLED_APPS += (
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'fairplay',
+        'NAME': 'ludwig',
         'USER': 'fairplay',
         'PASSWORD': 'dbmaster',
         'HOST': 'localhost',
