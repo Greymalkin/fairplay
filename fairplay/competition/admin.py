@@ -473,18 +473,13 @@ class EventAdmin(MeetDependentAdmin):
 
 
 class SessionAdmin(MeetDependentAdmin):
-    list_display = ('name', 'num_gymnasts', 'warmup')
+    list_display = ('name', 'num_gymnasts', 'warmup', 'session_start', 'competition_start', 'warmup_start')
     filter_horizontal = ('divisions',)
-
-    class Media:
-        css = {
-            "all": ("{}css/filter-horizontal-adjustment.css".format(settings.STATIC_URL),)
-        }
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(SessionAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
-            'fields': ('name', 'divisions', 'warmup'),
+            'fields': ('name', 'divisions', 'warmup', 'session_start', 'competition_start', 'warmup_start'),
             'description': ''
             }),
         )
