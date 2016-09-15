@@ -193,7 +193,8 @@ class Gymnast(Person):
 class Level(models.Model):
     meet = models.ForeignKey(Meet, related_name='levels')
     name = models.CharField(max_length=20)
-    level = models.CharField(max_length=5)
+    group = models.CharField(max_length=5)
+    level = models.PositiveSmallIntegerField()
     order = models.PositiveSmallIntegerField(default=0)
 
     objects = MeetManager()

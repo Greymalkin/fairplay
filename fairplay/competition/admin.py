@@ -101,7 +101,21 @@ class LevelFilter(admin.SimpleListFilter):
     parameter_name = 'level'
 
     def lookups(self, request, model_admin):
-        return [(s.id, s.level) for s in Level.objects.all()]
+        return [(s.level, s.group) for s in Level.objects.all().distinct('level').order_by('level')]
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(level__level=self.value())
+        else:
+            return queryset
+
+
+class LevelDivisionFilter(admin.SimpleListFilter):
+    title = _('level division')
+    parameter_name = 'level_division'
+
+    def lookups(self, request, model_admin):
+        return [(s.id, s.name) for s in Level.objects.all()]
 
     def queryset(self, request, queryset):
         if self.value() is not None:
@@ -110,9 +124,9 @@ class LevelFilter(admin.SimpleListFilter):
             return queryset
 
 
-class DivisionFilter(admin.SimpleListFilter):
-    title = _('division')
-    parameter_name = 'division'
+class AgeDivisionFilter(admin.SimpleListFilter):
+    title = _('age division')
+    parameter_name = 'age_division'
 
     def lookups(self, request, model_admin):
         return [(s.id, s.name) for s in models.Division.objects.all()]
@@ -179,7 +193,7 @@ class GymnastAdmin(MeetDependentAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (GymnastEventInlineAdmin, )
     readonly_fields = ('overall_score', 'rank', 'tie_break', 'age', 'team')
-    list_filter = (TeamFilter, DivisionFilter, LevelFilter, SessionFilter, StartingEventFilter)
+    list_filter = (TeamFilter, LevelFilter, AgeDivisionFilter, LevelDivisionFilter, SessionFilter, StartingEventFilter)
     list_per_page = 50
 
     def get_fieldsets(self, request, obj=None):
