@@ -140,126 +140,119 @@ class CustomIndexDashboard(Dashboard):
                 post_content=roster_html
             ))
 
-            try:
+            links = []
+            links.append({
+                'title': 'Registration Metrics',
+                'url': '/',
+                'external': False,
+                }),
+            links.append({
+                'title': 'For Ordering Team Awards',
+                'url': '/order/awards/',
+                'external': False,
+                }),
+            athlete_info = ""
+            for level in Level.objects.all():
+                level_count = Gymnast.objects.filter(level=level, is_scratched=False).count()
+                athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
+                for age in range(4, 19):
+                    age_count = Gymnast.objects.filter(level=level, age=age, is_scratched=False).count()
+                    if age_count > 0:
+                        athlete_info += "<li>{}yo ({} athletes)</li>".format(age, age_count)
+
+                age_count = Gymnast.objects.filter(level=level, age=None, is_scratched=False).count()
+                if age_count > 0:
+                    athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
+                athlete_info += "</ul></p>"
+
+            self.children.append(modules.LinkList(
+                _('Meet Breakdown'),
+                column=3,
+                children=links,
+                post_content=athlete_info,
+                css_classes=('grp-closed',),
+            ))
+
+
+            sessions = Session.objects.all()
+            for session in sessions:
                 links = []
                 links.append({
-                    'title': 'Registration Metrics',
-                    'url': '/',
+                    'title': 'Awards Ceremony',
+                    'url': '/results/ceremony/event/{}'.format(session.id),
                     'external': False,
-                    }),
+                    })
+                # links.append({
+                #     'title': 'Awards Ceremony (By division)',
+                #     'url': '/results/ceremony/division/{}'.format(session.id),
+                #     'external': False,
+                #     })
                 links.append({
-                    'title': 'For Ordering Team Awards',
-                    'url': '/order/awards/',
+                    'title': 'Individual Results',
+                    'url': '/results/individual/{}'.format(session.id),
                     'external': False,
-                    }),
-                athlete_info = ""
-                for level in Level.objects.all():
-                    level_count = Gymnast.objects.filter(level=level, is_scratched=False).count()
-                    athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
-                    for age in range(4, 19):
-                        age_count = Gymnast.objects.filter(level=level, age=age, is_scratched=False).count()
-                        if age_count > 0:
-                            athlete_info += "<li>{}yo ({} athletes)</li>".format(age, age_count)
+                    })
+                links.append({
+                    'title': 'Team Results',
+                    'url': '/results/team/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Warm-Up & Competition Rotations',
+                    'url': '/rotations/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Announcer Script: Teams at Meet Start ',
+                    'url': '/announcer/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Program Book: Scoresheet',
+                    'url': '/scoresheet/{}'.format(session.id),
+                    'external': False,
+                    })
+                # links.append({
+                #     'title': 'Download Athlete Labels',
+                #     'url': '/labels/athlete/{}'.format(session.id),
+                #     'external': False,
+                #     })
+                # links.append({
+                #     'title': 'Download Team Labels',
+                #     'url': '/labels/team/{}'.format(session.id),
+                #     'external': False,
+                #     })
+                links.append({
+                    'title': 'Coaches Hospitality',
+                    'url': '/coaches/hospitality/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'Individual Teams Rosters',
+                    'url': '/team/roster/{}'.format(session.id),
+                    'external': False,
+                    })
+                links.append({
+                    'title': 'All Teams Roster & Gymnast Sign In',
+                    'url': '/allteams/roster/{}'.format(session.id),
+                    'external': False,
+                    })
 
-                    age_count = Gymnast.objects.filter(level=level, age=None, is_scratched=False).count()
-                    if age_count > 0:
-                        athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
-                    athlete_info += "</ul></p>"
+                header = ""
+                counts = ""
+                for event in Event.objects.all():
+                    count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
+                    header += '<th>{}</th>'.format(event.initials)
+                    link = '/admin/competition/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
+                    counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
                 self.children.append(modules.LinkList(
-                    _('Meet Breakdown'),
-                    column=3,
+                    _(session.name),
+                    column=2,
                     children=links,
-                    post_content=athlete_info,
                     css_classes=('grp-closed',),
+                    post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
                 ))
-            except:
-                # no meet set, whoops
-                pass
-
-            try:
-                sessions = Session.objects.all()
-                for session in sessions:
-                    links = []
-                    links.append({
-                        'title': 'Awards Ceremony',
-                        'url': '/results/ceremony/event/{}'.format(session.id),
-                        'external': False,
-                        })
-                    # links.append({
-                    #     'title': 'Awards Ceremony (By division)',
-                    #     'url': '/results/ceremony/division/{}'.format(session.id),
-                    #     'external': False,
-                    #     })
-                    links.append({
-                        'title': 'Individual Results',
-                        'url': '/results/individual/{}'.format(session.id),
-                        'external': False,
-                        })
-                    links.append({
-                        'title': 'Team Results',
-                        'url': '/results/team/{}'.format(session.id),
-                        'external': False,
-                        })
-                    links.append({
-                        'title': 'Warm-Up & Competition Rotations',
-                        'url': '/rotations/{}'.format(session.id),
-                        'external': False,
-                        })
-                    links.append({
-                        'title': 'Announcer Script: Teams at Meet Start ',
-                        'url': '/announcer/{}'.format(session.id),
-                        'external': False,
-                        })
-                    links.append({
-                        'title': 'Program Book: Scoresheet',
-                        'url': '/scoresheet/{}'.format(session.id),
-                        'external': False,
-                        })
-                    # links.append({
-                    #     'title': 'Download Athlete Labels',
-                    #     'url': '/labels/athlete/{}'.format(session.id),
-                    #     'external': False,
-                    #     })
-                    # links.append({
-                    #     'title': 'Download Team Labels',
-                    #     'url': '/labels/team/{}'.format(session.id),
-                    #     'external': False,
-                    #     })
-                    links.append({
-                        'title': 'Coaches Hospitality',
-                        'url': '/coaches/hospitality/{}'.format(session.id),
-                        'external': False,
-                        })
-                    links.append({
-                        'title': 'Individual Teams Rosters',
-                        'url': '/team/roster/{}'.format(session.id),
-                        'external': False,
-                        })
-                    links.append({
-                        'title': 'All Teams Roster & Gymnast Sign In',
-                        'url': '/allteams/roster/{}'.format(session.id),
-                        'external': False,
-                        })
-
-                    header = ""
-                    counts = ""
-                    for event in Event.objects.all():
-                        count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
-                        header += '<th>{}</th>'.format(event.initials)
-                        link = '/admin/competition/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
-                        counts += '<td><a href="{}">{}</a></td>'.format(link, count)
-
-                    self.children.append(modules.LinkList(
-                        _(session.name),
-                        column=2,
-                        children=links,
-                        css_classes=('grp-closed',),
-                        post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
-                    ))
-            except:
-                # no meet set, whoops
-                pass
 
         # append a recent actions module
         self.children.append(
@@ -276,12 +269,6 @@ class CustomIndexDashboard(Dashboard):
                             'django.contrib.admin.models.LogEntry',
                         ),
                     ),
-                    modules.RecentActions(
-                        _('Recent Actions'),
-                        limit=5,
-                        collapsible=False,
-                        column=1,
-                    )
                 ],
             ),
         )
