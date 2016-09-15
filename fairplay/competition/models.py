@@ -64,13 +64,20 @@ class Division(models.Model):
     short_name = models.CharField(max_length=10, help_text='For printing in report columns.')
     min_age = models.PositiveSmallIntegerField(default=6)
     max_age = models.PositiveSmallIntegerField(default=18)
-    event_award_count = models.PositiveSmallIntegerField(default=3, help_text="Number of places individual awards will go out to")
-    all_around_award_count = models.PositiveSmallIntegerField(verbose_name="All-around award count", default=3, help_text="Number of places all around awards will go out to")
+    event_award_count = models.PositiveSmallIntegerField(
+        default=3,
+        help_text="Number of places individual awards will go out to")
+    all_around_award_count = models.PositiveSmallIntegerField(
+        verbose_name="All-around award count",
+        default=3,
+        help_text="Number of places all around awards will go out to")
 
     objects = MeetManager()
 
     class Meta():
         ordering = ['level', 'min_age', ]
+        verbose_name = 'Age Division'
+        verbose_name_plural = 'Age Divisions'
 
     def __str__(self):
         age = self.min_age

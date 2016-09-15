@@ -42,7 +42,6 @@ def led_sign(request):
         response = {'success': False, 'reason': 'missing data'}
 
     response = {'success': True}
-
     return HttpResponse(json.dumps(response), content_type="application/json")
 
 
@@ -125,7 +124,7 @@ def download_athlete_labels(request):
             athlete.last_name,
             athlete.team.team,
             athlete.level,
-            'd1 or d2',
+            'd1 or d2',  #TODO Make work
             athlete.division.short_name if athlete.division else 'None',
             session,
         ])
@@ -150,7 +149,6 @@ def download_team_labels(request):
         'Levels',
     ])
 
-
     for session in sessions:
         levels = ','.join(sorted(session.levels))
 
@@ -163,7 +161,6 @@ def download_team_labels(request):
                 session.name,
                 levels
             ])
-
     return response
 
 
@@ -262,7 +259,6 @@ class SessionCeremonyDivisionView(TemplateView):
 
         # team leaderboards
         context['teams'] = team_awards
-
         return context
 
 
@@ -370,7 +366,6 @@ class SessionCeremonyEventView(TemplateView):
 
         # team leaderboards
         context['teams'] = team_awards
-
         return context
 
 
@@ -627,47 +622,35 @@ class CoachSignInView(TemplateView):
         return context
 
 
+
+# API Viewsets
+
 class LEDShowViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.LEDShow.objects.all()
     serializer_class = serializers.LEDShowSerializer
 
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
     queryset = models.Event.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.EventSerializer
 
 
 class TeamViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
     queryset = Team.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.TeamSerializer
 
 
 class AthleteViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
     queryset = models.Gymnast.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.GymnastSerializer
     lookup_field = 'athlete_id'
 
 
 class GymnastEventViewSet(viewsets.ModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
     queryset = models.GymnastEvent.objects.filter(event__meet__is_current_meet=True)
     serializer_class = serializers.GymnastEventSerializer
 
 
 class SessionViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
     queryset = models.Session.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.SessionSerializer

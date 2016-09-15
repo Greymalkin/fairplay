@@ -192,6 +192,7 @@ class Gymnast(Person):
 
 class Level(models.Model):
     meet = models.ForeignKey(Meet, related_name='levels')
+    name = models.CharField(max_length=20)
     level = models.CharField(max_length=5)
     order = models.PositiveSmallIntegerField(default=0)
 
@@ -203,7 +204,7 @@ class Level(models.Model):
         ordering = ('order',)
 
     def __str__(self):
-        return self.level
+        return self.name
 
 
 class GymnastPricing(models.Model):

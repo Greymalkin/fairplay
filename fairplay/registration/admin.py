@@ -87,13 +87,13 @@ class CoachMissingUsagFilter(SimpleListFilter):
 
 
 class LevelAdmin(MeetDependentAdmin):
-    list_display = ('level', 'order')
+    list_display = ('name', 'level', 'order')
     list_editable = ('order',)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(LevelAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
-            'fields': ('level', 'order'),
+            'fields': ('name', 'level', 'order'),
             'description': ''
             }),
         )
@@ -182,7 +182,6 @@ class GymnastAdmin(MeetDependentAdmin):
         }
 
         members = []
-
         for member in queryset:
             members.append(member.usag)
 
@@ -253,7 +252,6 @@ class GymnastAdmin(MeetDependentAdmin):
 
                     except:
                         messages.error(request, 'Could not parse data from USAG verification service!')
-
                 messages.success(request, 'Verified {} gymnasts, flagged {} gymnasts for review'.format(verified_count, failed_count))
             else:
                 messages.error(request, 'Could not connect with USAG verification service. Check credentials.')
@@ -379,11 +377,6 @@ class TeamAdmin(MeetDependentAdmin):
     actions = ['export_with_session']
     readonly_fields = ('team_awards', )
 
-    class Media:
-        css = {
-            "all": ("{}css/filter-horizontal-adjustment.css".format(settings.STATIC_URL),)
-        }
-
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(TeamAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes', 'team_awards'), }),
@@ -420,6 +413,7 @@ class TeamAdmin(MeetDependentAdmin):
                        'level',
                        'division', ]
         with_session = field_names.copy()
+        with_session.append('d1/d2/jdo')
         with_session.append('Session')
         # Write a first row with header information
         writer.writerow(with_session)
@@ -429,6 +423,8 @@ class TeamAdmin(MeetDependentAdmin):
             gymnasts = models.Gymnast.objects.filter(team=obj).order_by('is_scratched', 'level', 'division', 'last_name')
             for gymnast in gymnasts:
                 field_values = [getattr(gymnast, field) for field in field_names]
+                # TODO: Make this work
+                field_values.append('d1 or d2 or jdo')
                 try:
                     field_values.append(gymnast.division.session.first())
                 except:
