@@ -133,7 +133,6 @@ class GymnastAdmin(MeetDependentAdmin):
     readonly_fields = ('team', 'age')
     raw_id_fields = ('team',)
     actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified']
-    # autocomplete_lookup_fields = {'fk': ['team']}
     ordering = ('last_name', 'first_name')
 
     def get_fieldsets(self, request, obj=None):
@@ -163,7 +162,7 @@ class GymnastAdmin(MeetDependentAdmin):
             if form.is_valid():
                 shirt = form.cleaned_data.get('shirt')
                 updated = queryset.update(shirt=shirt)
-                messages.success(request, '{} gymnasts shirt sizes were updated'.format(updated))
+                messages.success(request, '{} shirt sizes were updated'.format(updated))
                 return
         else:
             form = actionforms.ShirtChoiceForm()
@@ -209,7 +208,7 @@ class GymnastAdmin(MeetDependentAdmin):
                         rows = r.json()['aaData']
 
                         for row in rows:
-                            (usag_id, last_name, first_name, dob, level, club_id, club, status) = row
+                            (usag_id, last_name, first_name, dob, member_type, level, club_id, club, club_status, status) = row
 
                             try:
                                 level = int(level[6:])
@@ -220,9 +219,7 @@ class GymnastAdmin(MeetDependentAdmin):
 
                             try:
                                 gymnast = models.Gymnast.objects.get(usag=usag_id)
-
                                 notes = ""
-
                                 valid = True
 
                                 if last_name.lower() != gymnast.last_name.lower():
