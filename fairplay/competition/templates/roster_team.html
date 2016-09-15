@@ -35,7 +35,7 @@
 
 <table border="0" cellpadding="7">
 
-{% regroup athletes by team as athletes_by_team %}
+{% regroup athletes by team as gymnasts_by_team %}
     <thead>
     <tr>
     <th colspan="10" class="bordered">
@@ -51,21 +51,21 @@
         <th class="bordered">Age/Div</th>
       </tr>
     </thead>
-{% for team in athletes_by_team %}
+{% for team in gymnasts_by_team %}
     <tbody>
       <tr>
         <th colspan="10" class="team double-bordered" style="text-align: left;">{{team.grouper.team}}</th>
       </tr>
     </tbody>
 
-    {% for athlete in team.list %}
+    {% for gymnast in team.list %}
     <tbody>
       <tr class="dotted-bordered">
-        <td style="width: 250px">{{ athlete.name_firstlast }}</td>
-        <td class="center">{{ athlete.level }}</td>
-        <td class="center">{{athlete.usag}}</td>
-        <td class="center">{{athlete.dob}}</td>
-        <td class="center">{{athlete.age}} / {{ athlete.division.short_name }}</td>
+        <td style="width: 250px">{{ gymnast.name_firstlast }}</td>
+        <td class="center">{{ gymnast.level.level }}</td>
+        <td class="center">{{gymnast.usag}}</td>
+        <td class="center">{{gymnast.dob}}</td>
+        <td class="center">{{gymnast.age}} / {{ gymnast.division.short_name }}</td>
       </tr>
     </tbody>
     {% endfor %}

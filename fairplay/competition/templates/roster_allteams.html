@@ -28,8 +28,8 @@
 
   <h1 style="padding-bottom: 25px;"> {{session.meet.short_name}} {{session}} Competition Roster (All Teams)</h1>
 
-{% regroup athletes by team as athletes_by_team %}
-{% for team in athletes_by_team %}
+{% regroup athletes by team as gymnasts_by_team %}
+{% for team in gymnasts_by_team %}
 <table border="1" cellpadding="7">
     <thead>
       <tr>
@@ -45,14 +45,14 @@
       </tr>
     </thead>
 
-    {% for athlete in team.list %}
+    {% for gymnast in team.list %}
     <tbody>
       <tr>
-        <td style="width: 250px">{{ athlete.name_firstlast }}</td>
-        <td class="center">{{ athlete.level }}</td>
-        <td class="center">{{athlete.usag}}</td>
-        <td class="center">{{athlete.dob}}</td>
-        <td class="center">{{athlete.age}} / {{ athlete.division.age_division }}</td>
+        <td style="width: 250px">{{ gymnast.name_firstlast }}</td>
+        <td class="center">{{ gymnast.level.level }}</td>
+        <td class="center">{{gymnast.usag}}</td>
+        <td class="center">{{gymnast.dob}}</td>
+        <td class="center">{{gymnast.age}} / {{ gymnast.division.age_division }}</td>
         <td class="write_in">&nbsp;</td>
       </tr>
     </tbody>

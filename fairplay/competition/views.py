@@ -73,7 +73,7 @@ def download_roster(request):
             athlete.first_name,
             athlete.last_name,
             athlete.team.team,
-            '' if not athlete.division else athlete.division.level,
+            '' if not athlete.division else athlete.division.level.level,
             '' if not athlete.division else athlete.division.short_name,
             athlete.athlete_id,
             '' if not athlete.starting_event else athlete.starting_event.initials]
@@ -123,7 +123,7 @@ def download_athlete_labels(request):
             athlete.first_name,
             athlete.last_name,
             athlete.team.team,
-            athlete.level,
+            athlete.level.level,
             'd1 or d2',  #TODO Make work
             athlete.division.short_name if athlete.division else 'None',
             session,

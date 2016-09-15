@@ -19,8 +19,8 @@
 
   <h1> {{session.meet.short_name}} {{session}}</h1>
 
-{% regroup athletes by team as athletes_by_team %}
-{% for team in athletes_by_team %}
+{% regroup athletes by team as gymnasts_by_team %}
+{% for team in gymnasts_by_team %}
 <table border="1" cellpadding="7">
     <thead>
       <tr>
@@ -29,7 +29,7 @@
       <tr>
         <th>Gymnast</th>
         <th class="event">Level</th>
-        <th>Div</th>
+        <th>Age Div</th>
         <th class="event">Floor<br/>(FX)</th>
         <th class="event">Pommel<br/>(PH)</th>
         <th class="event">Rings<br/>(SR)</th>
@@ -40,12 +40,12 @@
       </tr>
     </thead>
 
-    {% for athlete in team.list %}
+    {% for gymnast in team.list %}
     <tbody>
       <tr>
-        <td>{{ athlete.name_firstlast }}</td>
-        <td class="center">{{ athlete.level }}</td>
-        <td class="center">{{ athlete.division.short_name }}</td>
+        <td>{{ gymnast.name_firstlast }}</td>
+        <td class="center">{{ gymnast.level.level }}</td>
+        <td class="center">{{ gymnast.division.short_name }}</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>
         <td>&nbsp;</td>

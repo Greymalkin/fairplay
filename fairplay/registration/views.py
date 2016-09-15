@@ -37,8 +37,5 @@ class OrderingAwardsView(TemplateView):
         return context
 
 class TeamViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    This viewset automatically provides `list` and `detail` actions.
-    """
     queryset = models.Team.objects.all()
     serializer_class = serializers.TeamSerializer
