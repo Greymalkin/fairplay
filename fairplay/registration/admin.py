@@ -127,10 +127,10 @@ class CoachAdmin(MeetDependentAdmin):
 
 
 class GymnastAdmin(MeetDependentAdmin):
-    list_display = ('last_name', 'first_name', 'athlete_id', 'usag', 'show_team', 'level', 'age', 'dob',  'division', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
+    list_display = ('last_name', 'first_name', 'athlete_id', 'usag', 'show_team', 'level', 'age', 'dob',  'show_age_division', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
     list_filter = [MeetFilter,GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
-    readonly_fields = ('team',)
+    readonly_fields = ('team', 'age')
     raw_id_fields = ('team',)
     actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified']
     # autocomplete_lookup_fields = {'fk': ['team']}
@@ -151,6 +151,11 @@ class GymnastAdmin(MeetDependentAdmin):
         return obj.team.team
     show_team.short_description = "Team"
     show_team.admin_order_field = 'team__team'
+
+    def show_age_division(self, obj):
+        return obj.division
+    show_age_division.short_description = "Age Div."
+    show_age_division.admin_order_field = 'division'
 
     def set_shirt_action(self, request, queryset):
         if 'do_action' in request.POST:
@@ -258,13 +263,14 @@ class GymnastAdmin(MeetDependentAdmin):
     verify_with_usag.short_description = "Verify selected gymnasts with USAG"
 
     def update_age(self, request, queryset):
+        ''' competition age is based on gymnast age as of 5/31/yyyy '''
         rows_updated = 0
         meet = queryset[0].meet
 
         if meet.date.month > 8:
-            year = meet.date.year
+            year = meet.date.year + 1
         else:
-            year = meet.date.year - 1
+            year = meet.date.year
 
         cutoff = date(year, settings.COMPETITION_MONTH, settings.COMPETITION_DATE)
 

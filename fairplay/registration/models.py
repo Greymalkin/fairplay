@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 
@@ -146,17 +147,27 @@ class Gymnast(Person):
     team = models.ForeignKey(Team, related_name="gymnasts", blank=True, null=True)
     registration = models.ForeignKey(Registration, related_name="gymnasts")
     dob = models.DateField(blank=True, null=True)
-    age = models.PositiveSmallIntegerField('Age', blank=True, null=True, help_text='Competitive Age (as of 9/1)')
+    age = models.PositiveSmallIntegerField(
+        'Age',
+        blank=True, null=True,
+        help_text='Competitive Age (as of {}/{})'.format(settings.COMPETITION_MONTH, settings.COMPETITION_DATE))
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
     shirt = models.ForeignKey('ShirtSize', blank=True, null=True)
     level = models.ForeignKey('Level', blank=True, null=True)
     is_scratched = models.BooleanField('Scratched?', default=False)
-    division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True)
+    division = models.ForeignKey(
+        'competition.Division',
+        related_name='athletes', 
+        blank=True, null=True,
+        verbose_name="Age division")
     starting_event = models.ForeignKey('competition.Event', null=True, blank=True)
     overall_score = models.FloatField(null=True, blank=True)
     tie_break = models.BigIntegerField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)
-    athlete_id = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='Athlete ID', help_text='For use during competition')
+    athlete_id = models.PositiveSmallIntegerField(
+        blank=True, null=True,
+        verbose_name='Athlete ID',
+        help_text='For use during competition')
 
     objects = MeetManager()
 

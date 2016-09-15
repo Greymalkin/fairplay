@@ -178,7 +178,7 @@ class GymnastEventInlineAdmin(admin.TabularInline):
 class GymnastAdmin(MeetDependentAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (GymnastEventInlineAdmin, )
-    readonly_fields = ('overall_score', 'rank', 'tie_break')
+    readonly_fields = ('overall_score', 'rank', 'tie_break', 'age', 'team')
     list_filter = (TeamFilter, DivisionFilter, LevelFilter, SessionFilter, StartingEventFilter)
     list_per_page = 50
 
@@ -186,9 +186,9 @@ class GymnastAdmin(MeetDependentAdmin):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {'fields': ('athlete_id', 'usag', 'last_name', 'first_name', 'team'), }),
                      ('Meet', {'fields': ('is_scratched',
+                                          'age',
                                           'division',
                                           'level',
-                                          'age',
                                           'starting_event',
                                           'overall_score',
                                           'rank','tie_break',), }),
