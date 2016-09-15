@@ -18,13 +18,19 @@ from registration.models import Level, Team, Coach
 from competition.models import Event, TeamAward, GymnastEvent
 
 class MeetAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'host', 'date', 'show_current_meet', 'set_meet')
+    list_display = ('short_name', 'host', 'date', 'show_current_meet', 'set_meet', 'enable_ranking', 'set_enable_ranking')
     actions = ['copy_meet']
 
     def set_meet(self, obj):
         return "<a class='setMeet' href='#' data-meet={}>Set Active Meet</a>".format(obj.id)
     set_meet.short_description = ""
     set_meet.allow_tags = True
+
+    def set_enable_ranking(self, obj):
+        onoff = 'Off' if obj.enable_ranking else 'On'
+        return "<a class='setRanking' href='#' data-meet={} data-ranking={}>Turn Ranking {}</a>".format(obj.id, not obj.enable_ranking, onoff)
+    set_enable_ranking.short_description = ""
+    set_enable_ranking.allow_tags = True
 
     def show_current_meet(self, obj):
         return obj.is_current_meet

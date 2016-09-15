@@ -320,27 +320,31 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
         sender=GymnastEvent,
         dispatch_uid='update_rankings')
 
-    if update_fields is None or 'rank' not in update_fields:
-        gymnast_events = GymnastEvent.objects.filter(gymnast=instance.gymnast).order_by("score")
-        tie_break = 0
+    #TODO: Added IF statement to turn off ranking behavior based on a meet setting, to help admin run faster when not in competition mode
+    #??? Bad idea?
+    meet = Meet.objects.get(is_current_meet=True)
+    if meet.enable_ranking:
+        if update_fields is None or 'rank' not in update_fields:
+            gymnast_events = GymnastEvent.objects.filter(gymnast=instance.gymnast).order_by("score")
+            tie_break = 0
 
-        p = 0
-        for gymnast_event in gymnast_events:
-            if gymnast_event.score is not None:
-                tie_break += int(int(gymnast_event.score * 10) * math.pow(10, p))
-            p += 3
+            p = 0
+            for gymnast_event in gymnast_events:
+                if gymnast_event.score is not None:
+                    tie_break += int(int(gymnast_event.score * 10) * math.pow(10, p))
+                p += 3
 
-        instance.gymnast.tie_break = tie_break
-        instance.gymnast.save()
+            instance.gymnast.tie_break = tie_break
+            instance.gymnast.save()
 
-        ranking.update_division_ranking(instance.gymnast.division)
-        print(Fore.GREEN + 'Updating {} {} ({}): {} - {}'.format(
-            instance.gymnast.first_name,
-            instance.gymnast.last_name,
-            instance.gymnast.team,
-            instance.event.name,
-            instance.score
-            ) + Fore.RESET)
+            ranking.update_division_ranking(instance.gymnast.division)
+            print(Fore.GREEN + 'Updating {} {} ({}): {} - {}'.format(
+                instance.gymnast.first_name,
+                instance.gymnast.last_name,
+                instance.gymnast.team,
+                instance.event.name,
+                instance.score
+                ) + Fore.RESET)
 
     post_save.connect(
         update_rankings,

@@ -6,6 +6,11 @@
                 location.reload(true);
             })
         });
+        $('.setRanking').on('click', function(){
+            apiCall('/api/meet/' + $(this).data('meet') +'/toggle_ranking').done(function(data){
+                location.reload(true);
+            })
+        });
     }
 
     // Django CSRF (based on django doc)

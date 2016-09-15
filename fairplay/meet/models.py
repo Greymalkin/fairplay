@@ -9,6 +9,12 @@ class Meet(models.Model):
     host = models.CharField(max_length=200, blank=False, null=False)
     date = models.DateField()
     is_current_meet = models.BooleanField('Current Meet?', default=False)
+    enable_ranking = models.BooleanField(
+        'Ranking',
+        default=False,
+        help_text='''When turned on, scores saved to the cms will cause ranks to adjust. 
+            Must be turned on while the meet is running. 
+            When turned off, admin will load more quickly.''')
     event_award_percentage = models.FloatField(default=0.45)
     all_around_award_percentage = models.FloatField(default=0.5)
     notes = models.TextField(null=True, blank=True)
