@@ -219,7 +219,6 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def create_events(self, modeladmin, req, qset):
         meet = models.Meet.objects.filter(is_current_meet=True)[0]
-
         events = models.Event.objects.filter(meet=meet)
 
         post_save.disconnect(
@@ -298,9 +297,9 @@ class GymnastAdmin(MeetDependentAdmin):
             if a.level.level  not in level_max_athlete_id:
                 max_id = models.Gymnast.objects.filter(level=a.level).aggregate(Max('athlete_id'))
                 max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
-                # First one: ID begins with level number. level 4 = 400
+                # First one: ID begins with level number. level 4 = 4000
                 if max_id == 0:
-                    max_id = (int(a.level.level) * 100)
+                    max_id = (int(a.level.level) * 1000)
             else:
                 max_id = level_max_athlete_id[a.level.level]
 
