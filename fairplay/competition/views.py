@@ -67,7 +67,6 @@ def download_roster(request):
               'startevent', ]
 
     header += [e.initials for e in events]
-
     writer.writerow(header)
 
     for athlete in athletes:
@@ -81,11 +80,12 @@ def download_roster(request):
             '' if not athlete.starting_event else athlete.starting_event.initials]
 
         for event in events:
-            row.append(models.GymnastEvent.objects.get(gymnast=athlete,
-                                                       event=event).score)
-
+            try:
+                row.append(models.GymnastEvent.objects.get(gymnast=athlete,
+                                                           event=event).score)
+            except:
+                row.append('DNE') # GymnastEvent matching query does not exist
         writer.writerow(row)
-
     return response
 
 
@@ -109,19 +109,25 @@ def download_athlete_labels(request):
         'Last Name',
         'Team',
         'Level',
-        'Division',
+        'Level Division',
+        'Age Division',
         'Session'
     ])
 
     for athlete in athletes:
+        session = 'None'
+        if athlete.division and athlete.division.session.first():
+            session = athlete.division.session.first().name
+
         writer.writerow([
             athlete.athlete_id,
             athlete.first_name,
             athlete.last_name,
             athlete.team.team,
             athlete.level,
-            athlete.division.short_name,
-            athlete.division.session.first().name
+            'd1 or d2',
+            athlete.division.short_name if athlete.division else 'None',
+            session,
         ])
 
     return response
@@ -616,7 +622,7 @@ class CoachSignInView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(CoachSignInView, self).get_context_data(**kwargs)
         # context['meet'] = self.request.session.get('meet', {})
-        context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)[0]
+        context['meet'] = meetconfig.Meet.objects.filter(is_current_meet=True)[0]
         context['coaches'] = Coach.objects.all().order_by('team', 'last_name', 'first_name')
         return context
 
