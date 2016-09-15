@@ -105,7 +105,7 @@ class Command(BaseCommand):
                 if gymnast_event.gymnast.team != team:
                     if team is not None:
                         g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
-                        l['athletes'].append(g)
+                        l['athletes'].append(g) # TODO .atheletes -> change to gymnast
                         t['levels'].append(l)
                         teams.append(t)
                     team = gymnast_event.gymnast.team
@@ -116,16 +116,16 @@ class Command(BaseCommand):
                 if gymnast_event.gymnast.division.level != level:
                     if level is not None:
                         g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
-                        l['athletes'].append(g)
+                        l['athletes'].append(g) # TODO .atheletes -> change to gymnast
                         t['levels'].append(l)
                     level = gymnast_event.gymnast.division.level
                     gymnast = None
-                    l = {'name': level.level, 'athletes': []}
+                    l = {'name': level.level, 'athletes': []} # TODO .atheletes -> change to gymnast
 
                 if gymnast_event.gymnast != gymnast:
                     if gymnast is not None:
                         g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
-                        l['athletes'].append(g)
+                        l['athletes'].append(g) # TODO .atheletes -> change to gymnast
                     gymnast = gymnast_event.gymnast
                     g = {
                         'id': gymnast.athlete_id,
@@ -142,7 +142,7 @@ class Command(BaseCommand):
 
             # make sure to append the last one
             g['scores'].append(['AA', gymnast.overall_score, gymnast.rank])
-            l['athletes'].append(g)
+            l['athletes'].append(g) # TODO .atheletes -> change to gymnast
             t['levels'].append(l)
             teams.append(t)
             s = {'name': session.name, 'teams': teams}
