@@ -4,7 +4,7 @@
     var currentEvent = null;
     var currentSession = null;
     var currentAthlete = null;
-    var currentAthleteEventId = null;
+    var currentGymnastEventId = null;
     var introText = "";
 
     // using jQuery
@@ -73,7 +73,7 @@
         data.events.forEach(function(item) {
             if (item.event == currentEvent.id) {
                 score = item.score;
-                currentAthleteEventId = item.id;
+                currentGymnastEventId = item.id;
             }
         });
 
@@ -112,9 +112,9 @@
         if (score >= 0 && score <= 20) {
             $("#scoreboard").fadeOut();
             $.ajax({
-                url: '/api/athleteevents/' + currentAthleteEventId + '/',
+                url: '/api/athleteevents/' + currentGymnastEventId + '/',
                 data: JSON.stringify({
-                    "id":currentAthleteEventId,
+                    "id":currentGymnastEventId,
                     "score": score,
                     "event":currentEvent.id
                 }),
@@ -124,12 +124,12 @@
             .success(function(data) {
                 showScore(score);
                 currentAthlete = null;
-                currentAthleteEventId = null;
+                currentGymnastEventId = null;
             })
             .error(function(data) {
                 alert("Problem saving athlete event score!");
                 currentAthlete = null;
-                currentAthleteEventId = null;
+                currentGymnastEventId = null;
             });
 
             $("#athlete-id-entry").focus();
@@ -141,10 +141,10 @@
     }
 
     function showScore(score) {
-        var id = currentAthlete.athlete_id;
-        var lastName = currentAthlete.last_name;
-        var firstName = currentAthlete.first_name;
-        var team = currentAthlete.team.team;
+        var id = currentGymnast.athlete_id;
+        var lastName = currentGymnast.last_name;
+        var firstName = currentGymnast.first_name;
+        var team = currentGymnast.team.team;
         var scoreText = String(score);
 
         if (scoreText.split(".").length == 1) {

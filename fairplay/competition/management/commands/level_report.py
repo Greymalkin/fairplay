@@ -1,7 +1,7 @@
 import csv
+import meet
 from django.core.management.base import BaseCommand
 from competition import models
-from meet import models as meetconfig
 from django.conf import settings
 
 
@@ -13,16 +13,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         level = int(args[0])
-        meet_settings = meetconfig.Meet.objects.get(is_current_meet=True)
+        current_meet = meet.models.Meet.objects.get(is_current_meet=True)
 
         with open(args[1], 'w') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow((meet_settings.short_name,))
+            writer.writerow((current_meet.short_name,))
             writer.writerow(('Level {}'.format(level),))
             writer.writerow(())
 
-            divisions = models.Division.objects.filter(level=level, meet=meet_settings)
-            events = models.Event.objects.filter(meet=meet_settings)
+            divisions = models.Division.objects.filter(level=level, meet=current_meet)
+            events = models.Event.objects.filter(meet=current_meet)
             row = ['','','']
             for event in events:
                 row.append(event.initials.upper())
@@ -31,22 +31,22 @@ class Command(BaseCommand):
             row += ['', 'AA', 'R']
             writer.writerow(row)
 
-            for team in models.Team.objects.filter(meet=meet_settings, gymnasts__level=level).order_by('team').distinct('team'):
+            for team in models.Team.objects.filter(meet=current_meet, gymnasts__level=level).order_by('team').distinct('team'):
                 writer.writerow((team.team,))
                 for agediv in divisions:
-                    athletes = models.Athlete.objects.filter(team=team, division=agediv, is_scratched=False)
-                    if len(athletes) > 0:
+                    gymnasts = models.Gymnast.objects.filter(team=team, division=agediv, is_scratched=False)
+                    if len(gymnasts) > 0:
                         writer.writerow((agediv.name,))
-                        for athlete in athletes:
-                            row = [athlete.athlete_id, athlete.last_name, athlete.first_name,]
+                        for gymnast in gymnasts:
+                            row = [gymnast.gymnast_id, gymnast.last_name, gymnast.first_name,]
                             print(row)
 
                             for event in events:
-                                ae = models.AthleteEvent.objects.get(gymnast=athlete, event=event)
+                                ae = models.GymnastEvent.objects.get(gymnast=gymnast, event=event)
                                 row.append(ae.score)
                                 row.append(ae.rank)
 
-                            row += ['', athlete.overall_score, athlete.rank]
+                            row += ['', gymnast.overall_score, gymnast.rank]
 
                             writer.writerow(row)
 

@@ -3,9 +3,10 @@ import os
 import tempfile
 import shutil
 import re
+import datetime
 from dbfread import DBF
 from django.core.management.base import BaseCommand
-from registration.models import Team, Gymnast, Level
+from registration.models import Registration, Team, Gymnast, Level
 from competition.models import Event, Division, Session
 from meet.models import Meet
 
@@ -73,9 +74,10 @@ class Command(BaseCommand):
         # then levels...
         levels = {}
         u_levels = DBF(os.path.join(temp_dir, 'uLevels.dbf'))
+        # TODO: Does Aerial File contain Level Division info? e.g. d1, d2? Might not as Level Division change is very new.
         for row in u_levels:
             if row['TYPE'] == "Men's":
-                level = Level(meet=meet, level=row['LEVELID'], order=row['SEQ'])
+                level = Level(meet=meet, name="row['LEVELID']", level=row['LEVELID'], order=row['SEQ'])
                 level.save()
                 levels[row['LEVELID']] = level
 
@@ -102,11 +104,16 @@ class Command(BaseCommand):
             team, created = Team.objects.get_or_create(
                 meet=meet, gym=row['GYM'], team=row['GYM'])
 
+            #TODO: remove registration model? If so, Change accordingly.
+            registration, created = Registration.objects.get_or_create(
+                meet=meet, team=team, received=datetime.datetime.today(), per_gymnast_cost=None, per_level_cost=None)
+
             level = levels[row['LEVELID']]
             division = divisions[row['LEVELID']+":"+row['AGEDIV']]
 
             gymnast = Gymnast()
             gymnast.meet = meet
+            gymnast.registration = registration
             gymnast.team = team
             gymnast.dob = row['BIRTHDATE']
             gymnast.level = level
@@ -147,7 +154,7 @@ class Command(BaseCommand):
         #         age_group=record['AGEDIV'],
         #         order=int(re.findall(r'\d+', record['AGEDIV'])[0]))
         #     # Make the athlete and associate to teams/groups
-        #     athlete = models.Athlete.objects.create(
+        #     athlete = models.Gymnast.objects.create(
         #         **{
         #             'athlete_id': int(record['COMPNO']),
         #             'usag_id': int(record['USAG']),

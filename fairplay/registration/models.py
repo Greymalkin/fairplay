@@ -1,10 +1,9 @@
 from django.db import models
+from django.conf import settings
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
-from meet.models import Meet
 
-MEET = Meet.objects.get(is_current_meet=True)
-
+from meet.models import Meet, MeetManager
 
 class Team(models.Model):
     meet = models.ForeignKey(Meet, related_name='teams')
@@ -20,19 +19,25 @@ class Team(models.Model):
     last_name = models.CharField('Last Name', max_length=100)
     email = models.CharField('Email', max_length=225, blank=True, null=True)
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
-    per_level_cost = models.ForeignKey('LevelPricing', null=True, blank=False)
-    per_gymnast_cost = models.ForeignKey('GymnastPricing', null=True, blank=False)
-    team_awards = models.ManyToManyField('competition.TeamAward', blank=True, related_name='teams', verbose_name="Team Awards Levels", limit_choices_to={'meet': MEET})
-    gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
-    level_cost = models.DecimalField('Level Cost', decimal_places=2, max_digits=6, default=0)
-    total_cost = models.DecimalField('Total Registration Cost', decimal_places=2, max_digits=6, default=0)
+    per_team_award_cost = models.PositiveSmallIntegerField(
+        'Price Per Team Award',
+        null=True, blank=False, 
+        default=settings.TEAM_AWARD_COST)
+    team_awards = models.ManyToManyField(
+        'competition.TeamAward',
+        blank=True,
+        related_name='teams',
+        verbose_name="Team Awards Levels")
     started = models.DateTimeField('Form Started', auto_now_add=True)
     updated = models.DateTimeField('Form Last Updated', auto_now=True)
-    payment_postmark = models.DateField('Payment Postmark Date', blank=True, null=True)
-    registration_complete = models.DateTimeField('Date Registration Form Completed', blank=True, null=True)
+    gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
+    team_award_cost = models.DecimalField('Total Team Award Cost', decimal_places=2, max_digits=6, default=0)
+    total_cost = models.DecimalField('Total Cost', decimal_places=2, max_digits=6, default=0)
     paid_in_full = models.BooleanField('Paid In Full?', default=False)
     notes = models.TextField(blank=True, null=True)
     qualified = models.BooleanField(default=True, help_text="Qualifies for team awards")
+
+    objects = MeetManager()
 
     class Meta:
         verbose_name = 'Team'
@@ -45,30 +50,33 @@ class Team(models.Model):
     def contact_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
-    def calc_level_cost(self):
+    def calc_total_cost(self):
+        return self.gymnast_cost + self.team_award_cost
+
+    def calc_gymnast_cost(self):
+        gymnasts = self.gymnasts.all()
+        self.gymnast_cost = 0
+        for gymnast in gymnasts:
+            if not gymnast.is_scratched:
+                self.gymnast_cost += gymnast.per_gymnast_cost
+        return self.gymnast_cost
+
+    def calc_team_award_cost(self):
         try:
             num_levels = self.team_awards.count()
             if num_levels > 0:
-                self.level_cost = self.per_level_cost.price * num_levels
+                self.team_award_cost = self.per_team_award_cost * num_levels
             else:
-                self.level_cost = 0
-            return self.level_cost
+                self.team_award_cost = 0
+            return self.team_award_cost
         except:
             return 0
 
-    def calc_gymnast_cost(self):
-        try:
-            num_gymnasts = self.gymnasts.filter(is_scratched=False).count()
-            if num_gymnasts > 0:
-                self.gymnast_cost = self.per_gymnast_cost.price * num_gymnasts
-            else:
-                self.gymnast_cost = 0
-            return self.gymnast_cost
-        except:
-            return 0
 
-    def calc_total_cost(self):
-        return self.gymnast_cost + self.level_cost
+    #TODO: add a property that figures out if this team qualifies for team awards
+
+
+    #TODO: add a property that reports if this team is paid in full
 
 
 class Person(models.Model):
@@ -99,10 +107,12 @@ class Person(models.Model):
 
 class Coach(Person):
     meet = models.ForeignKey(Meet, related_name='coaches')
-    team = models.ForeignKey(Team, related_name="coaches", limit_choices_to={'meet': MEET})
+    team = models.ForeignKey(Team, related_name="coaches")
     usag_expire_date = models.DateField('USAG Expires', blank=True, null=True)
     safety_expire_date = models.DateField('Safety Expires', blank=True, null=True)
     background_expire_date = models.DateField('Background Expires', blank=True, null=True)
+
+    objects = MeetManager()
 
     class Meta:
         verbose_name_plural = 'Coaches'
@@ -111,19 +121,36 @@ class Coach(Person):
 
 class Gymnast(Person):
     meet = models.ForeignKey(Meet, related_name='gymnasts')
-    team = models.ForeignKey(Team, related_name="gymnasts", limit_choices_to={'meet': MEET})
+    team = models.ForeignKey(Team, related_name="gymnasts", blank=True, null=True)
+    # TODO can per_gymnast_cost default be a callable?
+    per_gymnast_cost = models.PositiveSmallIntegerField(
+        '$ Registration',
+        null=True, blank=False, 
+        default=settings.GYMNAST_COST)
     dob = models.DateField(blank=True, null=True)
-    age = models.PositiveSmallIntegerField('Age', blank=True, null=True, help_text='Competitive Age (as of 9/1)')
+    age = models.PositiveSmallIntegerField(
+        'Age',
+        blank=True, null=True,
+        help_text='Competitive Age (as of {}/{})'.format(settings.COMPETITION_MONTH, settings.COMPETITION_DATE))
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
     shirt = models.ForeignKey('ShirtSize', blank=True, null=True)
-    level = models.ForeignKey('Level', blank=True, null=True, limit_choices_to={'meet': MEET})
+    level = models.ForeignKey('Level', blank=True, null=True)
     is_scratched = models.BooleanField('Scratched?', default=False)
-    division = models.ForeignKey('competition.Division', related_name='athletes', blank=True, null=True, limit_choices_to={'meet': MEET})
-    starting_event = models.ForeignKey('competition.Event', null=True, blank=True, limit_choices_to={'meet': MEET})
+    division = models.ForeignKey(
+        'competition.Division',
+        related_name='athletes', 
+        blank=True, null=True,
+        verbose_name="Age division")
+    starting_event = models.ForeignKey('competition.Event', null=True, blank=True)
     overall_score = models.FloatField(null=True, blank=True)
     tie_break = models.BigIntegerField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)
-    athlete_id = models.PositiveSmallIntegerField(blank=True, null=True, verbose_name='Athlete ID', help_text='For use during competition')
+    athlete_id = models.PositiveSmallIntegerField(
+        blank=True, null=True,
+        verbose_name='Athlete ID',
+        help_text='For use during competition')
+
+    objects = MeetManager()
 
     class Meta:
         verbose_name_plural = 'Gymnasts'
@@ -140,41 +167,17 @@ class Gymnast(Person):
 
 class Level(models.Model):
     meet = models.ForeignKey(Meet, related_name='levels')
-    level = models.CharField(max_length=5)
+    name = models.CharField(max_length=20)
+    group = models.CharField(max_length=5)
+    level = models.PositiveSmallIntegerField()
     order = models.PositiveSmallIntegerField(default=0)
+
+    objects = MeetManager()
 
     class Meta:
         verbose_name = 'Level'
         verbose_name_plural = 'Levels'
         ordering = ('order',)
-
-    def __str__(self):
-        return self.level
-
-
-class GymnastPricing(models.Model):
-    meet = models.ForeignKey(Meet, related_name='gymnast_pricing')
-    price = models.PositiveSmallIntegerField(default=0)
-    name = models.CharField(max_length=100)
-
-    class Meta:
-        verbose_name = 'Gymnast Pricing'
-        verbose_name_plural = 'Gymnast Pricing'
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-
-class LevelPricing(models.Model):
-    meet = models.ForeignKey(Meet, related_name='level_pricing')
-    price = models.PositiveSmallIntegerField(default=0)
-    name = models.CharField(max_length=100)
-
-    class Meta:
-        verbose_name = 'Level Pricing'
-        verbose_name_plural = 'Level Pricing'
-        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -197,13 +200,14 @@ class ShirtSize(models.Model):
 
 @receiver(m2m_changed, sender=Team.team_awards.through)
 def level_costs(sender, instance, **kwargs):
-    instance.level_cost = instance.calc_level_cost()
-    instance.total_cost = instance.level_cost + instance.gymnast_cost
+    instance.team_award_cost = instance.calc_team_award_cost()
+    instance.total_cost = instance.team_award_cost + instance.gymnast_cost
     instance.save()
 
 
 @receiver(post_save, sender=Gymnast)
 def gymnast_costs(sender, instance, **kwargs):
     instance.team.gymnast_cost = instance.team.calc_gymnast_cost()
-    instance.team.total_cost = instance.team.level_cost + instance.team.gymnast_cost
+    instance.team.total_cost = instance.team.team_award_cost + instance.team.gymnast_cost
     instance.team.save()
+

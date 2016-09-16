@@ -10,6 +10,7 @@ from django.db.models import Count, Sum
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
+from django.core.urlresolvers import reverse
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.http import HttpResponse
@@ -17,7 +18,9 @@ from django.shortcuts import render
 
 from grappelli.forms import GrappelliSortableHiddenMixin
 from meet.models import Meet
-from competition.models import Event, AthleteEvent, TeamAward
+from meet.admin import MeetDependentAdmin, MeetFilter
+
+from competition.models import Event, GymnastEvent, TeamAward
 from . import models
 from . import forms as actionforms
 
@@ -83,31 +86,36 @@ class CoachMissingUsagFilter(SimpleListFilter):
 ### Admins
 
 
-class LevelAdmin(admin.ModelAdmin):
-    list_display = ('level', 'order')
+class LevelAdmin(MeetDependentAdmin):
+    list_display = ('name', 'group', 'level', 'order')
     list_editable = ('order',)
-    exclude = ('meet',)
 
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(LevelAdmin, self).get_queryset(request)
-        meet = Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet)
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(LevelAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {
+            'fields': ('name', 'group', 'level', 'order'),
+            'description': ''
+            }),
+        )
+        return fieldsets
 
 
-class CoachAdmin(admin.ModelAdmin):
+class CoachAdmin(MeetDependentAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag', 'is_verified')
-    list_filter = (CoachMissingUsagFilter, 'team')
+    list_filter = (MeetFilter, CoachMissingUsagFilter, 'team')
     search_fields = ('last_name', 'first_name', 'usag')
-    raw_id_fields = ('team',)
-    autocomplete_lookup_fields = {'fk': ['team']}
-    exclude = ('meet',)
+    # raw_id_fields = ('team',)
+    # autocomplete_lookup_fields = {'fk': ['team']}
 
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(CoachAdmin, self).get_queryset(request)
-        meet = Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet)
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(CoachAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {
+            'fields': ('first_name', 'last_name', 'usag', 'team', 'is_flagged', 'is_verified', 
+                       'usag_expire_date', 'safety_expire_date', 'background_expire_date', 'notes'),
+            'description': ''
+            }),
+        )
+        return fieldsets
 
     def has_usag(self, obj):
         missing = False
@@ -118,26 +126,63 @@ class CoachAdmin(admin.ModelAdmin):
     has_usag.boolean = True
 
 
-class GymnastAdmin(admin.ModelAdmin):
-    list_display = ('last_name', 'first_name', 'athlete_id', 'usag', 'show_team', 'level', 'age', 'dob',  'division', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
-    list_filter = [GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
+class GymnastAdmin(MeetDependentAdmin):
+    list_display = ('last_name',
+                    'first_name',
+                    'athlete_id',
+                    'usag',
+                    'show_team',
+                    'level',
+                    'age',
+                    'dob',
+                    'show_age_division',
+                    'shirt', 'is_scratched',
+                    'is_flagged',
+                    'is_verified')
+    list_filter = [ MeetFilter,
+                    GymnastMissingUsagFilter,
+                    'is_scratched',
+                    'is_flagged',
+                    'is_verified',
+                    'team', 
+                    'level', 
+                    'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
+    readonly_fields = ('team', 'age')
     raw_id_fields = ('team',)
     actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified']
-    # autocomplete_lookup_fields = {'fk': ['team']}
-    exclude = ('meet',)
     ordering = ('last_name', 'first_name')
 
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(GymnastAdmin, self).get_queryset(request)
-        meet = Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet)
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'level',  'dob', 'age', 'shirt', 'notes'), }),
+                     ('Checks', {'classes': ('grp-collapse grp-closed',),
+                                 'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
+                     ('Meet', {'classes': ('grp-collapse grp-closed',),
+                               'fields': ('athlete_id', 'age', 'division', 'starting_event', 'overall_score', 'tie_break', 'rank'), }),
+                     )
+        return fieldsets
+
+    def get_readonly_fields(self, request, obj=None):
+        # copying this from MeetDependentAdmin because I need the empty value display to be different here (empty string)
+        # models.Meet.objects.filter(is_current_meet=True)[0]
+        # if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', ''):
+        if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and models.Meet.objects.filter(is_current_meet=True).count() == 1:
+            self.readonly_fields += ('meet',)
+            self.empty_value_display = ''
+            return self.readonly_fields
+        else:
+            return []
 
     def show_team(self, obj):
         return obj.team.team
     show_team.short_description = "Team"
     show_team.admin_order_field = 'team__team'
+
+    def show_age_division(self, obj):
+        return obj.division
+    show_age_division.short_description = "Age Div."
+    show_age_division.admin_order_field = 'division'
 
     def set_shirt_action(self, request, queryset):
         if 'do_action' in request.POST:
@@ -145,7 +190,7 @@ class GymnastAdmin(admin.ModelAdmin):
             if form.is_valid():
                 shirt = form.cleaned_data.get('shirt')
                 updated = queryset.update(shirt=shirt)
-                messages.success(request, '{} gymnasts shirt sizes were updated'.format(updated))
+                messages.success(request, '{} shirt sizes were updated'.format(updated))
                 return
         else:
             form = actionforms.ShirtChoiceForm()
@@ -156,7 +201,7 @@ class GymnastAdmin(admin.ModelAdmin):
             {'title': u'Choose tshirt size',
                 'objects': queryset,
                 'form': form})
-    set_shirt_action.short_description = u'Update shirt size of selected gymnast'
+    set_shirt_action.short_description = u'Update shirt size'
 
     def verify_with_usag(self, request, queryset):
         credentials = {
@@ -165,7 +210,6 @@ class GymnastAdmin(admin.ModelAdmin):
         }
 
         members = []
-
         for member in queryset:
             members.append(member.usag)
 
@@ -191,7 +235,7 @@ class GymnastAdmin(admin.ModelAdmin):
                         rows = r.json()['aaData']
 
                         for row in rows:
-                            (usag_id, last_name, first_name, dob, level, club_id, club, status) = row
+                            (usag_id, last_name, first_name, dob, member_type, level, club_id, club, club_status, status) = row
 
                             try:
                                 level = int(level[6:])
@@ -202,9 +246,7 @@ class GymnastAdmin(admin.ModelAdmin):
 
                             try:
                                 gymnast = models.Gymnast.objects.get(usag=usag_id)
-
                                 notes = ""
-
                                 valid = True
 
                                 if last_name.lower() != gymnast.last_name.lower():
@@ -238,20 +280,20 @@ class GymnastAdmin(admin.ModelAdmin):
 
                     except:
                         messages.error(request, 'Could not parse data from USAG verification service!')
-
                 messages.success(request, 'Verified {} gymnasts, flagged {} gymnasts for review'.format(verified_count, failed_count))
             else:
                 messages.error(request, 'Could not connect with USAG verification service. Check credentials.')
     verify_with_usag.short_description = "Verify selected gymnasts with USAG"
 
     def update_age(self, request, queryset):
+        ''' competition age is based on gymnast age as of 5/31/yyyy '''
         rows_updated = 0
-        meet = Meet.objects.get(is_current_meet=True)
+        meet = queryset[0].meet
 
         if meet.date.month > 8:
-            year = meet.date.year
+            year = meet.date.year + 1
         else:
-            year = meet.date.year - 1
+            year = meet.date.year
 
         cutoff = date(year, settings.COMPETITION_MONTH, settings.COMPETITION_DATE)
 
@@ -266,18 +308,18 @@ class GymnastAdmin(admin.ModelAdmin):
         else:
             message_bit = '{} gymnast\'s competition ages were'.format(rows_updated)
         messages.success(request, '{} updated'.format(message_bit))
-    update_age.short_description = "Update gymnast competition age"
+    update_age.short_description = "Update competition age"
 
+    # TODO: DELET? I think this is wrongly copied over from competition
     def sort_into_divisions(self, model_admin, request, queryset):
         ''' Admin action meant to be performed once on all athletes at once.
             However, it can be performed multiple times without harm, and also on only a few athletes.
         '''
-        meet = Meet.objects.get(is_current_meet=True)
         divisions_by_level = {}
         rows_updated = queryset.count()
 
         # Build dictionary of all divisions
-        divisions = models.Division.objects.filter(meet=meet)
+        divisions = models.Division.objects.all()
         for d in divisions:
             if d.level.level not in divisions_by_level:
                 divisions_by_level[d.level.level] = {}
@@ -289,7 +331,7 @@ class GymnastAdmin(admin.ModelAdmin):
         for athlete in queryset:
             if athlete.dob:
                 try:
-                    age = self.competition_age(athlete, meet)
+                    age = self.competition_age(athlete, athlete.meet)
                     athlete.division = divisions_by_level[athlete.level.level][age]
                     athlete.save()
                 except:
@@ -313,55 +355,69 @@ class GymnastAdmin(admin.ModelAdmin):
     set_verified.short_description = "Mark selected gymnasts as verified"
 
 
-class CoachInline(admin.TabularInline):
+class CoachInline(admin.StackedInline):
     model = models.Coach
     exclude = ('notes', 'is_flagged', 'is_verified', 'meet')
+    classes = ('grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-open',)
 
 
 class GymnastInline(admin.StackedInline):
     model = models.Gymnast
     ordering = ('is_scratched', 'level', 'last_name', 'first_name')
-    fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'shirt', 'level', 'is_scratched', 'is_flagged', 'is_verified', 'notes')
+    readonly_fields = ('age',)
+    fields = ('first_name', 
+              'last_name',
+              'per_gymnast_cost',
+              'usag',
+              'dob',
+              'age',
+              'is_us_citizen',
+              'shirt',
+              'level',
+              'is_scratched',
+              'is_flagged',
+              'is_verified',
+              'notes')
+    classes = ('grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-open',)
+    extra = 1
 
     class Media:
-        js = ('/static/js/competitionAge.js','/static/js/moment.min.js')
+        js = ('{}js/competitionAge.js'.format(settings.STATIC_URL),
+              '{}js/moment.min.js'.format(settings.STATIC_URL))
 
 
-class TeamForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super(TeamForm, self).__init__(*args, **kwargs)
-        meet = Meet.objects.filter(is_current_meet=True)
-        wtf = TeamAward.objects.filter(meet=meet);
-        self.fields['team_awards'].widget.choices = [(choice.id, choice.name) for choice in wtf]
-
-
-class TeamAdmin(admin.ModelAdmin):
-    form = TeamForm
-    list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'paid_in_full', 'city', 'state', 'notes')
+class TeamAdmin(MeetDependentAdmin):
+    list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'show_paid_in_full', 'city', 'state')
     list_filter = ('qualified','team_awards')
-    readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
+    filter_horizontal = ('team_awards', )
+    readonly_fields = ('gymnast_cost', 'total_cost', 'team_award_cost',)
     search_fields = ('gym', 'team', 'usag')
-    filter_horizontal = ('team_awards',)
-    inlines = [CoachInline, GymnastInline]
-    fieldsets = ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes'), }),
-                 ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),
-                 ('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
-                 ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost', 'payment_postmark', 'registration_complete'), }),
-                 )
+    inlines = [CoachInline, GymnastInline] #
     actions = ['export_with_session']
 
-    class Media:
-        css = {
-            "all": ("{}css/filter-horizontal-adjustment.css".format(settings.STATIC_URL),)
-        }
-        # js = ('/static/js/competitionAge.js',)
-
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(TeamAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {'fields': ('gym',
+                                         'team',
+                                         'address_1',
+                                         'address_2',
+                                         'city',
+                                         'state',
+                                         'postal_code',
+                                         'per_team_award_cost',
+                                         'team_awards',
+                                         'notes',),
+                             }),
+                     ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),
+                     ('Payment', {'fields': ('gymnast_cost', 'team_award_cost', 'total_cost','paid_in_full', ), }),
+                     )
+        return fieldsets
 
     def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
         qs = super(TeamAdmin, self).get_queryset(request)
-        meet = Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet).annotate(num_gymnasts=Count('gymnasts'))
+        return qs.annotate(num_gymnasts=Count('gymnasts'))
 
     def num_gymnasts(self, obj):
         return obj.gymnasts.filter(is_scratched=False).count()
@@ -387,6 +443,7 @@ class TeamAdmin(admin.ModelAdmin):
                        'level',
                        'division', ]
         with_session = field_names.copy()
+        with_session.append('d1/d2/jdo')
         with_session.append('Session')
         # Write a first row with header information
         writer.writerow(with_session)
@@ -396,6 +453,8 @@ class TeamAdmin(admin.ModelAdmin):
             gymnasts = models.Gymnast.objects.filter(team=obj).order_by('is_scratched', 'level', 'division', 'last_name')
             for gymnast in gymnasts:
                 field_values = [getattr(gymnast, field) for field in field_names]
+                # TODO: Make this work
+                field_values.append('d1 or d2 or jdo')
                 try:
                     field_values.append(gymnast.division.session.first())
                 except:
@@ -403,6 +462,23 @@ class TeamAdmin(admin.ModelAdmin):
                 writer.writerow(field_values)
         return response
     export_with_session.short_description = "Export selected team as csv file with session"
+
+    def show_paid_in_full(self, obj):
+        return obj.paid_in_full
+    show_paid_in_full.short_description = "Paid in Full"
+
+
+class RegistrationAdmin(MeetDependentAdmin):
+    list_filter = ('received', 'per_gymnast_cost', 'paid_in_full', )
+    filter_horizontal = ('team_awards',)
+    readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
+
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(RegistrationAdmin, self).get_fieldsets(request, obj)
+        fieldsets += (('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
+                     ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost',), }),
+                     )
+        return fieldsets
 
 
 class LogAdmin(admin.ModelAdmin):
@@ -428,24 +504,17 @@ LogEntry.is_change.boolean = True
 LogEntry.is_deletion.boolean = True
 
 
-class GymnastPricingAdmin(admin.ModelAdmin):
-    exclude = ('meet',)
+class PricingAdmin(MeetDependentAdmin):
+    pass
 
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(GymnastPricingAdmin, self).get_queryset(request)
-        meet = Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet)
-
-
-class LevelPricingAdmin(admin.ModelAdmin):
-    exclude = ('meet',)
-
-    def get_queryset(self, request):
-        """ Restrict display of items in the admin by those belonging to the current Meet """
-        qs = super(LevelPricingAdmin, self).get_queryset(request)
-        meet = Meet.objects.filter(is_current_meet=True)
-        return qs.filter(meet=meet)
+    def get_fieldsets(self, request, obj=None):
+        fieldsets = super(PricingAdmin, self).get_fieldsets(request, obj)
+        fieldsets += ((None, {
+            'fields': ('name', 'price'),
+            'description': ''
+            }),
+        )
+        return fieldsets
 
 
 admin.site.register(LogEntry, LogAdmin)
@@ -453,20 +522,4 @@ admin.site.register(models.Gymnast, GymnastAdmin)
 admin.site.register(models.Level, LevelAdmin)
 admin.site.register(models.Coach, CoachAdmin)
 admin.site.register(models.Team, TeamAdmin)
-admin.site.register(models.GymnastPricing, GymnastPricingAdmin)
-admin.site.register(models.LevelPricing, LevelPricingAdmin)
 admin.site.register(models.ShirtSize)
-
-
-@receiver(pre_save, sender=models.Level, dispatch_uid='save_current_meet_level')
-@receiver(pre_save, sender=models.Team, dispatch_uid='save_current_meet_team')
-@receiver(pre_save, sender=models.Gymnast, dispatch_uid='save_current_meet_gymnast')
-@receiver(pre_save, sender=models.Coach, dispatch_uid='save_current_meet_coach')
-@receiver(pre_save, sender=models.LevelPricing, dispatch_uid='save_current_meet_levelpricing')
-@receiver(pre_save, sender=models.GymnastPricing, dispatch_uid='save_current_meet_gymnastpricing')
-def save_current_meet(sender, instance, **kwargs):
-    if instance.pk is None:
-        print('*** FIRING save current meet')
-        meet = Meet.objects.get(is_current_meet=True)
-        instance.meet = meet
-
