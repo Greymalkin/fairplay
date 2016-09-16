@@ -68,8 +68,6 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             css_classes=('grp-closed',),
             models=(
-                'registration.models.LevelPricing',
-                'registration.models.GymnastPricing',
                 'registration.models.Level',
                 'registration.models.ShirtSize',
                 'competition.models.Division',
@@ -85,7 +83,6 @@ class CustomIndexDashboard(Dashboard):
             collapsible=False,
             models=(
                 'registration.models.Team',
-                'registration.models.Registration',
                 'registration.models.Coach',
                 'registration.models.Gymnast',
                 ),

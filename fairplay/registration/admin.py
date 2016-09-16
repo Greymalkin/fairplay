@@ -127,8 +127,26 @@ class CoachAdmin(MeetDependentAdmin):
 
 
 class GymnastAdmin(MeetDependentAdmin):
-    list_display = ('last_name', 'first_name', 'athlete_id', 'usag', 'show_team', 'level', 'age', 'dob',  'show_age_division', 'shirt', 'is_scratched', 'is_flagged', 'is_verified')
-    list_filter = [MeetFilter,GymnastMissingUsagFilter, 'is_scratched', 'is_flagged', 'is_verified', 'team', 'level', 'team__team_awards']
+    list_display = ('last_name',
+                    'first_name',
+                    'athlete_id',
+                    'usag',
+                    'show_team',
+                    'level',
+                    'age',
+                    'dob',
+                    'show_age_division',
+                    'shirt', 'is_scratched',
+                    'is_flagged',
+                    'is_verified')
+    list_filter = [ MeetFilter,
+                    GymnastMissingUsagFilter,
+                    'is_scratched',
+                    'is_flagged',
+                    'is_verified',
+                    'team', 
+                    'level', 
+                    'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     readonly_fields = ('team', 'age')
     raw_id_fields = ('team',)
@@ -143,7 +161,6 @@ class GymnastAdmin(MeetDependentAdmin):
                      ('Meet', {'classes': ('grp-collapse grp-closed',),
                                'fields': ('athlete_id', 'age', 'division', 'starting_event', 'overall_score', 'tie_break', 'rank'), }),
                      )
-
         return fieldsets
 
     def get_readonly_fields(self, request, obj=None):
@@ -348,7 +365,20 @@ class CoachInline(admin.StackedInline):
 class GymnastInline(admin.StackedInline):
     model = models.Gymnast
     ordering = ('is_scratched', 'level', 'last_name', 'first_name')
-    fields = ('first_name', 'last_name', 'usag', 'dob', 'age', 'is_us_citizen', 'shirt', 'level', 'is_scratched', 'is_flagged', 'is_verified', 'notes')
+    readonly_fields = ('age',)
+    fields = ('first_name', 
+              'last_name',
+              'per_gymnast_cost',
+              'usag',
+              'dob',
+              'age',
+              'is_us_citizen',
+              'shirt',
+              'level',
+              'is_scratched',
+              'is_flagged',
+              'is_verified',
+              'notes')
     classes = ('grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-open',)
     extra = 1
@@ -358,40 +388,30 @@ class GymnastInline(admin.StackedInline):
               '{}js/moment.min.js'.format(settings.STATIC_URL))
 
 
-class RegistrationInline(admin.StackedInline):
-    model = models.Registration
-    fields = ('received', 'per_gymnast_cost', 'per_level_cost', 'team_awards', 'add_gymnasts', 'gymnast_cost', 'level_cost', 'total_cost', 'paid_in_full', )
-    readonly_fields = ('add_gymnasts', 'gymnast_cost', 'total_cost', 'level_cost',)
-    filter_horizontal = ('team_awards',)
-    min_num = 1
-    extra = 0
-    classes = ('grp-collapse grp-open',)
-    inline_classes = ('grp-collapse grp-open',)
-
-    def add_gymnasts(self, instance):
-        if instance.id:
-            url = reverse('admin:{}_{}_change'.format(instance._meta.app_label,
-                                                      instance._meta.model_name), args=[instance.id])
-            return u'<a href="{}">Add Gymnasts to this Registration</a>'.format(url)
-        else:
-            return '(available after save)'    
-    add_gymnasts.short_description = "Gymnasts"
-    add_gymnasts.allow_tags = True
-
-
 class TeamAdmin(MeetDependentAdmin):
     list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'show_paid_in_full', 'city', 'state')
     list_filter = ('qualified','team_awards')
     filter_horizontal = ('team_awards', )
+    readonly_fields = ('gymnast_cost', 'total_cost', 'team_award_cost',)
     search_fields = ('gym', 'team', 'usag')
-    inlines = [CoachInline, RegistrationInline] #, GymnastInline
+    inlines = [CoachInline, GymnastInline] #
     actions = ['export_with_session']
-    readonly_fields = ('team_awards', )
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(TeamAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('gym', 'team', 'address_1', 'address_2', 'city', 'state', 'postal_code', 'notes', 'team_awards'), }),
+        fieldsets += ((None, {'fields': ('gym',
+                                         'team',
+                                         'address_1',
+                                         'address_2',
+                                         'city',
+                                         'state',
+                                         'postal_code',
+                                         'per_team_award_cost',
+                                         'team_awards',
+                                         'notes',),
+                             }),
                      ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),
+                     ('Payment', {'fields': ('gymnast_cost', 'team_award_cost', 'total_cost','paid_in_full', ), }),
                      )
         return fieldsets
 
@@ -449,28 +469,16 @@ class TeamAdmin(MeetDependentAdmin):
 
 
 class RegistrationAdmin(MeetDependentAdmin):
-    list_filter = ('team','received', 'per_gymnast_cost', 'paid_in_full', )
+    list_filter = ('received', 'per_gymnast_cost', 'paid_in_full', )
     filter_horizontal = ('team_awards',)
-    inlines = [GymnastInline]
     readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
-    raw_id_fields = ('team',)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(RegistrationAdmin, self).get_fieldsets(request, obj)
-        fieldsets += (('Registration', {'fields': ( 'team', 'per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
+        fieldsets += (('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
                      ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost',), }),
                      )
         return fieldsets
-
-    def view_team(self, instance):
-        if instance.team:
-            url = reverse('admin:{}_{}_change'.format(instance.team._meta.app_label,
-                                                      instance.team._meta.model_name), args=[instance.team.id])
-            return u'<a href="{}">View Team</a>'.format(url)
-        else:
-            return '(available after save)'    
-    view_team.short_description = "Team"
-    view_team.allow_tags = True
 
 
 class LogAdmin(admin.ModelAdmin):
@@ -514,7 +522,4 @@ admin.site.register(models.Gymnast, GymnastAdmin)
 admin.site.register(models.Level, LevelAdmin)
 admin.site.register(models.Coach, CoachAdmin)
 admin.site.register(models.Team, TeamAdmin)
-admin.site.register(models.GymnastPricing, PricingAdmin)
-admin.site.register(models.LevelPricing, PricingAdmin)
 admin.site.register(models.ShirtSize)
-admin.site.register(models.Registration, RegistrationAdmin)
