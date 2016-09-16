@@ -374,8 +374,7 @@ class SessionIndividualView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionIndividualView, self).get_context_data(**kwargs)
-        # context['meet'] = self.request.session.get('meet', {})
-        context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)[0]
+        context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         # calculate_session_ranking(context['session'])
@@ -402,8 +401,7 @@ class SessionTeamView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(SessionTeamView, self).get_context_data(**kwargs)
-        # context['meet'] = self.request.session.get('meet', {})
-        context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)[0]
+        context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         session_levels = []

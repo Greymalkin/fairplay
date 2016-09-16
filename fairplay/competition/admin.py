@@ -492,7 +492,7 @@ class SessionAdmin(MeetDependentAdmin):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(SessionAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
-            'fields': ('name', 'divisions', 'warmup', 'session_start', 'competition_start', 'warmup_start'),
+            'fields': ('name', 'divisions', 'warmup', 'session_start', 'warmup_start', 'competition_start'),
             'description': ''
             }),
         )
