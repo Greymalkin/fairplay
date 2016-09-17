@@ -35,7 +35,7 @@ def make_event_action(event):
 
     return (action, name, "Set starting event to {}".format(event))
 
-# ## Filters
+### Filters
 
 
 class LevelFilter(SimpleListFilter):
@@ -358,8 +358,9 @@ class GymnastAdmin(MeetDependentAdmin):
 class CoachInline(admin.StackedInline):
     model = models.Coach
     exclude = ('notes', 'is_flagged', 'is_verified', 'meet')
-    classes = ('grp-collapse grp-open',)
+    classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-open',)
+    extra = 1
 
 
 class GymnastInline(admin.StackedInline):
@@ -379,8 +380,8 @@ class GymnastInline(admin.StackedInline):
               'is_flagged',
               'is_verified',
               'notes')
-    classes = ('grp-collapse grp-open',)
-    inline_classes = ('grp-collapse grp-open',)
+    classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-closed',)
     extra = 1
 
     class Media:
@@ -401,17 +402,28 @@ class TeamAdmin(MeetDependentAdmin):
         fieldsets = super(TeamAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {'fields': ('gym',
                                          'team',
-                                         'address_1',
-                                         'address_2',
-                                         'city',
-                                         'state',
-                                         'postal_code',
+                                         'usag',
                                          'per_team_award_cost',
-                                         'team_awards',
-                                         'notes',),
-                             }),
-                     ('Contact Info', {'fields': ('first_name', 'last_name', 'phone', 'email', 'usag'), }),
-                     ('Payment', {'fields': ('gymnast_cost', 'team_award_cost', 'total_cost','paid_in_full', ), }),
+                                         'team_awards',),
+                     }),
+                     ('Payment', {'fields': ('gymnast_cost',
+                                             'team_award_cost',
+                                             'total_cost',
+                                             'paid_in_full', ), 
+                     }),
+                     ('Contact', {'fields': ('first_name',
+                                             'last_name',
+                                             'phone',
+                                             'email',
+                                             'address_1',
+                                             'address_2',
+                                             'city',
+                                             'state',
+                                             'postal_code',                                             
+                                             'notes',  ),
+                                  'classes': ('grp-collapse grp-open',),
+
+                     }),
                      )
         return fieldsets
 
@@ -466,19 +478,6 @@ class TeamAdmin(MeetDependentAdmin):
     def show_paid_in_full(self, obj):
         return obj.paid_in_full
     show_paid_in_full.short_description = "Paid in Full"
-
-
-class RegistrationAdmin(MeetDependentAdmin):
-    list_filter = ('received', 'per_gymnast_cost', 'paid_in_full', )
-    filter_horizontal = ('team_awards',)
-    readonly_fields = ('gymnast_cost', 'total_cost', 'level_cost',)
-
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = super(RegistrationAdmin, self).get_fieldsets(request, obj)
-        fieldsets += (('Registration', {'fields': ('per_gymnast_cost', 'per_level_cost', 'team_awards'), }),
-                     ('Payment', {'fields': ('paid_in_full', 'gymnast_cost', 'level_cost', 'total_cost',), }),
-                     )
-        return fieldsets
 
 
 class LogAdmin(admin.ModelAdmin):

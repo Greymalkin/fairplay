@@ -20,7 +20,7 @@ class Team(models.Model):
     email = models.CharField('Email', max_length=225, blank=True, null=True)
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
     per_team_award_cost = models.PositiveSmallIntegerField(
-        'Price Per Team Award',
+        'Team Award Cost',
         null=True, blank=False, 
         default=settings.TEAM_AWARD_COST)
     team_awards = models.ManyToManyField(
@@ -124,7 +124,7 @@ class Gymnast(Person):
     team = models.ForeignKey(Team, related_name="gymnasts", blank=True, null=True)
     # TODO can per_gymnast_cost default be a callable?
     per_gymnast_cost = models.PositiveSmallIntegerField(
-        '$ Registration',
+        'Cost',
         null=True, blank=False, 
         default=settings.GYMNAST_COST)
     dob = models.DateField(blank=True, null=True)
