@@ -363,7 +363,7 @@ class GymnastAdmin(MeetDependentAdmin):
             message_bit = '{} gymnast divisions were'.format(rows_updated)
 
         messages.success(request, '{} updated'.format(message_bit))
-    sort_into_divisions.short_description = "Set gymnast's athlete id"
+    sort_into_divisions.short_description = "Set division"
 
     @staticmethod
     def competition_age(gymnast, meet):
@@ -394,6 +394,9 @@ class GymnastAdmin(MeetDependentAdmin):
             writer.writerow(field_values)
         return response
     export_with_session.short_description = "Export selected gymnasts as csv file with session"
+
+    def has_add_permission(self, request, obj=None):
+            return False
 
 
 class TeamAwardAdmin(MeetDependentAdmin):

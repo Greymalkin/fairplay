@@ -339,7 +339,7 @@ class SessionCeremonyEventView(TemplateView):
                                  'initials': "aa",
                                  'level': division.level.level,
                                  'age_division': division.name,
-                                 'athletes': aa_leaderboard})
+                                 'gymnasts': aa_leaderboard})
 
         info = {}
         info['id'] = 'aa'

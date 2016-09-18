@@ -20,7 +20,7 @@ from grappelli.forms import GrappelliSortableHiddenMixin
 from meet.models import Meet
 from meet.admin import MeetDependentAdmin, MeetFilter
 
-from competition.models import Event, GymnastEvent, TeamAward
+from competition.models import Event, GymnastEvent, TeamAward, Division
 from . import models
 from . import forms as actionforms
 
@@ -124,6 +124,9 @@ class CoachAdmin(MeetDependentAdmin):
         return missing
     has_usag.short_description = "USAG?"
     has_usag.boolean = True
+
+    def has_add_permission(self, request, obj=None):
+            return False
 
 
 class GymnastAdmin(MeetDependentAdmin):
@@ -310,40 +313,6 @@ class GymnastAdmin(MeetDependentAdmin):
         messages.success(request, '{} updated'.format(message_bit))
     update_age.short_description = "Update competition age"
 
-    # TODO: DELET? I think this is wrongly copied over from competition
-    def sort_into_divisions(self, model_admin, request, queryset):
-        ''' Admin action meant to be performed once on all athletes at once.
-            However, it can be performed multiple times without harm, and also on only a few athletes.
-        '''
-        divisions_by_level = {}
-        rows_updated = queryset.count()
-
-        # Build dictionary of all divisions
-        divisions = models.Division.objects.all()
-        for d in divisions:
-            if d.level.level not in divisions_by_level:
-                divisions_by_level[d.level.level] = {}
-            if d.min_age not in divisions_by_level[d.level.level]:
-                for age in range(d.min_age, d.max_age+1):
-                    divisions_by_level[d.level.level][age] = d
-
-        # Calc comptition age and retrieve correct division for age + level combination
-        for athlete in queryset:
-            if athlete.dob:
-                try:
-                    age = self.competition_age(athlete, athlete.meet)
-                    athlete.division = divisions_by_level[athlete.level.level][age]
-                    athlete.save()
-                except:
-                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(athlete, age, athlete.level))
-
-        if rows_updated == 1:
-            message_bit = '1 athelete division was'
-        else:
-            message_bit = '{} athlete divisions were'.format(rows_updated)
-
-        messages.success(request, '{} updated'.format(message_bit))
-    sort_into_divisions.short_description = "Set athlete id"
 
     def set_verified(self, request, queryset):
         rows_updated = queryset.update(is_verified=True)
@@ -353,6 +322,9 @@ class GymnastAdmin(MeetDependentAdmin):
             message_bit = '{} gymnasts were'.format(rows_updated)
         messages.success(request, '{} verified'.format(message_bit))
     set_verified.short_description = "Mark selected gymnasts as verified"
+
+    def has_add_permission(self, request, obj=None):
+            return False
 
 
 class CoachInline(admin.StackedInline):
