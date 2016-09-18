@@ -95,7 +95,7 @@ class Division(models.Model):
         return age_division
 
     def num_gymnasts(self):
-        return self.athletes.all().count()
+        return self.gymnasts.all().count()
     num_gymnasts.short_description = "Gymnasts"
 
 
@@ -123,7 +123,7 @@ class Session(models.Model):
 
     def num_gymnasts(self):
         try:
-            num_gymnasts = [a.athletes.filter(is_scratched=False).count() for a in self.divisions.all()]
+            num_gymnasts = [a.gymnasts.filter(is_scratched=False).count() for a in self.divisions.all()]
             num_gymnasts = (sum(num_gymnasts))
             return num_gymnasts
         except:
@@ -301,9 +301,9 @@ def populate_event(instance, created, raw, **kwargs):
     instance.save()
 
     meet = Meet.objects.get(is_current_meet=True)
-    for athlete in Gymnast.objects.filter(meet=meet):
-        ae = GymnastEvent.objects.get_or_create(event=instance, gymnast=athlete, meet=meet)
-        if athlete.is_scratched:
+    for gymnast in Gymnast.objects.filter(meet=meet):
+        ae = GymnastEvent.objects.get_or_create(event=instance, gymnast=gymnast, meet=meet)
+        if gymnast.is_scratched:
             ae.score = 0
             ae.save()
 

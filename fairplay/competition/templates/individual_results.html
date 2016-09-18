@@ -17,17 +17,17 @@
 </tr>
 </thead>
 <tbody>
-{% for athlete in division.athletes %}
+{% for gymnast in division.gymnasts %}
 <tr>
-    <td>{{athlete.info.athlete_id}}</td>
-    <td>{{athlete.info.first_name}} {{athlete.info.last_name}}</td>
-    <td>{{athlete.info.team.team}}</td>
-    {% for event in athlete.events %}
+    <td>{{gymnast.info.athlete_id}}</td>
+    <td>{{gymnast.info.first_name}} {{gymnast.info.last_name}}</td>
+    <td>{{gymnast.info.team.team}}</td>
+    {% for event in gymnast.events %}
     <td class="centered">{{event.score}}</td>
     <td class="centered grey">{{event.rank}}</td>
     {% endfor %}
-    <td class="centered">{{athlete.info.overall_score}}</td>
-    <td class="centered grey">{{athlete.info.rank}}</td>
+    <td class="centered">{{gymnast.info.overall_score}}</td>
+    <td class="centered grey">{{gymnast.info.rank}}</td>
 <tr>
 {% endfor %}
 </tbody>

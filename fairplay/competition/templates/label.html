@@ -55,7 +55,7 @@
 
   {% for gymnast in athletes%}
   <div class="label">
-    <div class="big">{{gymnast.gymnast_id}}</div>
+    <div class="big">{{gymnast.athlete_id}}</div>
     <strong>{{gymnast.first_name}} {{gymnast.last_name}}
     <br/>{{ gymnast.team.team}}</strong>
     <div>Level: {{gymnast.level.level}} Division: {{ gymnast.division.short_name }} {{ session.name }}</div>

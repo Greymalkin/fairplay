@@ -38,7 +38,7 @@ class Command(BaseCommand):
                     if len(gymnasts) > 0:
                         writer.writerow((agediv.name,))
                         for gymnast in gymnasts:
-                            row = [gymnast.gymnast_id, gymnast.last_name, gymnast.first_name,]
+                            row = [gymnast.athlete_id, gymnast.last_name, gymnast.first_name,]
                             print(row)
 
                             for event in events:

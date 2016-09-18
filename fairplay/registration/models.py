@@ -133,15 +133,18 @@ class Gymnast(Person):
         blank=True, null=True,
         help_text='Competitive Age (as of {}/{})'.format(settings.COMPETITION_MONTH, settings.COMPETITION_DATE))
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
-    shirt = models.ForeignKey('ShirtSize', blank=True, null=True)
-    level = models.ForeignKey('Level', blank=True, null=True)
+    shirt = models.ForeignKey('ShirtSize', blank=True, null=True, related_name="gymnasts")
+    level = models.ForeignKey('Level', blank=True, null=True, related_name="gymasts")
     is_scratched = models.BooleanField('Scratched?', default=False)
     division = models.ForeignKey(
         'competition.Division',
-        related_name='athletes', 
+        related_name='gymnasts', 
         blank=True, null=True,
         verbose_name="Age division")
-    starting_event = models.ForeignKey('competition.Event', null=True, blank=True)
+    starting_event = models.ForeignKey(
+        'competition.Event',
+        null=True, blank=True, 
+        related_name="starting_gymnasts")
     overall_score = models.FloatField(null=True, blank=True)
     tie_break = models.BigIntegerField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)

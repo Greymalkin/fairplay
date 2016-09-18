@@ -156,7 +156,7 @@ class TeamFilter(admin.SimpleListFilter):
 
 class StartingEventFilter(admin.SimpleListFilter):
     title = _('starting event')
-    parameter_name = 'event'
+    parameter_name = 'starting_event'
 
     def lookups(self, request, model_admin):
         lookups = [(s.id, s.name) for s in models.Event.objects.all()]
@@ -240,11 +240,11 @@ class GymnastAdmin(MeetDependentAdmin):
             sender=models.GymnastEvent,
             dispatch_uid='update_rankings')
 
-        for athlete in qset:
-            print('creating events for {}'.format(athlete))
+        for gymnast in qset:
+            print('creating events for {}'.format(gymnast))
             for event in events:
-                ae = models.GymnastEvent.objects.get_or_create(event=event, gymnast=athlete, meet=meet)
-                if athlete.is_scratched:
+                ae = models.GymnastEvent.objects.get_or_create(event=event, gymnast=gymnast, meet=meet)
+                if gymnast.is_scratched:
                     ae.score = 0
                     ae.save()
 
@@ -447,13 +447,13 @@ class DivisionAdmin(MeetDependentAdmin):
     def meet_awards_percentage(self, modeladmin, request, queryset):
         meet = models.Meet.objects.filter(is_current_meet=True)[0]
         for division in queryset:
-            division.event_award_count = math.ceil(len(division.athletes.all()) * meet.event_award_percentage)
-            division.all_around_award_count = math.ceil(len(division.athletes.all()) * meet.all_around_award_percentage)
+            division.event_award_count = math.ceil(len(division.gymnasts.all()) * meet.event_award_percentage)
+            division.all_around_award_count = math.ceil(len(division.gymnasts.all()) * meet.all_around_award_percentage)
             division.save()
     meet_awards_percentage.short_description = "Set to meet awards percentage"
 
     def num_gymnasts(self, obj):
-        return obj.athletes.all().count()
+        return obj.gymnasts.all().count()
     num_gymnasts.short_description = "Gymnasts"
 
 

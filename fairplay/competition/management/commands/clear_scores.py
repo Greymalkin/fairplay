@@ -7,11 +7,11 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         post_save.disconnect(models.update_rankings, sender=models.GymnastEvent, dispatch_uid='update_rankings')
 
-        for athlete in models.Gymnast.objects.all():
-            athlete.overall_score = None
-            athlete.rank = None
-            athlete.tie_break = None
-            athlete.save()
+        for gymnast in models.Gymnast.objects.all():
+            gymnast.overall_score = None
+            gymnast.rank = None
+            gymnast.tie_break = None
+            gymnast.save()
 
         for gymnast_event in models.GymnastEvent.objects.all():
             gymnast_event.score = None

@@ -175,7 +175,7 @@ class Command(BaseCommand):
         # # Update the athlete positions for all the teams
         # for t in models.Team.objects.all():
         #     position = 0
-        #     for gymnast in t.athletes.all():
+        #     for gymnast in t.gymnasts.all():
         #         gymnast.position = position
         #         gymnast.save()
         #         position += 1
