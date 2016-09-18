@@ -28,7 +28,7 @@
             <select id="award-select" class="form-control">
               {% for division in divisions %}
                 <option value="division_{{division.division.id}}">
-                  Level {{division.division.level}.level} ({{division.division.name}})
+                  Level {{division.division.level.level}} ({{division.division.name}})
                 </option>
               {% endfor %}
               {% for team_award in teams %}

@@ -107,6 +107,7 @@ def update_team_ranking(team_award):
     from . import models
 
     teams = []
+    meet = team_award.meet
 
     models.TeamAwardRank.objects.filter(team_award=team_award).delete()
 
@@ -114,7 +115,8 @@ def update_team_ranking(team_award):
         team = {'name': t.team, 'score': 0, 'id': t.id}
         tar, created = models.TeamAwardRank.objects.get_or_create(
             team=models.Team.objects.get(id=team['id']),
-            team_award=team_award)
+            team_award=team_award,
+            meet=meet)
 
         models.TeamAwardRankEvent.objects.filter(team_award_rank=tar).delete()
 
@@ -135,7 +137,12 @@ def update_team_ranking(team_award):
 
             if len(top_3) == 3:
                 for index, ae in enumerate(top_3):
-                    tarae = models.TeamAwardRankEvent(team_award_rank=tar, event=event, gymnast_event=ae, rank=(index + 1))
+                    tarae = models.TeamAwardRankEvent(
+                        meet=meet,
+                        team_award_rank=tar,
+                        event=event,
+                        gymnast_event=ae,
+                        rank=(index + 1))
                     tarae.save()
 
                 score = top_3.aggregate(total=Sum('score'))
@@ -158,6 +165,7 @@ def update_team_ranking(team_award):
             team['rank'] = rank
 
             tar = models.TeamAwardRank.objects.get_or_create(
+                meet=meet,
                 team=models.Team.objects.get(id=team['id']),
                 team_award=team_award)[0]
             # save the team rank

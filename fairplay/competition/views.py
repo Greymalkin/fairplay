@@ -150,7 +150,7 @@ def download_team_labels(request):
     ])
 
     for session in sessions:
-        levels = ','.join(sorted(session.levels))
+        levels = ','.join(map(str, sorted(session.levels)))
 
         teams = Team.objects.filter(gymnasts__division__session=session).\
             order_by('gymnasts__division__session', 'team').distinct()
@@ -407,13 +407,13 @@ class SessionTeamView(TemplateView):
         session_levels = []
         for division in context['session'].divisions.all():
             if division.level not in session_levels:
-                session_levels.append(division.level)
+                session_levels.append(division.level.group)
 
         team_awards = []
         events = models.Event.objects.all()
         context['events'] = events
         context['width'] = 200 + 60 * len(events)
-        for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
+        for team_award in models.TeamAward.objects.filter(levels__group__in=session_levels).distinct():
 
             ranking.update_team_ranking(team_award)
 

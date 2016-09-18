@@ -136,6 +136,16 @@ class Session(models.Model):
         return levels
 
     @property
+    def level_groups(self):
+        levels = self.divisions.order_by('level_group').distinct('level_group').values_list('level__group', flat=True)
+        return levels
+
+    @property
+    def level_divisions(self):
+        levels = self.divisions.order_by('level_id').distinct('level_id').values_list('level__name', flat=True)
+        return levels
+
+    @property
     def division_list(self):
         return self.divisions.values_list('name', flat=True)
 
