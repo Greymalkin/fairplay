@@ -6,7 +6,7 @@ import re
 import datetime
 from dbfread import DBF
 from django.core.management.base import BaseCommand
-from registration.models import Registration, Team, Gymnast, Level
+from registration.models import Team, Gymnast, Level
 from competition.models import Event, Division, Session
 from meet.models import Meet
 
@@ -77,7 +77,12 @@ class Command(BaseCommand):
         # TODO: Does Aerial File contain Level Division info? e.g. d1, d2? Might not as Level Division change is very new.
         for row in u_levels:
             if row['TYPE'] == "Men's":
-                level = Level(meet=meet, name="row['LEVELID']", level=row['LEVELID'], order=row['SEQ'])
+                level = Level(
+                    meet=meet,
+                    name=row['LEVELID'],
+                    level=row['LEVELID'],
+                    group=row['LEVELID'],
+                    order=row['SEQ'])
                 level.save()
                 levels[row['LEVELID']] = level
 
@@ -102,18 +107,13 @@ class Command(BaseCommand):
         file_cabinet = DBF(os.path.join(temp_dir, 'FileCabinet.dbf'))
         for row in file_cabinet:
             team, created = Team.objects.get_or_create(
-                meet=meet, gym=row['GYM'], team=row['GYM'])
-
-            #TODO: remove registration model? If so, Change accordingly.
-            registration, created = Registration.objects.get_or_create(
-                meet=meet, team=team, received=datetime.datetime.today(), per_gymnast_cost=None, per_level_cost=None)
+                meet=meet, gym=row['GYM'], team=row['GYM'], per_team_award_cost=0)
 
             level = levels[row['LEVELID']]
             division = divisions[row['LEVELID']+":"+row['AGEDIV']]
 
             gymnast = Gymnast()
             gymnast.meet = meet
-            gymnast.registration = registration
             gymnast.team = team
             gymnast.dob = row['BIRTHDATE']
             gymnast.level = level
@@ -123,11 +123,17 @@ class Command(BaseCommand):
             gymnast.first_name = row['FIRSTNAME']
             gymnast.usag = row['USAG']
             gymnast.is_us_citizen = (row['CITIZEN'] == 'Y')
+            gymnast.per_gymnast_cost = 0
             gymnast.save()
 
+            # associate events
+            for event in Event.objects.filter(meet=meet):
+                gymnast.events.create(event=event, meet=meet)
+
+            # assign divisions to sessions
             if division in division_sessions:
                 if division_sessions[division] != row['COMPID']:
-                    print("Double booking of division! {} {}".format(row['LEVELID'], row['AGEDIV']))
+                    print("Double booking of division! level: {} agediv: {}".format(row['LEVELID'], row['AGEDIV']))
                     division_sessions[division] = row['COMPID']
             else:
                 division_sessions[division] = row['COMPID']
@@ -140,6 +146,10 @@ class Command(BaseCommand):
                 if compid == row['COMPID']:
                     session.divisions.add(division)
             session.save()
+
+        # done, tidy up
+        meet.is_current_meet = False
+        meet.save()
 
 
         # dbf = DBF(os.path.join(temp_dir, 'FileCabinet.dbf'))
