@@ -1,5 +1,8 @@
-from datetime import datetime
+import operator
 
+from datetime import datetime
+from django.db.models import Avg, Max, Min, Sum, Count
+from django.db.models import Prefetch
 from django.conf import settings
 from django.views.generic import TemplateView
 
@@ -12,8 +15,24 @@ class MeetBreakdownView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(MeetBreakdownView, self).get_context_data(**kwargs)
-        context['athletes'] = {}
-        athlete_info = []
+        level_divisions = models.Level.objects.filter(gymnasts__is_scratched=False).\
+            annotate(per_divison_gymnasts=Count('gymnasts'))\
+            .prefetch_related(
+                Prefetch(
+                    "gymnasts",
+                    queryset=models.Gymnast.objects.filter(is_scratched=False),
+                    to_attr="levdiv_gymnasts"
+                )
+            )
+
+        levels = models.Level.objects.all().order_by('group').distinct('group')
+        level_groups = sorted(levels, key=operator.attrgetter('order'))
+
+        context['level_groups'] = level_groups
+        context['level_divisions'] = level_divisions
+        context['age_range'] = range(4, 19)
+        context['no_ages'] = models.Gymnast.objects.filter(age=None, is_scratched=False).count()
+        gymnast_info = []
         # for level in models.Level.objects.all():
         #     level_count = models.Gymnast.objects.filter(level=level, is_scratched=False).count()
         #     athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)

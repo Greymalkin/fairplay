@@ -148,12 +148,12 @@ class CustomIndexDashboard(Dashboard):
                 post_content=roster_html
             ))
 
-            # links = []
-            # links.append({
-            #     'title': 'Registration Metrics',
-            #     'url': '/',
-            #     'external': False,
-            #     }),
+            links = []
+            links.append({
+                'title': 'Meet Breakdown',
+                'url': '/breakdown/',
+                'external': False,
+                }),
             # links.append({
             #     'title': 'For Ordering Team Awards',
             #     'url': '/order/awards/',
@@ -173,13 +173,13 @@ class CustomIndexDashboard(Dashboard):
             #         athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
             #     athlete_info += "</ul></p>"
 
-            # self.children.append(modules.LinkList(
-            #     _('Meet Breakdown'),
-            #     column=3,
-            #     children=links,
-            #     post_content=athlete_info,
-            #     css_classes=('grp-closed',),
-            # ))
+            self.children.append(modules.LinkList(
+                _('Registration Metrics'),
+                column=2,
+                children=links,
+                # post_content=athlete_info,
+                css_classes=('grp-open',),
+            ))
 
 
         # For every Session, links for printables

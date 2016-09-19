@@ -134,7 +134,7 @@ class Gymnast(Person):
         help_text='Competitive Age (as of {}/{})'.format(settings.COMPETITION_MONTH, settings.COMPETITION_DATE))
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
     shirt = models.ForeignKey('ShirtSize', blank=True, null=True, related_name="gymnasts")
-    level = models.ForeignKey('Level', blank=True, null=True, related_name="gymasts")
+    level = models.ForeignKey('Level', blank=True, null=True, related_name="gymnasts")
     is_scratched = models.BooleanField('Scratched?', default=False)
     division = models.ForeignKey(
         'competition.Division',
@@ -184,6 +184,18 @@ class Level(models.Model):
 
     def __str__(self):
         return self.name
+
+    def num_gymnasts_across_divisions(self):
+        num_gymnasts = Gymnast.objects.filter(is_scratched=False, level__group=self.group).count()
+        return num_gymnasts
+
+    def division_age_count(self, age):
+        age_count = self.gymnasts.filter(is_scratched=False, age=age).count()
+        return age_count
+
+    def group_age_count(self, age):
+        age_count = Gymnast.objects.filter(is_scratched=False, level__group=self.group, age=age).count()
+        return age_count
 
 
 class ShirtSize(models.Model):
