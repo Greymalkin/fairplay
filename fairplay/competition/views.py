@@ -383,9 +383,11 @@ class SessionIndividualView(TemplateView):
         context['divisions'] = []
         for division in context['session'].divisions.all().order_by('level', 'min_age'):
             gymnasts = []
-            for gymnast in division.gymnasts.filter(rank__gt=0).order_by('rank'):
+            # should scratched gymnasts be on this report, or hidden?
+            for gymnast in division.gymnasts.filter(rank__gt=0, is_scratched=False).order_by('rank'):
                 events = []
-                for gymnast_event in models.GymnastEvent.objects.filter(gymnast=gymnast).order_by('event__order'):
+                # should scratched gymnasts be on this report, or hidden?
+                for gymnast_event in models.GymnastEvent.objects.filter(gymnast=gymnast, gymnast__is_scratched=False).order_by('event__order'):
                     score = gymnast_event.score
                     if score is None:
                         score = 0.0
