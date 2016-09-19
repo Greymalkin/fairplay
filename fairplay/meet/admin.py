@@ -57,12 +57,12 @@ class MeetAdmin(admin.ModelAdmin):
         if request.session.get('meet', {}) and request.session['meet'].get('id', '') == obj.id:
             request.session['meet'] = {}
 
-        if self.model.objects.count() > 1:
-            if obj.is_current_meet:
-                q = self.model.objects.filter(is_current_meet=False).order_by('-id')[:1]
-                new_active = q[0]
-                new_active.is_current_meet = True
-                new_active.save()
+        # if self.model.objects.count() > 1:
+        #     if obj.is_current_meet:
+        #         q = self.model.objects.filter(is_current_meet=False).order_by('-id')[:1]
+        #         new_active = q[0]
+        #         new_active.is_current_meet = True
+        #         new_active.save()
             obj.delete()
 
     def get_formsets_with_inlines(self, request, obj=None):

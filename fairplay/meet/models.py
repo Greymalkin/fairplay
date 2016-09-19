@@ -36,7 +36,7 @@ class MeetManager(models.Manager):
         request = get_request()
         try:
             # current_meet = Meet.objects.get(id=request.session['meet']['id'])
-            current_meet = Meet.objects.get(is_current_meet=True)[0]
+            current_meet = Meet.objects.get(is_current_meet=True)
             return qs.filter(meet=current_meet)
         except: pass
         return qs

@@ -232,8 +232,7 @@ class GymnastAdmin(MeetDependentAdmin):
         return OrderedDict(actions)
 
     def create_events(self, modeladmin, req, qset):
-        meet = models.Meet.objects.filter(is_current_meet=True)[0]
-        events = models.Event.objects.filter(meet=meet)
+        events = models.Event.objects.all()
 
         post_save.disconnect(
             None,
@@ -422,9 +421,15 @@ class TeamAwardAdmin(MeetDependentAdmin):
 class TeamAwardRankAdmin(MeetDependentAdmin):
     list_display = ('team', 'team_award', 'rank', 'score')
 
+    def has_add_permission(self, request, obj=None):
+            return False
+
 
 class TeamAwardRankEventAdmin(MeetDependentAdmin):
     list_display = ('team_award_rank', 'event', 'gymnast_event', 'rank')
+
+    def has_add_permission(self, request, obj=None):
+            return False
 
 
 class GymnastEventAdmin(MeetDependentAdmin):
@@ -448,7 +453,7 @@ class DivisionAdmin(MeetDependentAdmin):
     actions = ['meet_awards_percentage', ]
 
     def meet_awards_percentage(self, modeladmin, request, queryset):
-        meet = models.Meet.objects.filter(is_current_meet=True)[0]
+        meet = models.Meet.objects.get(is_current_meet=True)
         for division in queryset:
             division.event_award_count = math.ceil(len(division.gymnasts.all()) * meet.event_award_percentage)
             division.all_around_award_count = math.ceil(len(division.gymnasts.all()) * meet.all_around_award_percentage)

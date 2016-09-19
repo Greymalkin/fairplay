@@ -68,10 +68,11 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             css_classes=('grp-closed',),
             models=(
-                'registration.models.Level',
-                'registration.models.ShirtSize',
-                'competition.models.Division',
                 'competition.models.Event',
+                'registration.models.Level',
+                'competition.models.Division',
+                'competition.models.TeamAward',
+                'registration.models.ShirtSize',
                 'competition.models.LEDShow',
                 'competition.models.LEDSign',
                 ),
@@ -95,10 +96,8 @@ class CustomIndexDashboard(Dashboard):
             models=(
                 'competition.models.Gymnast',
                 'competition.models.Team',
-                'competition.models.TeamAward',
                 'competition.models.TeamAwardRank',
                 'competition.models.TeamAwardRankEvent',
-                # 'competition.models.GymnastEvent',
                 ),
         ))
 
@@ -228,7 +227,7 @@ class CustomIndexDashboard(Dashboard):
                 for event in Event.objects.all():
                     count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                     header += '<th>{}</th>'.format(event.initials)
-                    link = '/admin/competition/gymnast/?session={}&meet={}&starting_event__id__exact={}'.format(session.meet.id, session.id, event.id)
+                    link = '/admin/competition/gymnast/?meet={}&session={}&starting_event__id__exact={}'.format(session.meet.id, session.id, event.id)
                     counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
                 self.children.append(modules.LinkList(

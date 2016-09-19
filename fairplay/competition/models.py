@@ -181,8 +181,8 @@ class TeamAwardRank(models.Model):
         return "{} - {}".format(self.team_award, self.team)
 
     class Meta:
-        verbose_name = 'Team Award Rank'
-        verbose_name_plural = 'Team Award Ranks'
+        verbose_name = 'Team Awards > Rank > Score'
+        verbose_name_plural = 'Team Awards > Rank > Score'
 
 
 class TeamAwardRankEvent(models.Model):
@@ -198,8 +198,8 @@ class TeamAwardRankEvent(models.Model):
         return "{} - {} - {} - {} ({})".format(self.team_award_rank.team_award, self.team_award_rank.team, self.event, self.gymnast_event.gymnast, self.rank)
 
     class Meta:
-        verbose_name = 'Team Award Rank Athlete Event'
-        verbose_name_plural = 'Team Award Rank Athlete Events'
+        verbose_name = 'Team Awards > Rank > Event > Gymnast'
+        verbose_name_plural = 'Team Awards > Rank > Event > Gymnast'
 
 
 class GymnastEvent(models.Model):
