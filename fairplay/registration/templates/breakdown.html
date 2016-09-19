@@ -21,6 +21,7 @@
 <h2> Meet Breakdown Report</h2>
 
 <div style="width: 400px">
+  <!-- How many gymnasts are registered in each major level (level group) -->
   <div style="float: left;">
   {% for level in level_groups %}
     <p style='margin-left:12px;'><strong>Level {{level.group}} ({{level.num_gymnasts_across_divisions}} athletes)</strong></p>
@@ -34,6 +35,7 @@
   {% endfor %}
   </div>
 
+  <!-- How many gymnasts are registered in each level division -->
   <div style="float: right;">
   {% for level in level_divisions %}
     <p style='margin-left:12px;'><strong>Level {{level.name}} ({{level.per_divison_gymnasts}} athletes)</strong></p>
@@ -50,6 +52,7 @@
   {% endfor %}
   </div>
 
+  <!-- How many gymnasts are registered but we don't know how old they are... these won't show up in the above counts -->
   <div style="float: left; clear: all;">
   {% if no_ages > 0 %}
     <p style="font-weight: bold; font-style: italic;">There are {{no_ages}} gymnasts without an age in the system.</p>

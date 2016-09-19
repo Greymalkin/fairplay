@@ -112,8 +112,6 @@ class CustomIndexDashboard(Dashboard):
             ),
         ))
 
-        ### Extra stuff that should probably be moved off the Dashboard
-
         if get_current_meet_count() == 1:
             self.children.append(modules.LinkList(
                 _('Tools'),
@@ -159,19 +157,6 @@ class CustomIndexDashboard(Dashboard):
             #     'url': '/order/awards/',
             #     'external': False,
             #     }),
-            # athlete_info = ""
-            # for level in Level.objects.all():
-            #     level_count = Gymnast.objects.filter(level=level, is_scratched=False).count()
-            #     athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
-            #     for age in range(4, 19):
-            #         age_count = Gymnast.objects.filter(level=level, age=age, is_scratched=False).count()
-            #         if age_count > 0:
-            #             athlete_info += "<li>{}yo ({} athletes)</li>".format(age, age_count)
-
-            #     age_count = Gymnast.objects.filter(level=level, age=None, is_scratched=False).count()
-            #     if age_count > 0:
-            #         athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
-            #     athlete_info += "</ul></p>"
 
             self.children.append(modules.LinkList(
                 _('Registration Metrics'),
