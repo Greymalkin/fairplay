@@ -296,7 +296,6 @@ class GymnastAdmin(MeetDependentAdmin):
     show_team.short_description = "Team"
     show_team.admin_order_field = 'team__team'
 
-    # TODO: This will break, because of the changes to level.level
     def set_athlete_id(self, modeladmin, request, queryset):
         ''' Admin action meant to be performed once on all athletes at once.
             However, it can be performed multiple times without harm, and also on only a few athletes.

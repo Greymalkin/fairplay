@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load breakdown %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,7 +18,18 @@
 
   <body>
 
+<h2>Teams Registered for Awards</h2>
 
+<div style="width: 400px">
+{% for award in awards %}
+  <h3>{{award}}</h3>
+  {% for team in award|team_awards_teams %}
+    <p>{{team.gym}}: {{team.num_gymnasts}}</p>
+  {% empty %}
+    <p style="font-style: italic;">No teams registered for this award.</p>
+  {% endfor %}
+{% endfor %}
+</div>
 
   </body>
 </html>

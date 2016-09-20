@@ -151,11 +151,11 @@ class CustomIndexDashboard(Dashboard):
                 'url': '/breakdown/',
                 'external': False,
                 }),
-            # links.append({
-            #     'title': 'For Ordering Team Awards',
-            #     'url': '/order/awards/',
-            #     'external': False,
-            #     }),
+            links.append({
+                'title': 'Team Awards Breakdown',
+                'url': '/order/awards/',
+                'external': False,
+                }),
 
             self.children.append(modules.LinkList(
                 _('Registration Metrics'),

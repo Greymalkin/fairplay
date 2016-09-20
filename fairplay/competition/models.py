@@ -1,6 +1,7 @@
 import math
 from colorama import Fore
 from django.db import models
+from django.db.models import Count
 from django.db.models.signals import post_save
 
 from meet.models import Meet, MeetManager
@@ -166,6 +167,19 @@ class TeamAward(models.Model):
 
     def __str__(self):
         return self.name
+
+    def registered_teams(self):
+        ''' Used to create a report. Which team, registered for awards, has the largest number of gymnasts? '''
+        # this needs to work for the 9/10 team award.  In this case, the .group will be different, so the gymnass count won't work
+        # need if statement that first checks for level 9/10... though this isn't programmatic and is hidden knowledge
+        # add flag for combined award? Would that help?
+        try:
+            return Team.objects.filter(
+                team_awards=self,
+                gymnasts__is_scratched=False,
+                gymnasts__level__group=self.levels.first().group).annotate(num_gymnasts=Count('id'))
+        except:
+            return Team.objects.filter(id=0).annotate(num_gymnasts=Count('id'))
 
 
 class TeamAwardRank(models.Model):

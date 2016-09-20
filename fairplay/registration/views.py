@@ -7,6 +7,7 @@ from django.conf import settings
 from django.views.generic import TemplateView
 
 from rest_framework import viewsets
+from competition.models import TeamAward
 from . import models, serializers
 
 
@@ -53,7 +54,9 @@ class OrderingAwardsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(OrderingAwardsView, self).get_context_data(**kwargs)
+        context['awards'] = TeamAward.objects.all()
         return context
+
 
 class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Team.objects.all()
