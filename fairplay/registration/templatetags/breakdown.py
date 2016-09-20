@@ -17,5 +17,14 @@ def group_age_counts(value, age=None):
 
 @register.filter
 def team_awards_teams(value):
-	''' pass in an award, return teams that registered for receiving it, and number of gymnasts on the team'''
-	return value.registered_teams()
+    ''' pass in an award, return teams that registered for receiving it, and number of gymnasts on the team'''
+    return value.registered_teams()
+
+
+@register.simple_tag
+def rotation_gymnasts(team=None, session=None, event=None, warmup=None):
+    ''' Return the gymnasts at the first event for warmup or competition''' 
+    if warmup:
+        print(event.warmup_event_endhere)
+        event = event.warmup_event_endhere
+    return team.rotation_gymnasts(session, event).count()

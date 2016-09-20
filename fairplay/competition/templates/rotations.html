@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load breakdown %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -40,8 +41,8 @@
   {% endif %}
      </ul>
      <ul>       
-      <li>Open Warm-Up: <input type="text"></li>      
-      <li>Timed Warm-Up: <input type="text"></li>      
+      <li>Open Warm-Up: {{ session.open_warmup_start }}</li>      
+      <li>Timed Warm-Up: {{ session.timed_warmup_start }} </li>      
     </ul>
 
   </div>
@@ -53,7 +54,7 @@
     <h4 class="event_group">{{event.event.name}} </h4>
       {% for team in event.rotation %}
         <div class="team_item">
-          <span class="show_count"></span>
+          <span class="show_count"> ({% rotation_gymnasts team.team session event.event%}) </span>
           {{team.team.team }} 
             {% if session.levels.count > 1 %} 
             <span class="divisions">(Level{{team.levels.count|pluralize}} {{team.levels|join:", "}})</span>
@@ -74,7 +75,7 @@
         <h4 class="event_group">{{event.event.name}} </h4>
           {% for team in event.warmup %}
             <div class="team_item">
-              <span class="show_count"></span>
+              <span class="show_count"> ({% rotation_gymnasts team.team session event.event True %}) </span>
               {{team.team.team }} 
                 {% if session.levels.count > 1 %} 
                 <span class="divisions">(Level{{team.levels.count|pluralize}} {{team.levels|join:", "}})</span>

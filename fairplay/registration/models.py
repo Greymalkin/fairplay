@@ -72,6 +72,10 @@ class Team(models.Model):
         except:
             return 0
 
+    def rotation_gymnasts(self, session, event):
+        qs = self.gymnasts.filter(is_scratched=False, division__session=session, starting_event=event)
+        return qs
+
 
     #TODO: add a property that figures out if this team qualifies for team awards
 
