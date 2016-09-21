@@ -27,23 +27,20 @@
   <div id="wrap">
     <div id="header">
     <h1> {{session.meet.name}}</h1>
-    <h3> {{ session.name }}: Rotations, Event View</h3>
+    <h3> {{ session.name }}: {{session.session_start|date:"M d, Y"}}: Rotations, Event View</h3>
   </div>
 
   <div id="nav">
     <ul>
-      <li>Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}} | </li>
-      <li>Gymnasts: {{ session.num_gymnasts }} | </li>
-      <li>Host: {{session.meet.host}} | </li>
-      <li>Date: {{session.meet.date}} | </li>
-  {% if session.warmup = "Traditional" %} 
-      <li>Warm-up time per event: 10 minutes  </li>
-  {% endif %}
+      <li>Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}}</li>
      </ul>
      <ul>       
-      <li>Open Warm-Up: {{ session.open_warmup_start }}</li>      
+      <li>Open Warm-Up: {{ session.open_warmup_start }}  | </li>      
       <li>Timed Warm-Up: {{ session.timed_warmup_start }} </li>      
     </ul>
+  {% if session.warmup = "Traditional" %} 
+      <ul><li>Warm-up time per event: 10 minutes  </li></ul>
+  {% endif %}
 
   </div>
 
@@ -93,16 +90,18 @@
 
   <div id="header">
     <h1> {{session.meet.name}}</h1>
-    <h3> {{ session.name }}: Rotations, Team View</h3>
+    <h3> {{ session.name }}: {{session.session_start|date:"M d, Y"}}: Rotations, Team View</h3>
   </div>
 
   <div id="nav">
     <ul>
-      <li>Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}} | </li>
-      <li>Gymnasts: {{ session.num_gymnasts }} | </li>
-      <li>Host: {{session.meet.host}} | </li>
-      <li>Date: {{session.meet.date}} | </li>      
+      <li>Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}}</li>
     </ul>
+     <ul>       
+      <li>Open Warm-Up: {{ session.open_warmup_start }}  | </li>      
+      <li>Timed Warm-Up: {{ session.timed_warmup_start }} </li>      
+    </ul>
+
   </div>
 
   <div id="footer">

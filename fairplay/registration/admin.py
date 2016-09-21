@@ -427,7 +427,7 @@ class TeamAdmin(MeetDependentAdmin):
                        'level',
                        'division', ]
         with_session = field_names.copy()
-        with_session.append('d1/d2/jdo')
+        # with_session.append('d1/d2/jdo')
         with_session.append('Session')
         # Write a first row with header information
         writer.writerow(with_session)
@@ -438,7 +438,7 @@ class TeamAdmin(MeetDependentAdmin):
             for gymnast in gymnasts:
                 field_values = [getattr(gymnast, field) for field in field_names]
                 # TODO: Make this work
-                field_values.append('d1 or d2 or jdo')
+                # field_values.append(gymnast.level.name)
                 try:
                     field_values.append(gymnast.division.session.first())
                 except:

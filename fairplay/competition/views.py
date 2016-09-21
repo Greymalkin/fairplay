@@ -124,7 +124,7 @@ def download_athlete_labels(request):
             gymnast.last_name,
             gymnast.team.team,
             gymnast.level.level,
-            'd1 or d2',  #TODO Make work
+            gymnast.level.name,
             gymnast.division.short_name if gymnast.division else 'None',
             session,
         ])
