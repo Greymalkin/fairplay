@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 import csv
+import operator
 
 from django.conf import settings
 from django.views.generic import TemplateView
@@ -607,6 +608,11 @@ class SessionCoachHospitalityView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SessionCoachHospitalityView, self).get_context_data(**kwargs)
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+        
+        levels = Level.objects.all().order_by('group').distinct('group')
+        levels_sorted = sorted(levels, key=operator.attrgetter('order'))
+        context['all_levels'] = levels_sorted
+
         return context
 
 

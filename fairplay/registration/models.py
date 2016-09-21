@@ -201,6 +201,21 @@ class Level(models.Model):
         age_count = Gymnast.objects.filter(is_scratched=False, level__group=self.group, age=age).count()
         return age_count
 
+    def level_coaches(self):
+        ''' Report > find how many coaches are with teams with gymnasts registered at a particular level '''
+        qs = Team.objects.filter(gymnasts__level__group=self.group).distinct()
+        return qs
+
+    def level_coaches_count(self):
+        ''' Report > find how many coaches are with teams with gymnasts registered at a particular level
+            returns total of all coaches, regardless of team
+        '''
+        qs = self.level_coaches()
+        count = 0
+        for coach in qs:
+            count += coach.coaches.all().count()  
+        return count      
+
 
 class ShirtSize(models.Model):
     name = models.CharField(max_length=50)

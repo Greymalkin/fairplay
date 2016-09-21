@@ -25,6 +25,16 @@ def team_awards_teams(value):
 def rotation_gymnasts(team=None, session=None, event=None, warmup=None):
     ''' Return the gymnasts at the first event for warmup or competition''' 
     if warmup:
-        print(event.warmup_event_endhere)
         event = event.warmup_event_endhere
     return team.rotation_gymnasts(session, event).count()
+
+@register.filter
+def level_coaches(value):
+    ''' return coaches on teams with gymnasts registered at a particular level '''
+    return registration.models.Level.level_coaches(value)
+
+@register.simple_tag
+def level_coaches_count(level):
+    ''' return total number of coaches on teams with gymnasts registered at a 
+        particular level, regardless of team '''
+    return registration.models.Level.level_coaches_count(level)
