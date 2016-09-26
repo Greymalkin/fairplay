@@ -168,8 +168,6 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def get_readonly_fields(self, request, obj=None):
         # copying this from MeetDependentAdmin because I need the empty value display to be different here (empty string)
-        # models.Meet.objects.filter(is_current_meet=True)[0]
-        # if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', ''):
         if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and models.Meet.objects.filter(is_current_meet=True).count() == 1:
             self.readonly_fields += ('meet',)
             self.empty_value_display = ''
@@ -393,7 +391,7 @@ class TeamAdmin(MeetDependentAdmin):
                                              'state',
                                              'postal_code',                                             
                                              'notes',  ),
-                                  'classes': ('grp-collapse grp-open',),
+                                  'classes': ('grp-collapse grp-closed',),
 
                      }),
                      )
@@ -402,6 +400,16 @@ class TeamAdmin(MeetDependentAdmin):
     def get_queryset(self, request):
         qs = super(TeamAdmin, self).get_queryset(request)
         return qs.annotate(num_gymnasts=Count('gymnasts'))
+
+    def get_readonly_fields(self, request, obj=None):
+        # copying this from MeetDependentAdmin because I need the empty value display to be different here (empty string)
+        if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and models.Meet.objects.filter(is_current_meet=True).count() == 1:
+            self.readonly_fields += ('meet',)
+            self.empty_value_display = ''
+            return self.readonly_fields
+        else:
+            return []
+
 
     def num_gymnasts(self, obj):
         return obj.gymnasts.filter(is_scratched=False).count()

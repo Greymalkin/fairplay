@@ -8,7 +8,7 @@ from meet.models import Meet, MeetManager
 class Team(models.Model):
     meet = models.ForeignKey(Meet, related_name='teams')
     gym = models.CharField(max_length=100, help_text="ex. Fairland Boys Gymnastics")
-    team = models.CharField(max_length=100, blank=True, default="", help_text="ex. Fairland")
+    team = models.CharField(max_length=100, help_text="ex. Fairland")
     address_1 = models.CharField('Address 1', max_length=100, blank=True, null=True)
     address_2 = models.CharField('Address 2', max_length=100, blank=True, null=True)
     city = models.CharField('City', max_length=100, blank=True, null=True)
