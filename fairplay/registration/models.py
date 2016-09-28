@@ -169,7 +169,11 @@ class Gymnast(Person):
         flagged = 'FLAGGED! ' if self.is_flagged else ''
         flagged = 'SCRATCHED ' if self.is_scratched else flagged
         usag = self.usag if self.usag and len(self.usag.strip()) else ''
-        return "{3}{1}, {0} (L{2}) {4}".format(self.first_name, self.last_name, self.level, flagged, usag)
+        try:
+            level = 'L{}'.format(int(self.level)) 
+        except:
+            level = self.level
+        return "{3}{1}, {0} ({2}) {4}".format(self.first_name, self.last_name, level, flagged, usag)
 
 
 class Level(models.Model):

@@ -32,6 +32,7 @@ class MeetBreakdownView(TemplateView):
         context['level_groups'] = level_groups
         context['level_divisions'] = level_divisions
         context['age_range'] = range(4, 19)
+        context['total_registered'] = models.Gymnast.objects.filter(is_scratched=False).count()
         context['no_ages'] = models.Gymnast.objects.filter(age=None, is_scratched=False).count()
         gymnast_info = []
         # for level in models.Level.objects.all():

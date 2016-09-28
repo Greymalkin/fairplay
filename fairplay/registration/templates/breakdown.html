@@ -19,6 +19,13 @@
   <body>
 
 <h2> Meet Breakdown Report</h2>
+  <!-- How many gymnasts are registered but we don't know how old they are... these won't show up in the above counts -->
+
+  <p style="font-weight: bold; font-style: italic;">There are {{total_registered}} registered gymnasts.</p>
+  {% if no_ages > 0 %}
+    <p style="font-weight: bold; font-style: italic;">There are {{no_ages}} gymnasts without an age in the system.</p>
+  {% endif %}
+
 
 <div style="width: 400px">
   <!-- How many gymnasts are registered in each major level (level group) -->
@@ -31,6 +38,11 @@
         <li>{{i}}yo ({{ level|group_age_counts:i }} athletes) </li>
       {% endif %}
     {% endfor %}
+
+    <!-- no age gymnasts -->
+    {% if level|group_age_counts > 0 %}
+        <li>No age ({{ level|group_age_counts }} athletes) </li>
+    {% endif%}
     </ul>
   {% endfor %}
   </div>
@@ -45,19 +57,20 @@
         <li>{{i}}yo ({{ level|division_age_counts:i }} athletes) </li>
       {% endif %}
     {% endfor %}
+
+    <!-- no age gymnasts -->
+    {% if level|division_age_counts > 0 %}
+        <li>No age ({{ level|division_age_counts }} athletes) </li>
+    {% endif%}
+
     </ul>
+
     <!-- Use this loop if you want to print out a list of the gymnasts in this level division -->
     {% for l in level.levdiv_gymnasts %}
     {% endfor %}
   {% endfor %}
   </div>
 
-  <!-- How many gymnasts are registered but we don't know how old they are... these won't show up in the above counts -->
-  <div style="float: left; clear: all;">
-  {% if no_ages > 0 %}
-    <p style="font-weight: bold; font-style: italic;">There are {{no_ages}} gymnasts without an age in the system.</p>
-  {% endif %}
-  </div>
 </div>
 
   </body>
