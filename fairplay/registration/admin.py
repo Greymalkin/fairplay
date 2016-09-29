@@ -6,7 +6,7 @@ from dateutil import parser
 from django.conf import settings
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.models import LogEntry
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Max
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
@@ -153,7 +153,7 @@ class GymnastAdmin(MeetDependentAdmin):
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     readonly_fields = ('team', 'age')
     raw_id_fields = ('team',)
-    actions = ['update_age', 'set_shirt_action', 'verify_with_usag', 'set_verified']
+    actions = ['update_age', 'sort_into_divisions', 'set_athlete_id', 'set_shirt_action', 'verify_with_usag', 'set_verified']
     ordering = ('last_name', 'first_name')
 
     def get_fieldsets(self, request, obj=None):
@@ -307,18 +307,9 @@ class GymnastAdmin(MeetDependentAdmin):
     def update_age(self, request, queryset):
         ''' competition age is based on gymnast age as of 5/31/yyyy '''
         rows_updated = 0
-        meet = queryset[0].meet
-
-        if meet.date.month > 8:
-            year = meet.date.year + 1
-        else:
-            year = meet.date.year
-
-        cutoff = date(year, settings.COMPETITION_MONTH, settings.COMPETITION_DATE)
-
         for gymnast in queryset:
             if gymnast.dob is not None:
-                gymnast.age = (cutoff - gymnast.dob) // timedelta(days=365.2425)
+                gymnast.age = gymnast.competition_age
                 gymnast.save()
                 rows_updated += 1
 
@@ -329,7 +320,6 @@ class GymnastAdmin(MeetDependentAdmin):
         messages.success(request, '{} updated'.format(message_bit))
     update_age.short_description = "Update competition age"
 
-
     def set_verified(self, request, queryset):
         rows_updated = queryset.update(is_verified=True)
         if rows_updated == 1:
@@ -338,6 +328,80 @@ class GymnastAdmin(MeetDependentAdmin):
             message_bit = '{} gymnasts were'.format(rows_updated)
         messages.success(request, '{} verified'.format(message_bit))
     set_verified.short_description = "Mark selected gymnasts as verified"
+
+    def sort_into_divisions(self, request, queryset):
+        ''' Admin action meant to be performed once on all athletes at once.
+            However, it can be performed multiple times without harm, and also on only a few athletes.
+        '''
+        divisions_by_level = {}
+        rows_updated = queryset.count()
+
+        # Build dictionary of all divisions
+        divisions = Division.objects.all()
+        for d in divisions:
+            if d.level.level not in divisions_by_level:
+                divisions_by_level[d.level.level] = {}
+            if d.min_age not in divisions_by_level[d.level.level]:
+                for age in range(d.min_age, d.max_age+1):
+                    divisions_by_level[d.level.level][age] = d
+
+        # Calc comptition age and retrieve correct division for age + level combination
+        for gymnast in queryset:
+            if gymnast.dob:
+                try:
+                    gymnast.division = divisions_by_level[gymnast.level.level][gymnast.competition_age]
+                    gymnast.save()
+                except:
+                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(gymnast, gymnast.competition_age, gymnast.level))
+
+        if rows_updated == 1:
+            message_bit = '1 age division was'
+        else:
+            message_bit = '{} age divisions were'.format(rows_updated)
+
+        messages.success(request, '{} updated'.format(message_bit))
+    sort_into_divisions.short_description = "Set age division"
+
+    def set_athlete_id(self, request, queryset):
+        ''' Admin action meant to be performed once on all athletes at once.
+            However, it can be performed multiple times without harm, and also on only a few athletes.
+        '''
+        queryset = queryset.exclude(athlete_id__isnull=False, is_scratched=True).order_by('level', 'team', 'last_name')
+        rows_updated = queryset.count()
+        level_max_athlete_id = {}
+
+        for a in queryset:
+            # Check to see if we've calculated the max id for this level before.  If so, grab that id.
+            if a.level.level  not in level_max_athlete_id:
+                max_id = models.Gymnast.objects.filter(level=a.level).aggregate(Max('athlete_id'))
+                max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
+                # First one: ID begins with level number. level 4 = 4000
+                if max_id == 0:
+                    # Accomodate the JD level
+                    if a.level.level == 999:
+                        max_id = 3 * 1000
+                    elif a.level.level == 10:
+                        max_id = 1000
+                    else:
+                        max_id = (int(a.level.level) * 1000)
+            else:
+                max_id = level_max_athlete_id[a.level.level]
+
+            # Up the max id by one and save to athlete
+            max_id += 1
+            level_max_athlete_id[a.level.level] = max_id
+            a.athlete_id = max_id
+            a.save()
+
+        if rows_updated == 1:
+            message_bit = '1 athelete id was'
+        else:
+            message_bit = '{} athlete ids were'.format(rows_updated)
+
+        messages.success(request, '{} updated'.format(message_bit))
+    set_athlete_id.short_description = "Set athlete id"
+
+
 
     def has_add_permission(self, request, obj=None):
             return False

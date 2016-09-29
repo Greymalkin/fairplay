@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save, m2m_changed
@@ -175,6 +177,18 @@ class Gymnast(Person):
             level = self.level
         return "{3}{1}, {0} ({2}) {4}".format(self.first_name, self.last_name, level, flagged, usag)
 
+    @property
+    def competition_age(self):
+        if self.dob:
+            if self.meet.date.month > 8:
+                year = self.meet.date.year + 1
+            else:
+                year = self.meet.date.year
+            cutoff = date(year, settings.COMPETITION_MONTH, settings.COMPETITION_DATE)
+            age = (cutoff - self.dob) // timedelta(days=365.2425)
+            return age
+        else:
+            return None
 
 class Level(models.Model):
     meet = models.ForeignKey(Meet, related_name='levels')

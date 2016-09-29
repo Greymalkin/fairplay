@@ -229,9 +229,9 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def get_actions(self, request):
         actions = [make_event_action(q) for q in models.Event.objects.all()]
-        actions.insert(0, ('create_events', (self.create_events, 'create_events', '03. Create events for athlete')))
-        actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
-        actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
+        actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events for athlete')))
+        # actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
+        # actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
         actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to (None)')))
         actions.append(('export_as_csv', (export_as_csv, 'export_as_csv', 'Export selected objects as csv file')))
         actions.append(('export_with_session', (self.export_with_session, 'export_with_session', 'Export selected gymnasts as csv file with session')))
@@ -299,89 +299,6 @@ class GymnastAdmin(MeetDependentAdmin):
         return obj.team.team
     show_team.short_description = "Team"
     show_team.admin_order_field = 'team__team'
-
-    def set_athlete_id(self, modeladmin, request, queryset):
-        ''' Admin action meant to be performed once on all athletes at once.
-            However, it can be performed multiple times without harm, and also on only a few athletes.
-        '''
-        queryset = queryset.exclude(athlete_id__isnull=False, is_scratched=True).order_by('level', 'team', 'last_name')
-        rows_updated = queryset.count()
-        level_max_athlete_id = {}
-
-        for a in queryset:
-            # Check to see if we've calculated the max id for this level before.  If so, grab that id.
-            if a.level.level  not in level_max_athlete_id:
-                max_id = models.Gymnast.objects.filter(level=a.level).aggregate(Max('athlete_id'))
-                max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
-                # First one: ID begins with level number. level 4 = 4000
-                if max_id == 0:
-                    # Accomodate the JD level
-                    if a.level.level == 999:
-                        max_id = 3 * 1000
-                    elif a.level.level == 10:
-                        max_id = 1000
-                    else:
-                        max_id = (int(a.level.level) * 1000)
-            else:
-                max_id = level_max_athlete_id[a.level.level]
-
-            # Up the max id by one and save to athlete
-            max_id += 1
-            level_max_athlete_id[a.level.level] = max_id
-            a.athlete_id = max_id
-            a.save()
-
-        if rows_updated == 1:
-            message_bit = '1 athelete id was'
-        else:
-            message_bit = '{} athlete ids were'.format(rows_updated)
-
-        messages.success(request, '{} updated'.format(message_bit))
-    set_athlete_id.short_description = "Set athlete id"
-
-    def sort_into_divisions(self, model_admin, request, queryset):
-        ''' Admin action meant to be performed once on all athletes at once.
-            However, it can be performed multiple times without harm, and also on only a few athletes.
-        '''
-        divisions_by_level = {}
-        rows_updated = queryset.count()
-
-        # Build dictionary of all divisions
-        divisions = models.Division.objects.all()
-        for d in divisions:
-            if d.level.level not in divisions_by_level:
-                divisions_by_level[d.level.level] = {}
-            if d.min_age not in divisions_by_level[d.level.level]:
-                for age in range(d.min_age, d.max_age+1):
-                    divisions_by_level[d.level.level][age] = d
-
-        # Calc comptition age and retrieve correct division for age + level combination
-        for gymnast in queryset:
-            if gymnast.dob:
-                try:
-                    age = self.competition_age(gymnast, gymnast.meet)
-                    gymnast.division = divisions_by_level[gymnast.level.level][age]
-                    gymnast.save()
-                except:
-                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(gymnast, age, gymnast.level))
-
-        if rows_updated == 1:
-            message_bit = '1 gymnast division was'
-        else:
-            message_bit = '{} gymnast divisions were'.format(rows_updated)
-
-        messages.success(request, '{} updated'.format(message_bit))
-    sort_into_divisions.short_description = "Set division"
-
-    @staticmethod
-    def competition_age(gymnast, meet):
-        if meet.date.month > 8:
-            year = meet.date.year + 1
-        else:
-            year = meet.date.year
-        cutoff = date(year, settings.COMPETITION_MONTH, settings.COMPETITION_DATE)
-        age = (cutoff - gymnast.dob) // timedelta(days=365.2425)
-        return age
 
     def export_with_session(self, modeladmin, request, queryset):
         """ Generic csv export admin action. """
