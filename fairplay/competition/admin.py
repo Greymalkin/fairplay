@@ -315,7 +315,13 @@ class GymnastAdmin(MeetDependentAdmin):
                 max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
                 # First one: ID begins with level number. level 4 = 4000
                 if max_id == 0:
-                    max_id = (int(a.level.level) * 1000)
+                    # Accomodate the JD level
+                    if a.level.level == 999:
+                        max_id = 3 * 1000
+                    elif a.level.level == 10:
+                        max_id = 1000
+                    else:
+                        max_id = (int(a.level.level) * 1000)
             else:
                 max_id = level_max_athlete_id[a.level.level]
 
@@ -370,9 +376,9 @@ class GymnastAdmin(MeetDependentAdmin):
     @staticmethod
     def competition_age(gymnast, meet):
         if meet.date.month > 8:
-            year = meet.date.year
+            year = meet.date.year + 1
         else:
-            year = meet.date.year - 1
+            year = meet.date.year
         cutoff = date(year, settings.COMPETITION_MONTH, settings.COMPETITION_DATE)
         age = (cutoff - gymnast.dob) // timedelta(days=365.2425)
         return age

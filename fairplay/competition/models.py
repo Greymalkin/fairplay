@@ -84,10 +84,12 @@ class Division(models.Model):
         age = self.min_age
         if self.min_age != self.max_age:
             age = '{}-{}'.format(self.min_age, self.max_age)
-        return "Level {} ({} years)".format(self.level.level, age)
+        level = self.level.name.upper() if self.level.level == 999 else 'Level {}'.format(self.level.level)
+        return "{} ({} years)".format(level, age)
 
     def title(self):
-        return "Level {} ({})".format(self.level.level, self.name)
+        level = self.level.name.upper() if self.level.level == 999 else 'Level {}'.format(self.level.level)
+        return "{} ({})".format(level, self.name)
 
     def age_division(self):
         age_division = self.min_age
