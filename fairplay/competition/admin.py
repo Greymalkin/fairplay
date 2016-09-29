@@ -196,6 +196,12 @@ class GymnastAdmin(MeetDependentAdmin):
     list_filter = (TeamFilter, LevelFilter, AgeDivisionFilter, LevelDivisionFilter, SessionFilter, StartingEventFilter)
     list_per_page = 50
 
+    # Intermediary fix for the __getattr__ problem.  Improves the situation, but still not great.
+    def __init__(self, *args, **kwargs):
+        super(GymnastAdmin, self).__init__(*args, **kwargs)
+        for event in models.Event.objects.all():
+            self.add_event_column(event.initials)
+
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {'fields': ('athlete_id', 'usag', 'last_name', 'first_name', 'team'), }),
@@ -262,9 +268,18 @@ class GymnastAdmin(MeetDependentAdmin):
         return models.Session.objects.get(divisions=gymnast.division).name
     session.admin_order_field = 'division__session__name'
 
+    # Intermediary fix for the __getattr__ problem.  Improves the situation, but still not great.
+    def add_event_column(self, initials):
+        def fn(gymnast):
+            event = models.Event.objects.get(initials=initials)
+            return gymnast.events.get(event=event).score
+        fn.short_description = initials.upper()
+        setattr(self, initials, fn)
+
     def get_queryset(self, request):
         qs = super(GymnastAdmin, self).get_queryset(request)
         qs = qs.annotate(aa=Sum('events__score'))
+
         return qs
 
     def all_around(self, obj):
@@ -279,17 +294,6 @@ class GymnastAdmin(MeetDependentAdmin):
         result += [e.initials for e in events]
         result += ['all_around', ]
         return result
-
-    # TODO: This is takes a really really long time... it runs for every field, but we only need it to run for the events/scores
-    def __getattr__(self, attr):
-        try:
-            event = models.Event.objects.get(initials=attr)
-            def get_score(gymnast):
-                return gymnast.events.get(event=event).score
-            get_score.short_description = attr.upper()
-            return get_score
-        except:
-            return ''
 
     def show_team(self, obj):
         return obj.team.team
