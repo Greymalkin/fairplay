@@ -236,12 +236,25 @@ class GymnastAdmin(MeetDependentAdmin):
                         rows = r.json()['aaData']
 
                         for row in rows:
+                            division = level_division = ''
                             (usag_id, last_name, first_name, dob, member_type, level, club_id, club, club_status, status) = row
 
-                            try:
-                                level = int(level[6:])
-                            except:
-                                level = None
+                            # handles jd level
+                            if len(level) == 2:
+                                pass
+                            else:
+                                # handles the old way of USAG levels, MLEVEL10
+                                try:
+                                    level = int(level[6:])
+                                except:
+                                    # handles the new way of USAG levels with divisions M7D1
+                                    try:
+                                        division = level[-2:]
+                                        level = level[:-2]
+                                        level = level[1:]
+                                        level_division = '{}{}'.format(level, division)
+                                    except:
+                                        level = None
 
                             dob = parser.parse(dob).date()
 
@@ -249,6 +262,7 @@ class GymnastAdmin(MeetDependentAdmin):
                                 gymnast = models.Gymnast.objects.get(usag=usag_id)
                                 notes = ""
                                 valid = True
+                                # print('*** {} and {} and {}'.format(str(gymnast.level.group), "".join(gymnast.level.name.split()).lower(), '{}{}'.format(level, division.lower()) ))  
 
                                 if last_name.lower() != gymnast.last_name.lower():
                                     valid = False
@@ -258,9 +272,13 @@ class GymnastAdmin(MeetDependentAdmin):
                                     valid = False
                                     notes += "Date of birth does not match USAG date of birth (USAG: {})\n".format(dob)
 
-                                if level != int(gymnast.level.level):
+                                if str(level).lower() != str(gymnast.level.group).lower():
                                     valid = False
                                     notes += "Level does not match USAG level (USAG: {})\n".format(level)
+
+                                if level_division and level_division.lower() != "".join(gymnast.level.name.split()).lower(): 
+                                    valid = False
+                                    notes += "Compulsory division does not match USAG level (USAG: {})\n".format(level_division)
 
                                 if status.lower() != 'active':
                                     valid = False
