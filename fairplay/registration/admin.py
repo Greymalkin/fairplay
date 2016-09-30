@@ -312,6 +312,9 @@ class GymnastAdmin(MeetDependentAdmin):
                 gymnast.age = gymnast.competition_age
                 gymnast.save()
                 rows_updated += 1
+            else:
+                gymnast.age = None
+                gymnast.save()
 
         if rows_updated == 1:
             message_bit = '1 gymnast\'s competition age was'
@@ -373,7 +376,7 @@ class GymnastAdmin(MeetDependentAdmin):
         for a in queryset:
             # Check to see if we've calculated the max id for this level before.  If so, grab that id.
             if a.level.level  not in level_max_athlete_id:
-                max_id = models.Gymnast.objects.filter(level=a.level).aggregate(Max('athlete_id'))
+                max_id = models.Gymnast.objects.filter(level__level=a.level.level).aggregate(Max('athlete_id'))
                 max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
                 # First one: ID begins with level number. level 4 = 4000
                 if max_id == 0:
