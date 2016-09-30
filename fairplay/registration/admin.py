@@ -404,8 +404,6 @@ class GymnastAdmin(MeetDependentAdmin):
         messages.success(request, '{} updated'.format(message_bit))
     set_athlete_id.short_description = "Set athlete id"
 
-
-
     def has_add_permission(self, request, obj=None):
             return False
 
