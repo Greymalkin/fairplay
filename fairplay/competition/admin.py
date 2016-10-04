@@ -234,8 +234,6 @@ class GymnastAdmin(MeetDependentAdmin):
         # actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
         actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to (None)')))
         actions.append(('export_as_csv', (export_as_csv, 'export_as_csv', 'Export selected objects as csv file')))
-        actions.append(('export_with_notes', (self.export_with_notes, 'export_with_notes', 'Export csv file, with notes')))
-        actions.append(('export_with_session', (self.export_with_session, 'export_with_session', 'Export as csv file, with session')))
         return OrderedDict(actions)
 
     def create_events(self, modeladmin, req, qset):
@@ -300,43 +298,6 @@ class GymnastAdmin(MeetDependentAdmin):
         return obj.team.team
     show_team.short_description = "Team"
     show_team.admin_order_field = 'team__team'
-
-    def export_with_session(self, modeladmin, request, queryset):
-        """ Generic csv export admin action. """
-        opts = self.model._meta
-        response = HttpResponse(content_type='text/csv')
-        team_name = queryset[0].team.team
-        response['Content-Disposition'] = 'attachment; filename={}_bwi_roster.csv'.format(team_name)
-        writer = csv.writer(response)
-        field_names = ['team', 'usag', 'last_name', 'first_name', 'dob', 'age', 'shirt',  'meet', 'level', 'division', ]
-        with_session = field_names.copy()
-        with_session.append('Session')
-        # Write a first row with header information
-        writer.writerow(with_session)
-        # Write data rows
-        for obj in queryset:
-            field_values = [getattr(obj, field) for field in field_names]
-            field_values.append(obj.division.session.first())
-            writer.writerow(field_values)
-        return response
-    export_with_session.short_description = "Export selected gymnasts, with session, as csv file,"
-
-    def export_with_notes(self, modeladmin, request, queryset):
-        """ Generic csv export admin action. """
-        opts = self.model._meta
-        response = HttpResponse(content_type='text/csv')
-        team_name = queryset[0].team.team
-        response['Content-Disposition'] = 'attachment; filename={}_bwi_roster.csv'.format(team_name)
-        writer = csv.writer(response)
-        field_names = ['team', 'usag', 'last_name', 'first_name', 'dob', 'age', 'shirt',  'meet', 'level', 'notes', ]
-        # Write a first row with header information
-        writer.writerow(field_names)
-        # Write data rows
-        for obj in queryset:
-            field_values = [getattr(obj, field) for field in field_names]
-            writer.writerow(field_values)
-        return response
-    export_with_session.short_description = "Export selected gymnasts, with notes, as csv file"
 
     def has_add_permission(self, request, obj=None):
             return False

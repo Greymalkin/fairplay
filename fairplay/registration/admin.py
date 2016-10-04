@@ -449,7 +449,7 @@ class TeamAdmin(MeetDependentAdmin):
     readonly_fields = ('gymnast_cost', 'total_cost', 'team_award_cost',)
     search_fields = ('gym', 'team', 'usag')
     inlines = [CoachInline, GymnastInline] #
-    actions = ['export_with_session']
+    actions = ['export_with_notes', 'export_with_session']
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(TeamAdmin, self).get_fieldsets(request, obj)
@@ -536,7 +536,27 @@ class TeamAdmin(MeetDependentAdmin):
                     field_values.append(None)
                 writer.writerow(field_values)
         return response
-    export_with_session.short_description = "Export selected team as csv file with session"
+    export_with_session.short_description = "Export with session, as csv file"
+
+    def export_with_notes(self, request, queryset):
+        """ Generic csv export admin action. """
+        opts = self.model._meta
+        response = HttpResponse(content_type='text/csv')
+        team_name = queryset[0].team
+        response['Content-Disposition'] = 'attachment; filename={}_bwi_roster.csv'.format(team_name)
+        writer = csv.writer(response)
+        field_names = ['team', 'usag', 'last_name', 'first_name', 'dob', 'age', 'shirt',  'is_scratched', 'level', 'notes', ]
+        # Write a first row with header information
+        writer.writerow(field_names)
+        # Write data rows
+        for obj in queryset:
+            gymnasts = models.Gymnast.objects.filter(team=obj).order_by('is_scratched', 'level', 'last_name')
+            for gymnast in gymnasts:
+                field_values = [getattr(gymnast, field) for field in field_names]
+                writer.writerow(field_values)
+        return response
+    export_with_notes.short_description = "Export with notes, as csv file"
+
 
     def show_paid_in_full(self, obj):
         return obj.paid_in_full
