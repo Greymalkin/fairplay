@@ -157,7 +157,7 @@ class Session(models.Model):
 class TeamAward(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_awards')
     name = models.CharField(max_length=255)
-    levels = models.ManyToManyField(Level)
+    levels = models.ManyToManyField(Level, related_name='team_awards')
     award_count = models.PositiveSmallIntegerField(default=3, help_text='Number of places team awards will go out to')
     order = models.PositiveSmallIntegerField(default=0)
 
@@ -172,15 +172,14 @@ class TeamAward(models.Model):
         return self.name
 
     def registered_teams(self):
-        ''' Used to create a report. Which team, registered for awards, has the largest number of gymnasts? '''
-        # this needs to work for the 9/10 team award.  In this case, the .group will be different, so the gymnass count won't work
-        # need if statement that first checks for level 9/10... though this isn't programmatic and is hidden knowledge
-        # add flag for combined award? Would that help?
+        ''' Used to create a report. Which team, that has paid to register for team awards, 
+            has the largest number of gymnasts? Some awards span levels, as in the Level 9/10 award '''
         try:
-            return Team.objects.filter(
+            teams = Team.objects.filter(
                 team_awards=self,
                 gymnasts__is_scratched=False,
-                gymnasts__level__group=self.levels.first().group).annotate(num_gymnasts=Count('id'))
+                gymnasts__level__group__in=self.levels.all().values('group')).annotate(num_gymnasts=Count('id'))
+            return teams
         except:
             return Team.objects.filter(id=0).annotate(num_gymnasts=Count('id'))
 
