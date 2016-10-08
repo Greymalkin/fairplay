@@ -22,7 +22,7 @@ class Command(BaseCommand):
             writer.writerow(())
 
             divisions = models.Division.objects.filter(level=level, meet=current_meet)
-            events = models.Event.objects.filter(meet=current_meet)
+            events = models.Event.objects.filter(meet=current_meet) #competition.Event
             row = ['','','']
             for event in events:
                 row.append(event.initials.upper())

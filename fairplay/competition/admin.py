@@ -159,7 +159,7 @@ class StartingEventFilter(admin.SimpleListFilter):
     parameter_name = 'starting_event'
 
     def lookups(self, request, model_admin):
-        lookups = [(s.id, s.name) for s in models.Event.objects.all()]
+        lookups = [(s.id, s.name) for s in models.Event.objects.all()] #competition.Event
         lookups.append(('', '(None)'))
         return lookups
 
@@ -199,7 +199,7 @@ class GymnastAdmin(MeetDependentAdmin):
     # Intermediary fix for the __getattr__ problem.  Improves the situation, but still not great.
     def __init__(self, *args, **kwargs):
         super(GymnastAdmin, self).__init__(*args, **kwargs)
-        for event in models.Event.objects.all():
+        for event in models.Event.objects.all(): #competition.Event
             self.add_event_column(event.initials)
 
     def get_fieldsets(self, request, obj=None):
@@ -228,7 +228,7 @@ class GymnastAdmin(MeetDependentAdmin):
             return []
 
     def get_actions(self, request):
-        actions = [make_event_action(q) for q in models.Event.objects.all()]
+        actions = [make_event_action(q) for q in models.Event.objects.all()] #competition.Event
         actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events for athlete')))
         # actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
         # actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
@@ -237,7 +237,7 @@ class GymnastAdmin(MeetDependentAdmin):
         return OrderedDict(actions)
 
     def create_events(self, modeladmin, req, qset):
-        events = models.Event.objects.all()
+        events = models.Event.objects.all() #competition.Event
 
         post_save.disconnect(
             None,
@@ -458,7 +458,7 @@ class LEDShowAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
-admin.site.register(models.Event, EventAdmin)
+admin.site.register(models.Event, EventAdmin) #competition.Event
 admin.site.register(models.GymnastEvent, GymnastEventAdmin)
 admin.site.register(models.LEDShow, LEDShowAdmin)
 admin.site.register(models.Session, SessionAdmin)

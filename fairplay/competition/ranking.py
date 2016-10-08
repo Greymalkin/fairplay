@@ -18,7 +18,7 @@ def update_division_ranking(division):
     # All gymnasts in division (age division), including their event score, overall score, and max score
     division_gymnasts = models.GymnastEvent.objects.filter(gymnast__division=division).annotate(total_score=Sum('gymnast__events__score'))
 
-    for event in models.Event.objects.all():
+    for event in models.Event.objects.all(): #competition.Event
         gymnasts = []
         # Sub Select for gymnasts in a single event.
         for a in division_gymnasts.filter(event=event).order_by('-score', '-total_score', '-gymnast__tie_break'):
@@ -120,7 +120,7 @@ def update_team_ranking(team_award):
 
         models.TeamAwardRankEvent.objects.filter(team_award_rank=tar).delete()
 
-        for event in models.Event.objects.all():
+        for event in models.Event.objects.all(): #competition.Event
             divisions = []
 
             for level in team_award.levels.all():
