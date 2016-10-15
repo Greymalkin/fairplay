@@ -183,7 +183,7 @@ class GymnastAdmin(MeetDependentAdmin):
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (GymnastEventInlineAdmin, )
     readonly_fields = ('overall_score', 'rank', 'tie_break', 'age', 'team')
-    list_filter = (TeamFilter, LevelFilter, AgeDivisionFilter, LevelDivisionFilter, SessionFilter, StartingEventFilter)
+    list_filter = (TeamFilter, SessionFilter, StartingEventFilter, AgeDivisionFilter, LevelFilter, LevelDivisionFilter)
     list_per_page = 50
     list_display = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
 
@@ -390,6 +390,11 @@ class SessionAdmin(MeetDependentAdmin):
         return fieldsets
 
 
+class ScoreRankEventAdmin(MeetDependentAdmin):
+    list_display = ('gymnast', 'fx', 'ph', 'sr', 'vt', 'pb', 'hb', 'ub', 'bb')
+    search_fields = ['gymnast__last_name', 'gymnast__first_name', 'gymnast__usag']
+
+
 class LEDSignAdmin(MeetDependentAdmin):
     list_display = ('name', 'device', 'connect')
 
@@ -438,6 +443,6 @@ admin.site.register(models.Gymnast, GymnastAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)
 admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
 admin.site.register(models.TeamAwardRankEvent, TeamAwardRankEventAdmin)
-admin.site.register(models.ScoreRankEvent)
+admin.site.register(models.ScoreRankEvent, ScoreRankEventAdmin)
 admin.site.register(models.MensArtisticGymnast, MensArtisticGymnastAdmin)
 admin.site.register(models.WomensArtisticGymnast, WomensArtisticGymnastAdmin)

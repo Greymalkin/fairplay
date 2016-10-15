@@ -489,7 +489,7 @@ class GymnastAdmin(MeetDependentAdmin):
         for gymnast in qset:
             print('creating events for {}'.format(gymnast))
             for event in events:
-                ae = GymnastEvent.objects.get_or_create(event=event, gymnast=gymnast, meet=gymnast.meet)
+                ae, created = GymnastEvent.objects.get_or_create(event=event, gymnast=gymnast, meet=gymnast.meet)
                 if gymnast.is_scratched:
                     ae.score = 0
                     ae.save()
@@ -507,7 +507,7 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def get_actions(self, request):
         actions = [make_event_action(q) for q in Event.objects.all()] #competition.Event
-        actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events for athlete')))
+        actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events')))
         actions.insert(0, ('set_shirt_action', (self.set_shirt_action, 'set_shirt_action', 'Update shirt size')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', 'Set athlete id')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', 'Set age division')))
