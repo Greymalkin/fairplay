@@ -1,13 +1,14 @@
 import requests
 import csv
 
+from collections import OrderedDict
 from datetime import date, timedelta
 from dateutil import parser
 from django.conf import settings
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.models import LogEntry
 from django.db.models import Count, Sum, Max
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
@@ -15,12 +16,13 @@ from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.utils.translation import ugettext_lazy as _
 
 from grappelli.forms import GrappelliSortableHiddenMixin
 from meet.models import Meet
 from meet.admin import MeetDependentAdmin, MeetFilter
 
-from competition.models import Event, GymnastEvent, TeamAward, Division
+from competition.models import Event, GymnastEvent, TeamAward, Division, Session, update_rankings
 from . import models
 from . import forms as actionforms
 
@@ -33,9 +35,44 @@ def make_event_action(event):
             item.starting_event = event
             item.save()
 
-    return (action, name, "Set starting event to {}".format(event))
+    return (name, (action, name, "Set starting event to {}".format(event)))
 
 ### Filters
+
+class StartingEventFilter(admin.SimpleListFilter):
+    title = _('starting event')
+    parameter_name = 'starting_event'
+
+    def lookups(self, request, model_admin):
+        lookups = [(s.id, s.name) for s in Event.objects.all()] #competition.Event
+        lookups.append(('', '(None)'))
+        return lookups
+
+    def queryset(self, request, queryset):
+        if self.value() is '':
+            return queryset.filter(starting_event__isnull=True)
+        elif self.value() is not None:
+            return queryset.filter(starting_event__id=self.value())
+        else:
+            return queryset
+
+
+class SessionFilter(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = _('session')
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'session'
+
+    def lookups(self, request, model_admin):
+        return [(s.id, s.name) for s in Session.objects.all()]
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(division__session__id=self.value())
+        else:
+            return queryset
 
 
 class LevelFilter(SimpleListFilter):
@@ -141,6 +178,23 @@ class CoachAdmin(MeetDependentAdmin):
             return False
 
 
+class GymnastEventInlineFormset(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super(GymnastEventInlineFormset, self).__init__(*args, **kwargs)
+        self.can_delete = False
+
+
+class GymnastEventInlineAdmin(admin.TabularInline):
+    model = GymnastEvent
+    formset = GymnastEventInlineFormset
+    extra = 0
+    max_num = 0
+    readonly_fields = ('event', )
+    fields = ('event', 'score',)
+    classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-closed',)
+
+
 class GymnastAdmin(MeetDependentAdmin):
     list_display = ('last_name',
                     'first_name',
@@ -150,28 +204,27 @@ class GymnastAdmin(MeetDependentAdmin):
                     'level',
                     'age',
                     'dob',
+                    'shirt', 
                     'show_age_division',
-                    'shirt', 'is_scratched',
-                    'is_flagged',
-                    'is_verified')
-    list_filter = [ MeetFilter,
-                    GymnastMissingUsagFilter,
-                    GymnastMissingDobFilter,
+                    'session',
+                    'starting_event',
                     'is_scratched',
                     'is_flagged',
-                    'team', 
+                    'is_verified')
+    list_filter = [ 'team', 
+                    GymnastMissingUsagFilter,
+                    GymnastMissingDobFilter,
                     'level', 
-                    'team__team_awards']
+                    'team__team_awards',
+                    StartingEventFilter,
+                    SessionFilter,
+                    'is_scratched',
+                    'is_flagged',]
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     readonly_fields = ('team', 'age')
     raw_id_fields = ('team',)
-    actions = ['update_age',
-               'sort_into_divisions',
-               'set_athlete_id',
-               'set_shirt_action',
-               'verify_with_usag',
-               'set_verified']
     ordering = ('last_name', 'first_name')
+    inlines = [GymnastEventInlineAdmin]
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
@@ -202,7 +255,11 @@ class GymnastAdmin(MeetDependentAdmin):
     show_age_division.short_description = "Age Div."
     show_age_division.admin_order_field = 'division'
 
-    def set_shirt_action(self, request, queryset):
+    def session(self, gymnast):
+        return Session.objects.get(divisions=gymnast.division).name
+    session.admin_order_field = 'division__session__name'
+
+    def set_shirt_action(self, modeladmin, request, queryset):
         if 'do_action' in request.POST:
             form = actionforms.ShirtChoiceForm(request.POST)
             if form.is_valid():
@@ -221,7 +278,7 @@ class GymnastAdmin(MeetDependentAdmin):
                 'form': form})
     set_shirt_action.short_description = u'Update shirt size'
 
-    def verify_with_usag(self, request, queryset):
+    def verify_with_usag(self, modeladmin, request, queryset):
         credentials = {
             'user': settings.USAG_USER,
             'pass': settings.USAG_PASS
@@ -321,7 +378,7 @@ class GymnastAdmin(MeetDependentAdmin):
                 messages.error(request, 'Could not connect with USAG verification service. Check credentials.')
     verify_with_usag.short_description = "Verify selected gymnasts with USAG"
 
-    def update_age(self, request, queryset):
+    def update_age(self, modeladmin, request, queryset):
         ''' competition age is based on gymnast age as of 5/31/yyyy '''
         rows_updated = 0
         for gymnast in queryset:
@@ -340,7 +397,7 @@ class GymnastAdmin(MeetDependentAdmin):
         messages.success(request, '{} updated'.format(message_bit))
     update_age.short_description = "Update competition age"
 
-    def set_verified(self, request, queryset):
+    def set_verified(self, modeladmin, request, queryset):
         rows_updated = queryset.update(is_verified=True)
         if rows_updated == 1:
             message_bit = '1 gymnast was'
@@ -349,7 +406,7 @@ class GymnastAdmin(MeetDependentAdmin):
         messages.success(request, '{} verified'.format(message_bit))
     set_verified.short_description = "Mark selected gymnasts as verified"
 
-    def sort_into_divisions(self, request, queryset):
+    def sort_into_divisions(self, modeladmin, request, queryset):
         ''' Admin action meant to be performed once on all athletes at once.
             However, it can be performed multiple times without harm, and also on only a few athletes.
         '''
@@ -382,7 +439,7 @@ class GymnastAdmin(MeetDependentAdmin):
         messages.success(request, '{} updated'.format(message_bit))
     sort_into_divisions.short_description = "Set age division"
 
-    def set_athlete_id(self, request, queryset):
+    def set_athlete_id(self, modeladmin, request, queryset):
         ''' Admin action meant to be performed once on all athletes at once.
             However, it can be performed multiple times without harm, and also on only a few athletes.
         '''
@@ -420,6 +477,44 @@ class GymnastAdmin(MeetDependentAdmin):
 
         messages.success(request, '{} updated'.format(message_bit))
     set_athlete_id.short_description = "Set athlete id"
+
+    def create_events(self, modeladmin, req, qset):
+        events = Event.objects.all() #competition.Event
+
+        post_save.disconnect(
+            None,
+            sender=GymnastEvent,
+            dispatch_uid='update_rankings')
+
+        for gymnast in qset:
+            print('creating events for {}'.format(gymnast))
+            for event in events:
+                ae = GymnastEvent.objects.get_or_create(event=event, gymnast=gymnast, meet=gymnast.meet)
+                if gymnast.is_scratched:
+                    ae.score = 0
+                    ae.save()
+
+        post_save.connect(
+            update_rankings,
+            sender=GymnastEvent,
+            dispatch_uid='update_rankings')
+
+    def clear_event(self, modeladmin, request, queryset):
+        for item in queryset:
+            item.starting_event = None
+            item.save()
+    clear_event.short_description = "Set starting event to empty"
+
+    def get_actions(self, request):
+        actions = [make_event_action(q) for q in Event.objects.all()] #competition.Event
+        actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events for athlete')))
+        actions.insert(0, ('set_shirt_action', (self.set_shirt_action, 'set_shirt_action', 'Update shirt size')))
+        actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', 'Set athlete id')))
+        actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', 'Set age division')))
+        actions.insert(0, ('update_age', (self.update_age, 'update_age', 'Set competition age')))
+        actions.insert(0, ('verify_with_usag', (self.verify_with_usag, 'verify_with_usag', 'Verify USAG info')))
+        actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to (None)')))
+        return OrderedDict(actions)
 
     def has_add_permission(self, request, obj=None):
             return False

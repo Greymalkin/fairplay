@@ -94,7 +94,6 @@ class CustomIndexDashboard(Dashboard):
             column=1,
             collapsible=False,
             models=(
-                'competition.models.Gymnast',
                 'competition.models.Team',
                 'competition.models.TeamAwardRank',
                 'competition.models.TeamAwardRankEvent',
