@@ -227,12 +227,11 @@ class MeetDependentAdmin(admin.ModelAdmin):
         return super(MeetDependentAdmin, self).save_model(request, obj, form, change)
 
     def save_formset(self, request, form, formset, change):
-        # when an inline formset is saved, make the set the meet from the session if it's not already there
+        # when an inline formset is saved, set the meet from the session if it's not already there
         instances = formset.save(commit=False)
         for obj in formset.deleted_objects:
             obj.delete()
         for instance in instances:
-            print('**** in save_formset during a not-delete')
             try:
                 meet = instance.meet
             except (ObjectDoesNotExist, AttributeError):

@@ -64,6 +64,18 @@ class GymnastMissingUsagFilter(SimpleListFilter):
             return queryset.filter(usag='') | queryset.filter(usag__isnull=True)
 
 
+class GymnastMissingDobFilter(SimpleListFilter):
+    title = ('Missing Birth Date')
+    parameter_name = 'no_dob'
+
+    def lookups(self, request, model_admin):
+        return (('none', ('No Birth Date')),)
+
+    def queryset(self, request, queryset):
+        if self.value() == 'none':
+            return queryset.filter(dob__isnull=True)
+
+
 class CoachMissingUsagFilter(SimpleListFilter):
     title = ('Missing USAG#')
     parameter_name = 'no_usag'
@@ -144,21 +156,26 @@ class GymnastAdmin(MeetDependentAdmin):
                     'is_verified')
     list_filter = [ MeetFilter,
                     GymnastMissingUsagFilter,
+                    GymnastMissingDobFilter,
                     'is_scratched',
                     'is_flagged',
-                    'is_verified',
                     'team', 
                     'level', 
                     'team__team_awards']
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     readonly_fields = ('team', 'age')
     raw_id_fields = ('team',)
-    actions = ['update_age', 'sort_into_divisions', 'set_athlete_id', 'set_shirt_action', 'verify_with_usag', 'set_verified']
+    actions = ['update_age',
+               'sort_into_divisions',
+               'set_athlete_id',
+               'set_shirt_action',
+               'verify_with_usag',
+               'set_verified']
     ordering = ('last_name', 'first_name')
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'level',  'dob', 'age', 'shirt', 'notes'), }),
+        fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'discipline', 'level',  'dob', 'age', 'shirt', 'notes'), }),
                      ('Checks', {'classes': ('grp-collapse grp-closed',),
                                  'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
                      ('Meet', {'classes': ('grp-collapse grp-closed',),

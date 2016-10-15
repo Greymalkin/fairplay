@@ -15,6 +15,8 @@ def multikeysort(items, columns):
 def update_division_ranking(division):
     from . import models
 
+    # TODO: ? setattr(score, '{}_rank'.format(gymnast_event.event.initials), gymnast_event.score)
+
     # All gymnasts in division (age division), including their event score, overall score, and max score
     division_gymnasts = models.GymnastEvent.objects.filter(gymnast__division=division).annotate(total_score=Sum('gymnast__events__score'))
 

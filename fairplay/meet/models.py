@@ -33,9 +33,8 @@ class Meet(models.Model):
 class MeetManager(models.Manager):
     def get_queryset(self):
         qs = super(MeetManager, self).get_queryset()
-        request = get_request()
+
         try:
-            # current_meet = Meet.objects.get(id=request.session['meet']['id'])
             current_meet = Meet.objects.get(is_current_meet=True)
             return qs.filter(meet=current_meet)
         except: pass

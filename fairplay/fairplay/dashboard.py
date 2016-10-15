@@ -98,6 +98,9 @@ class CustomIndexDashboard(Dashboard):
                 'competition.models.Team',
                 'competition.models.TeamAwardRank',
                 'competition.models.TeamAwardRankEvent',
+                'competition.models.ScoreRankEvent',
+                'competition.models.MensArtisticGymnast',
+                'competition.models.WomensArtisticGymnast',
                 ),
         ))
 
