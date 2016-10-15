@@ -49,17 +49,6 @@ LED_SIGN_CODES = """
 """
 
 
-def make_event_action(event):
-    name = 'mark_%s' % event
-
-    def action(modeladmin, req, qset):
-        for item in qset:
-            item.starting_event = event
-            item.save()
-
-    return (name, (action, name, "Set starting event to {}".format(event)))
-
-
 def export_as_csv(self, request, queryset):
     """ Generic csv export admin action. """
     opts = self.model._meta
@@ -159,7 +148,7 @@ class StartingEventFilter(admin.SimpleListFilter):
     parameter_name = 'starting_event'
 
     def lookups(self, request, model_admin):
-        lookups = [(s.id, s.name) for s in models.Event.objects.all()]
+        lookups = [(s.id, s.name) for s in models.Event.objects.all()] #competition.Event
         lookups.append(('', '(None)'))
         return lookups
 
@@ -190,21 +179,17 @@ class GymnastEventInlineAdmin(admin.TabularInline):
 
 
 class GymnastAdmin(MeetDependentAdmin):
+    ''' Base admin for the Mens Artistic and Women's Artistic admins. '''
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (GymnastEventInlineAdmin, )
     readonly_fields = ('overall_score', 'rank', 'tie_break', 'age', 'team')
     list_filter = (TeamFilter, LevelFilter, AgeDivisionFilter, LevelDivisionFilter, SessionFilter, StartingEventFilter)
     list_per_page = 50
-
-    # Intermediary fix for the __getattr__ problem.  Improves the situation, but still not great.
-    def __init__(self, *args, **kwargs):
-        super(GymnastAdmin, self).__init__(*args, **kwargs)
-        for event in models.Event.objects.all():
-            self.add_event_column(event.initials)
+    list_display = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('athlete_id', 'usag', 'last_name', 'first_name', 'team'), }),
+        fieldsets += ((None, {'fields': ('discipline', 'athlete_id', 'usag', 'last_name', 'first_name', 'team', ), }),
                      ('Meet', {'fields': ('is_scratched',
                                           'age',
                                           'division',
@@ -227,72 +212,19 @@ class GymnastAdmin(MeetDependentAdmin):
         else:
             return []
 
-    def get_actions(self, request):
-        actions = [make_event_action(q) for q in models.Event.objects.all()]
-        actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events for athlete')))
-        # actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', '02. Set age division')))
-        # actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', '01. Set athlete id')))
-        actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to (None)')))
-        actions.append(('export_as_csv', (export_as_csv, 'export_as_csv', 'Export selected objects as csv file')))
-        return OrderedDict(actions)
-
-    def create_events(self, modeladmin, req, qset):
-        events = models.Event.objects.all()
-
-        post_save.disconnect(
-            None,
-            sender=models.GymnastEvent,
-            dispatch_uid='update_rankings')
-
-        for gymnast in qset:
-            print('creating events for {}'.format(gymnast))
-            for event in events:
-                ae = models.GymnastEvent.objects.get_or_create(event=event, gymnast=gymnast, meet=meet)
-                if gymnast.is_scratched:
-                    ae.score = 0
-                    ae.save()
-
-        post_save.connect(
-            models.update_rankings,
-            sender=models.GymnastEvent,
-            dispatch_uid='update_rankings')
-
-    def clear_event(self, modeladmin, request, queryset):
-        for item in queryset:
-            item.starting_event = None
-            item.save()
-    clear_event.short_description = "Set starting event to empty"
-
     def session(self, gymnast):
         return models.Session.objects.get(divisions=gymnast.division).name
     session.admin_order_field = 'division__session__name'
 
-    # Intermediary fix for the __getattr__ problem.  Improves the situation, but still not great.
-    def add_event_column(self, initials):
-        def fn(gymnast):
-            event = models.Event.objects.get(initials=initials)
-            return gymnast.events.get(event=event).score
-        fn.short_description = initials.upper()
-        setattr(self, initials, fn)
-
     def get_queryset(self, request):
         qs = super(GymnastAdmin, self).get_queryset(request)
         qs = qs.annotate(aa=Sum('events__score'))
-
         return qs
 
     def all_around(self, obj):
         return obj.aa
     all_around.admin_order_field = 'aa'
     all_around.short_description = 'AA'
-
-    # TODO: This is takes a really really long time... it runs for every field, but we only need it to run for the events/scores
-    def get_list_display(self, request):
-        result = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
-        events = models.Event.objects.all()
-        result += [e.initials for e in events]
-        result += ['all_around', ]
-        return result
 
     def show_team(self, obj):
         return obj.team.team
@@ -301,6 +233,46 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def has_add_permission(self, request, obj=None):
             return False
+
+
+class MensArtisticGymnastAdmin(GymnastAdmin):
+    pass
+
+    def get_list_display(self, request):
+        result = ['athlete_id',
+                  'last_name',
+                  'first_name',
+                  'show_team',
+                  'division',
+                  'session',
+                  'starting_event',
+                  'fx',
+                  'ph',
+                  'sr',
+                  'vt',
+                  'pb',
+                  'hb']
+        result += ['all_around', ]
+        return result
+
+
+class WomensArtisticGymnastAdmin(GymnastAdmin):
+    pass
+
+    def get_list_display(self, request):
+        result = ['athlete_id', 
+                  'last_name',
+                  'first_name',
+                  'show_team',
+                  'division',
+                  'session',
+                  'starting_event',
+                  'vt',
+                  'ub',
+                  'bb',
+                  'fx']
+        result += ['all_around', ]
+        return result
 
 
 class TeamAwardAdmin(MeetDependentAdmin):
@@ -458,7 +430,7 @@ class LEDShowAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
-admin.site.register(models.Event, EventAdmin)
+admin.site.register(models.Event, EventAdmin) #competition.Event
 admin.site.register(models.GymnastEvent, GymnastEventAdmin)
 admin.site.register(models.LEDShow, LEDShowAdmin)
 admin.site.register(models.Session, SessionAdmin)
@@ -466,4 +438,6 @@ admin.site.register(models.Gymnast, GymnastAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)
 admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
 admin.site.register(models.TeamAwardRankEvent, TeamAwardRankEventAdmin)
-# admin.site.add_action(export_as_csv)
+admin.site.register(models.ScoreRankEvent)
+admin.site.register(models.MensArtisticGymnast, MensArtisticGymnastAdmin)
+admin.site.register(models.WomensArtisticGymnast, WomensArtisticGymnastAdmin)

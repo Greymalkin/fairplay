@@ -49,7 +49,7 @@ def led_sign(request):
 @csrf_exempt
 def download_roster(request):
     gymnasts = models.Gymnast.objects.all().order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
-    events = models.Event.objects.all()
+    events = models.Event.objects.all() #competition.Event
 
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
@@ -185,7 +185,7 @@ class SessionCeremonyDivisionView(TemplateView):
             leaderboards = []
 
             # division per event leaderboard
-            for event in models.Event.objects.all():
+            for event in models.Event.objects.all(): #competition.Event
                 event_leaderboard = []
                 gymnast_events = models.GymnastEvent.objects.filter(event=event, gymnast__division=division).order_by("rank")
                 total_count = len(gymnast_events)
@@ -276,7 +276,7 @@ class SessionCeremonyEventView(TemplateView):
         # start populating the context
         context['session'] = session
         context['events'] = []
-        events = models.Event.objects.all()
+        events = models.Event.objects.all() #competition.Event
 
         for event in events:
             leaderboards = []
@@ -380,7 +380,7 @@ class SessionIndividualView(TemplateView):
 
         # calculate_session_ranking(context['session'])
 
-        context['events'] = models.Event.objects.all()
+        context['events'] = models.Event.objects.all() #competition.Event
         context['divisions'] = []
         for division in context['session'].divisions.all().order_by('level', 'min_age'):
             gymnasts = []
@@ -413,7 +413,7 @@ class SessionTeamView(TemplateView):
                 session_levels.append(division.level.group)
 
         team_awards = []
-        events = models.Event.objects.all()
+        events = models.Event.objects.all() #competition.Event
         context['events'] = events
         context['width'] = 200 + 60 * len(events)
         for team_award in models.TeamAward.objects.filter(levels__group__in=session_levels).distinct():
@@ -513,7 +513,7 @@ class SessionRotationView(TemplateView):
         context['events'] = []
         context['warmup'] = []
         context['teams'] = []
-        for event in models.Event.objects.all():
+        for event in models.Event.objects.all(): #competition.Event
             event_info = {}
             event_info['event'] = event
             event_info['warmup'] = []
@@ -569,7 +569,7 @@ class SessionAnnouncerView(TemplateView):
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
         context['events'] = []
 
-        for event in models.Event.objects.all():
+        for event in models.Event.objects.all(): #competition.Event
             event_info = {}
             event_info['event'] = event
             event_info['rotation'] = []
@@ -628,13 +628,13 @@ class CoachSignInView(TemplateView):
 
 
 # API Viewsets
-
+# TODO: remove meet__is_current_meet = True
 class LEDShowViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.LEDShow.objects.all()
     serializer_class = serializers.LEDShowSerializer
 
 
-class EventViewSet(viewsets.ReadOnlyModelViewSet):
+class EventViewSet(viewsets.ReadOnlyModelViewSet): #competition.Event
     queryset = models.Event.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.EventSerializer
 

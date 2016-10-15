@@ -30,7 +30,7 @@ class LEDShowSerializer(serializers.ModelSerializer):
         fields = ('name', 'messages')
 
 
-class EventSerializer(serializers.ModelSerializer):
+class EventSerializer(serializers.ModelSerializer):  #competition.Event
     sign = LEDSignSerializer()
 
     class Meta:

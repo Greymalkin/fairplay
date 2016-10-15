@@ -5,7 +5,8 @@ from django.db.models import Count
 from django.db.models.signals import post_save
 
 from meet.models import Meet, MeetManager
-from registration.models import Team, Gymnast, Level
+from registration.models import Team, Level
+from registration.models import Gymnast as MasterGymnast
 from . import ranking
 
 
@@ -56,6 +57,39 @@ class Event(models.Model):
         except:
             warmup = Event.objects.filter(meet=self.meet).order_by('-order')[0]
         return warmup
+
+
+class ScoreRankEvent(models.Model):
+    ''' Pivoted version of the scores stored as rows in the GymnastEvent model.
+        Populated via Signal on GymnastEvent '''
+    meet = models.ForeignKey(Meet, related_name='scores')
+    gymnast = models.OneToOneField(MasterGymnast, related_name="scores")
+    fx = models.FloatField(null=True, blank=True)
+    # fx_rank = models.PositiveSmallIntegerField(null=True)
+    ph = models.FloatField(null=True, blank=True)
+    # ph_rank = models.PositiveSmallIntegerField(null=True)
+    sr = models.FloatField(null=True, blank=True)
+    # sr_rank = models.PositiveSmallIntegerField(null=True)
+    vt = models.FloatField(null=True, blank=True)
+    # vt_rank = models.PositiveSmallIntegerField(null=True)
+    pb = models.FloatField(null=True, blank=True)
+    # pb_rank = models.PositiveSmallIntegerField(null=True)
+    hb = models.FloatField(null=True, blank=True)
+    # hb_rank = models.PositiveSmallIntegerField(null=True)
+    ub = models.FloatField(null=True, blank=True)
+    # ub_rank = models.PositiveSmallIntegerField(null=True, blank=True)
+    bb = models.FloatField(null=True, blank=True)
+    # bb_rank = models.PositiveSmallIntegerField(null=True)
+    # aa = models.FloatField(null=True, blank=True)
+    # aa_rank = models.PositiveSmallIntegerField(null=True)
+
+    objects = MeetManager()
+
+    class Meta():
+        unique_together = ('gymnast', 'meet')
+
+    def __str__(self):
+        return self.gymnast.__str__()
 
 
 class Division(models.Model):
@@ -220,7 +254,7 @@ class TeamAwardRankEvent(models.Model):
 
 class GymnastEvent(models.Model):
     meet = models.ForeignKey(Meet, related_name='gymnast_events')
-    gymnast = models.ForeignKey(Gymnast, related_name="events")
+    gymnast = models.ForeignKey(MasterGymnast, related_name="events")
     event = models.ForeignKey(Event, related_name="gymnasts")
     score = models.FloatField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True)
@@ -239,21 +273,17 @@ class GymnastEvent(models.Model):
 
 
 class CompetitionGymnastManager(MeetManager):
-    # def get_queryset(self):
-    #     return super(CompetitionGymnastManager, self).get_queryset().filter(is_scratched=False)
-
     def get_queryset(self):
         qs = super(CompetitionGymnastManager, self).get_queryset().filter(is_scratched=False)
-        # request = get_request()
+
         try:
-            # current_meet = Meet.objects.get(id=request.session['meet']['id'])
             current_meet = Meet.objects.get(is_current_meet=True)[0]
             return qs.filter(meet=current_meet)
         except: pass
         return qs
 
 
-class Gymnast(Gymnast):
+class Gymnast(MasterGymnast):
     objects = CompetitionGymnastManager()
 
     class Meta:
@@ -273,6 +303,86 @@ class Gymnast(Gymnast):
     @property
     def name_lastfirst(self):
         return "{0} {2}, {1}".format(self.athlete_id, self.first_name, self.last_name)
+
+
+class MensArtisticGymnastManager(MeetManager):
+    def get_queryset(self):
+        qs = super(MensArtisticGymnastManager, self).get_queryset().filter(is_scratched=False, discipline='mag')
+
+        try:
+            current_meet = Meet.objects.get(is_current_meet=True)[0]
+            return qs.filter(meet=current_meet)
+        except: pass
+        return qs
+
+
+
+class MensArtisticGymnast(MasterGymnast):
+    objects = MensArtisticGymnastManager()
+
+    class Meta:
+        proxy = True
+        ordering = ('athlete_id', 'last_name', 'first_name', )
+        verbose_name = 'MAG Gymnast'
+        verbose_name_plural = 'Mens Artistic Event Gymnasts'
+
+    def __str__(self):
+        return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
+
+    def sr(self):
+        return self.scores.sr
+
+    def hb(self):
+        return self.scores.hb
+
+    def fx(self):
+        return self.scores.fx
+
+    def pb(self):
+        return self.scores.pb
+
+    def vt(self):
+        return self.scores.vt
+
+    def ph(self):
+        return self.scores.ph
+
+
+class WomensArtisticGymnastManager(MeetManager):
+    def get_queryset(self):
+        qs = super(WomensArtisticGymnastManager, self).get_queryset().filter(is_scratched=False, discipline='wag')
+
+        try:
+            current_meet = Meet.objects.get(is_current_meet=True)[0]
+            return qs.filter(meet=current_meet)
+        except: pass
+        return qs
+
+
+
+class WomensArtisticGymnast(MasterGymnast):
+    objects = WomensArtisticGymnastManager()
+
+    class Meta:
+        proxy = True
+        ordering = ('athlete_id', 'last_name', 'first_name', )
+        verbose_name = 'WAG Gymnast'
+        verbose_name_plural = 'Womens Artistic Event Gymnasts'
+
+    def __str__(self):
+        return "{} {}, {} ({})".format(self.athlete_id, self.last_name, self.first_name, self.team)
+
+    def bb(self):
+        return self.scores.bb
+
+    def ub(self):
+        return self.scores.ub
+
+    def fx(self):
+        return self.scores.fx
+
+    def vt(self):
+        return self.scores.vt
 
 
 class Team(Team):
@@ -348,34 +458,40 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
 
     #TODO: Added IF statement to turn off ranking behavior based on a meet setting, to help admin run faster when not in competition mode
     #??? Bad idea?
-    meet = Meet.objects.get(is_current_meet=True)
-    if meet.enable_ranking:
-        if update_fields is None or 'rank' not in update_fields:
-            gymnast_events = GymnastEvent.objects.filter(gymnast=instance.gymnast).order_by("score")
-            tie_break = 0
+    # meet = Meet.objects.get(is_current_meet=True)
+    # if meet.enable_ranking:
+    if update_fields is None or 'rank' not in update_fields:
+        gymnast_events = GymnastEvent.objects.filter(gymnast=instance.gymnast).order_by("score")
+        score, created = ScoreRankEvent.objects.get_or_create(meet=instance.meet, gymnast=instance.gymnast)
+        tie_break = 0
 
-            p = 0
-            for gymnast_event in gymnast_events:
-                if gymnast_event.score is not None:
-                    tie_break += int(int(gymnast_event.score * 10) * math.pow(10, p))
-                p += 3
+        p = 0
+        for gymnast_event in gymnast_events:
+            if gymnast_event.score is not None:
+                tie_break += int(int(gymnast_event.score * 10) * math.pow(10, p))
+            p += 3
+            
+            #is there a column in ScoreRankEvent that matches gymnast_event initials?
+            setattr(score, gymnast_event.event.initials, gymnast_event.score)
 
-            instance.gymnast.tie_break = tie_break
-            instance.gymnast.save()
+        instance.gymnast.tie_break = tie_break
+        instance.gymnast.save()
+        score.save()
 
-            ranking.update_division_ranking(instance.gymnast.division)
-            print(Fore.GREEN + 'Updating {} {} ({}): {} - {}'.format(
-                instance.gymnast.first_name,
-                instance.gymnast.last_name,
-                instance.gymnast.team,
-                instance.event.name,
-                instance.score
-                ) + Fore.RESET)
+        ranking.update_division_ranking(instance.gymnast.division)
+        print(Fore.GREEN + 'Updating {} {} ({}): {} - {}'.format(
+            instance.gymnast.first_name,
+            instance.gymnast.last_name,
+            instance.gymnast.team,
+            instance.event.name,
+            instance.score
+            ) + Fore.RESET)
 
     post_save.connect(
         update_rankings,
         sender=GymnastEvent,
         dispatch_uid='update_rankings')
+
 
 post_save.connect(
     scratch,
@@ -396,3 +512,4 @@ post_save.connect(
     update_rankings,
     sender=GymnastEvent,
     dispatch_uid='update_rankings')
+
