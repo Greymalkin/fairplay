@@ -286,7 +286,12 @@ class GymnastAdmin(MeetDependentAdmin):
 
         members = []
         for member in queryset:
-            members.append(member.usag)
+            if member.usag:
+                members.append(member.usag)
+            else:
+                member.notes='missing usag id'
+                member.is_flagged=True
+                member.save()
 
         usag_max = settings.USAG_MAX_VERIFY
         chunks = [members[x:x+usag_max] for x in range(0, len(members), usag_max)]
@@ -308,6 +313,7 @@ class GymnastAdmin(MeetDependentAdmin):
 
                     try:
                         rows = r.json()['aaData']
+                        print('rows {}'.format(rows))
 
                         for row in rows:
                             division = level_division = ''
@@ -453,6 +459,7 @@ class GymnastAdmin(MeetDependentAdmin):
                 max_id = models.Gymnast.objects.filter(level__level=a.level.level).aggregate(Max('athlete_id'))
                 max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
                 # First one: ID begins with level number. level 4 = 4000
+                print('**** level {} {}'.format(a.level.level, max_id))
                 if max_id == 0:
                     # Accomodate the JD level
                     if a.level.level == 999:
@@ -535,6 +542,7 @@ class GymnastInline(admin.StackedInline):
     fields = ('first_name', 
               'last_name',
               'per_gymnast_cost',
+              'discipline',
               'usag',
               'dob',
               'age',
