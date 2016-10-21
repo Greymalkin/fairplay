@@ -145,9 +145,9 @@ class Session(models.Model):
     WARMUP = ((TRADITIONAL, TRADITIONAL), (COMPETE, COMPETE))
     warmup = models.CharField('Session Flow', max_length=25, choices=WARMUP, default=TRADITIONAL)
     session_start =  models.DateTimeField('Session Start Time', blank=True, null=True)
-    competition_start = models.TimeField('Competition Start Time', blank=True,  null=True)
-    open_warmup_start = models.TimeField('Open Warmup Start Time', blank=True, null=True)
     timed_warmup_start = models.TimeField('Timed Warmup Start Time', blank=True, null=True)
+    competition_start = models.TimeField('Competition Start Time', blank=True,  null=True)
+    presentation_start = models.TimeField('Presentation of Teams Start Time', blank=True, null=True)
 
     objects = MeetManager()
 

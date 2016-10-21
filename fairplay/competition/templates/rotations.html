@@ -35,7 +35,7 @@
       <li>Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}}</li>
      </ul>
      <ul>       
-      <li>Open Warm-Up: {{ session.open_warmup_start }}  | </li>      
+      <li>Open Warm-Up: {{ session.session_start }}  | </li>      
       <li>Timed Warm-Up: {{ session.timed_warmup_start }} </li>      
     </ul>
   {% if session.warmup = "Traditional" %} 
@@ -98,7 +98,7 @@
       <li>Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}}</li>
     </ul>
      <ul>       
-      <li>Open Warm-Up: {{ session.open_warmup_start }}  | </li>      
+      <li>Open Warm-Up: {{ session.session_start }}  | </li>      
       <li>Timed Warm-Up: {{ session.timed_warmup_start }} </li>      
     </ul>
 

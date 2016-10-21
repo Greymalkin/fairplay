@@ -131,7 +131,7 @@ class Gymnast(Person):
     DISCIPLINE_CHOICES = ((MAG, 'Mens Artistic'), (WAG, 'Womens Artistic'))
     meet = models.ForeignKey(Meet, related_name='gymnasts')
     team = models.ForeignKey(Team, related_name="gymnasts", blank=True, null=True)
-    discipline = models.CharField(max_length=20, blank=True, null=True, choices=DISCIPLINE_CHOICES)
+    discipline = models.CharField(max_length=20, null=True, choices=DISCIPLINE_CHOICES)
     # TODO can per_gymnast_cost default be a callable?
     per_gymnast_cost = models.PositiveSmallIntegerField(
         'Cost',
