@@ -328,6 +328,7 @@ class DivisionAdmin(MeetDependentAdmin):
     list_editable = ('min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     ordering = ('level', 'min_age')
     actions = ['meet_awards_percentage', ]
+    list_filter = ['level']
 
     def meet_awards_percentage(self, modeladmin, request, queryset):
         meet = models.Meet.objects.get(is_current_meet=True)
@@ -336,10 +337,6 @@ class DivisionAdmin(MeetDependentAdmin):
             division.all_around_award_count = math.ceil(len(division.gymnasts.all()) * meet.all_around_award_percentage)
             division.save()
     meet_awards_percentage.short_description = "Set to meet awards percentage"
-
-    def num_gymnasts(self, obj):
-        return obj.gymnasts.all().count()
-    num_gymnasts.short_description = "Gymnasts"
 
 
     def get_queryset(self, request):

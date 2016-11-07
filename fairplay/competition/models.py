@@ -118,7 +118,7 @@ class Division(models.Model):
         age = self.min_age
         if self.min_age != self.max_age:
             age = '{}-{}'.format(self.min_age, self.max_age)
-        level = self.level.name.upper() if self.level.level == 999 else 'Level {}'.format(self.level.level)
+        level = self.level.name.upper() if self.level.level == 999 else 'Level {}'.format(self.level)
         return "{} ({} years)".format(level, age)
 
     def title(self):
@@ -132,7 +132,7 @@ class Division(models.Model):
         return age_division
 
     def num_gymnasts(self):
-        return self.gymnasts.all().count()
+        return self.gymnasts.filter(is_scratched=False).count()
     num_gymnasts.short_description = "Gymnasts"
 
 

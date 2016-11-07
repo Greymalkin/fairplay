@@ -412,6 +412,7 @@ class GymnastAdmin(MeetDependentAdmin):
         messages.success(request, '{} verified'.format(message_bit))
     set_verified.short_description = "Mark selected gymnasts as verified"
 
+    # TODO: This should happen on save, not as an admin action
     def sort_into_divisions(self, modeladmin, request, queryset):
         ''' Admin action meant to be performed once on all athletes at once.
             However, it can be performed multiple times without harm, and also on only a few athletes.
@@ -422,17 +423,17 @@ class GymnastAdmin(MeetDependentAdmin):
         # Build dictionary of all divisions
         divisions = Division.objects.all()
         for d in divisions:
-            if d.level.level not in divisions_by_level:
-                divisions_by_level[d.level.level] = {}
-            if d.min_age not in divisions_by_level[d.level.level]:
+            if d.level not in divisions_by_level:
+                divisions_by_level[d.level] = {}
+            if d.min_age not in divisions_by_level[d.level]:
                 for age in range(d.min_age, d.max_age+1):
-                    divisions_by_level[d.level.level][age] = d
+                    divisions_by_level[d.level][age] = d
 
         # Calc comptition age and retrieve correct division for age + level combination
         for gymnast in queryset:
             if gymnast.dob:
                 try:
-                    gymnast.division = divisions_by_level[gymnast.level.level][gymnast.competition_age]
+                    gymnast.division = divisions_by_level[gymnast.level][gymnast.competition_age]
                     gymnast.save()
                 except:
                     messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(gymnast, gymnast.competition_age, gymnast.level))
