@@ -100,7 +100,7 @@ class Command(BaseCommand):
                     min_age=row['MINAGE'],
                     max_age=row['MAXAGE'])
                 division.save()
-                divisions[row['LEVELID']+":"+row['ALIAS']] = division
+                divisions[row['LEVELID'] + ":" + row['ALIAS']] = division
 
         # then teams and athletes
         division_sessions = {}
@@ -110,7 +110,7 @@ class Command(BaseCommand):
                 meet=meet, gym=row['GYM'], team=row['GYM'], per_team_award_cost=0)
 
             level = levels[row['LEVELID']]
-            division = divisions[row['LEVELID']+":"+row['AGEDIV']]
+            division = divisions[row['LEVELID'] + ":" + row['AGEDIV']]
 
             gymnast = Gymnast()
             gymnast.meet = meet
@@ -150,7 +150,6 @@ class Command(BaseCommand):
         # done, tidy up
         meet.is_current_meet = False
         meet.save()
-
 
         # dbf = DBF(os.path.join(temp_dir, 'FileCabinet.dbf'))
 

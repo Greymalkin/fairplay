@@ -11,7 +11,7 @@ class Command(BaseCommand):
         for gymnast_event in models.GymnastEvent.objects.all():
             gymnast_event.score = self.random_score()
             gymnast_event.save()
-    
+
             score, created = models.ScoreRankEvent.objects.get_or_create(meet=gymnast_event.meet, gymnast=gymnast_event.gymnast)
             # set score to column in ScoreRankEvent that matches gymnast_event initials.  If none, this will fail silently.
             setattr(score, gymnast_event.event.initials, gymnast_event.score)
@@ -26,4 +26,4 @@ class Command(BaseCommand):
         post_save.connect(models.update_rankings, sender=models.GymnastEvent, dispatch_uid='update_rankings')
 
     def random_score(self):
-        return random.randint(7, 11) + random.randint(0, 9)/10.0
+        return random.randint(7, 11) + random.randint(0, 9) / 10.0

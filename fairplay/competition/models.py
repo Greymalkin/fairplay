@@ -144,9 +144,9 @@ class Session(models.Model):
     COMPETE = 'Warm-up/Compete'
     WARMUP = ((TRADITIONAL, TRADITIONAL), (COMPETE, COMPETE))
     warmup = models.CharField('Session Flow', max_length=25, choices=WARMUP, default=TRADITIONAL)
-    session_start =  models.DateTimeField('Session Start Time', blank=True, null=True)
+    session_start = models.DateTimeField('Session Start Time', blank=True, null=True)
     timed_warmup_start = models.TimeField('Timed Warmup Start Time', blank=True, null=True)
-    competition_start = models.TimeField('Competition Start Time', blank=True,  null=True)
+    competition_start = models.TimeField('Competition Start Time', blank=True, null=True)
     presentation_start = models.TimeField('Presentation of Teams Start Time', blank=True, null=True)
 
     objects = MeetManager()
@@ -206,7 +206,7 @@ class TeamAward(models.Model):
         return self.name
 
     def registered_teams(self):
-        ''' Used to create a report. Which team, that has paid to register for team awards, 
+        ''' Used to create a report. Which team, that has paid to register for team awards,
             has the largest number of gymnasts? Some awards span levels, as in the Level 9/10 award '''
         try:
             teams = Team.objects.filter(
@@ -279,7 +279,8 @@ class CompetitionGymnastManager(MeetManager):
         try:
             current_meet = Meet.objects.get(is_current_meet=True)[0]
             return qs.filter(meet=current_meet)
-        except: pass
+        except:
+            pass
         return qs
 
 
@@ -312,9 +313,9 @@ class MensArtisticGymnastManager(MeetManager):
         try:
             current_meet = Meet.objects.get(is_current_meet=True)[0]
             return qs.filter(meet=current_meet)
-        except: pass
+        except:
+            pass
         return qs
-
 
 
 class MensArtisticGymnast(MasterGymnast):
@@ -355,9 +356,9 @@ class WomensArtisticGymnastManager(MeetManager):
         try:
             current_meet = Meet.objects.get(is_current_meet=True)[0]
             return qs.filter(meet=current_meet)
-        except: pass
+        except:
+            pass
         return qs
-
 
 
 class WomensArtisticGymnast(MasterGymnast):
@@ -456,10 +457,6 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
         sender=GymnastEvent,
         dispatch_uid='update_rankings')
 
-    #TODO: Added IF statement to turn off ranking behavior based on a meet setting, to help admin run faster when not in competition mode
-    #??? Bad idea?
-    # meet = Meet.objects.get(is_current_meet=True)
-    # if meet.enable_ranking:
     if update_fields is None or 'rank' not in update_fields:
         gymnast_events = GymnastEvent.objects.filter(gymnast=instance.gymnast).order_by("score")
         score, created = ScoreRankEvent.objects.get_or_create(meet=instance.meet, gymnast=instance.gymnast)
@@ -470,8 +467,8 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
             if gymnast_event.score is not None:
                 tie_break += int(int(gymnast_event.score * 10) * math.pow(10, p))
             p += 3
-            
-            #is there a column in ScoreRankEvent that matches gymnast_event initials?  If none, this will fail silently.
+
+            # is there a column in ScoreRankEvent that matches gymnast_event initials?  If none, this will fail silently.
             setattr(score, gymnast_event.event.initials, gymnast_event.score)
 
         instance.gymnast.tie_break = tie_break
@@ -485,7 +482,7 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
             instance.gymnast.team,
             instance.event.name,
             instance.score
-            ) + Fore.RESET)
+        ) + Fore.RESET)
 
     post_save.connect(
         update_rankings,
@@ -512,4 +509,3 @@ post_save.connect(
     update_rankings,
     sender=GymnastEvent,
     dispatch_uid='update_rankings')
-

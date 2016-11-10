@@ -1,22 +1,15 @@
 import csv
 import math
 
-from datetime import date, timedelta
-from collections import OrderedDict
-
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.contrib import admin, messages
 from django.conf import settings
-from django.db.models.signals import pre_save, post_save
-from django.db.models import Count, Sum, Max
-from django.dispatch import receiver
+from django.db.models import Sum
 from django.http import HttpResponse
-from grappelli.forms import GrappelliSortableHiddenMixin
 
 from . import models
-from meet.models import Meet
-from meet.admin import MeetDependentAdmin 
+from meet.admin import MeetDependentAdmin
 from registration.models import Level
 
 from django.utils.translation import ugettext_lazy as _
@@ -118,7 +111,7 @@ class AgeDivisionFilter(admin.SimpleListFilter):
     parameter_name = 'age_division'
 
     def lookups(self, request, model_admin):
-        return [(s.id, s.name) for s in models.Division.objects.all()]
+        return [(s.id, s) for s in models.Division.objects.all()]
 
     def queryset(self, request, queryset):
         value = self.value()
@@ -161,7 +154,7 @@ class StartingEventFilter(admin.SimpleListFilter):
             return queryset
 
 
-# Admins 
+# Admins
 
 class GymnastEventInlineFormset(BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
@@ -196,9 +189,8 @@ class GymnastAdmin(MeetDependentAdmin):
                                           'level',
                                           'starting_event',
                                           'overall_score',
-                                          'rank','tie_break',), }),
-                     )
-
+                                          'rank',
+                                          'tie_break', ), }), )
         return fieldsets
 
     def get_readonly_fields(self, request, obj=None):
@@ -260,7 +252,7 @@ class WomensArtisticGymnastAdmin(GymnastAdmin):
     pass
 
     def get_list_display(self, request):
-        result = ['athlete_id', 
+        result = ['athlete_id',
                   'last_name',
                   'first_name',
                   'show_team',
@@ -289,9 +281,7 @@ class TeamAwardAdmin(MeetDependentAdmin):
         fieldsets = super(TeamAwardAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
             'fields': ('name', 'levels', 'award_count', 'order',),
-            'description': ''
-            }),
-        )
+            'description': ''}), )
         return fieldsets
 
 
@@ -311,15 +301,13 @@ class TeamAwardRankEventAdmin(MeetDependentAdmin):
 
 class GymnastEventAdmin(MeetDependentAdmin):
     list_display = ('gymnast', 'event', 'score',)
-    search_fields = ['gymnast', 'id', ]
+    search_fields = ['gymnast__first_name', 'gymnast__last_name', 'id', ]
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastEventAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
             'fields': ('gymnast', 'event', 'score',),
-            'description': ''
-            }),
-        )
+            'description': ''}), )
         return fieldsets
 
 # TODO: Come back to this one
@@ -338,7 +326,6 @@ class DivisionAdmin(MeetDependentAdmin):
             division.save()
     meet_awards_percentage.short_description = "Set to meet awards percentage"
 
-
     def get_queryset(self, request):
         # TODO: annotate query with num_gymnasts, so the column can be sortable in the admin
         qs = super(DivisionAdmin, self).get_queryset(request)
@@ -348,9 +335,7 @@ class DivisionAdmin(MeetDependentAdmin):
         fieldsets = super(DivisionAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
             'fields': ('level', 'name', 'short_name', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count'),
-            'description': ''
-            }),
-        )
+            'description': ''}), )
         return fieldsets
 
 
@@ -361,9 +346,7 @@ class EventAdmin(MeetDependentAdmin):
         fieldsets = super(EventAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
             'fields': ('name', 'initials', 'sign', 'order'),
-            'description': ''
-            }),
-        )
+            'description': ''}), )
         return fieldsets
 
 
@@ -381,9 +364,7 @@ class SessionAdmin(MeetDependentAdmin):
                        'timed_warmup_start',
                        'presentation_start',
                        'competition_start'),
-            'description': ''
-            }),
-        )
+            'description': ''}), )
         return fieldsets
 
 
@@ -406,9 +387,7 @@ class LEDSignAdmin(MeetDependentAdmin):
         fieldsets = super(LEDSignAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
             'fields': ('name', 'device'),
-            'description': ''
-            }),
-        )
+            'description': ''}), )
         return fieldsets
 
 
@@ -425,9 +404,7 @@ class LEDShowAdmin(admin.ModelAdmin):
     inlines = (LEDShowMessageInline, )
     fieldsets = ((None, {
         'fields': ('name',),
-        'description': LED_SIGN_CODES
-    }),
-    )
+        'description': LED_SIGN_CODES}), )
 
 
 admin.site.register(models.Division, DivisionAdmin)
@@ -443,4 +420,3 @@ admin.site.register(models.TeamAwardRankEvent, TeamAwardRankEventAdmin)
 admin.site.register(models.ScoreRankEvent)
 admin.site.register(models.MensArtisticGymnast, MensArtisticGymnastAdmin)
 admin.site.register(models.WomensArtisticGymnast, WomensArtisticGymnastAdmin)
-

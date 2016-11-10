@@ -14,8 +14,9 @@ from django.utils.html import escape
 from request_provider.signals import get_request
 
 from . import models
-from registration.models import Level, Team, Coach
+from registration.models import Level
 from competition.models import Event, TeamAward, GymnastEvent
+
 
 class MeetAdmin(admin.ModelAdmin):
     list_display = ('short_name', 'host', 'date', 'show_current_meet', 'set_meet', 'enable_ranking', 'set_enable_ranking')
@@ -56,24 +57,16 @@ class MeetAdmin(admin.ModelAdmin):
     def delete_model(self, request, obj):
         if request.session.get('meet', {}) and request.session['meet'].get('id', '') == obj.id:
             request.session['meet'] = {}
-
-        # if self.model.objects.count() > 1:
-        #     if obj.is_current_meet:
-        #         q = self.model.objects.filter(is_current_meet=False).order_by('-id')[:1]
-        #         new_active = q[0]
-        #         new_active.is_current_meet = True
-        #         new_active.save()
             obj.delete()
 
     def get_formsets_with_inlines(self, request, obj=None):
         # if there's a session meet, but you're not editing the session meet, do not display inlines.
-        # protects from the appearance of having lost data, when you haven't, you just aren't 
+        # protects from the appearance of having lost data, when you haven't, you just aren't
         # allowed to see it until the meet is set to be active.
         current_meet = models.Meet.objects.filter(is_current_meet=True)
         if current_meet.count() != 1 or current_meet[0].id != obj.id:
             return []
         return super(MeetAdmin, self).get_formsets_with_inlines(request, obj)
-
 
     def copy_meet(self, request, queryset):
         current_meet = queryset[0]
@@ -90,15 +83,15 @@ class MeetAdmin(admin.ModelAdmin):
         new_meet.save()
 
         for level in levels:
-            old_obj = copy(level) 
-            old_obj.id = None 
+            old_obj = copy(level)
+            old_obj.id = None
             old_obj.meet = new_meet
             pre_save.disconnect(receiver=None, sender=Level, dispatch_uid='save_current_meet_level')
             old_obj.save()
 
         for event in events:
-            old_obj = copy(event) 
-            old_obj.id = None 
+            old_obj = copy(event)
+            old_obj.id = None
             old_obj.meet = new_meet
             pre_save.disconnect(receiver=None, sender=Event, dispatch_uid='save_current_meet_event')
             post_save.disconnect(receiver=None, sender=GymnastEvent, dispatch_uid='update_rankings')
@@ -115,7 +108,7 @@ class MeetAdmin(admin.ModelAdmin):
 # Base form that all admins with a FK to meet inherit from
 # Enforces ties to the currently active meet when creating new instances
 
-# Filters 
+# Filters
 
 class MeetFilter(SimpleListFilter):
     title = ('meet')
@@ -181,18 +174,12 @@ class ImproveRawIdFieldsStackedInline(admin.StackedInline):
         return super(ImproveRawIdFieldsStackedInline, self).formfield_for_dbfield(db_field, **kwargs)
 
 
-
 class MeetDependentAdmin(admin.ModelAdmin):
     """ meet field must be the first field in the first fieldset.
         The admin will need to dynamically make meet editable or read only, so needs to know where to find the field consistently. """
-    fieldsets = ((None, {
-        'fields': ('meet', ),
-        'description': ''
-        }),
-    )
+    fieldsets = ((None, {'fields': ('meet', ), 'description': ''}), )
     list_filter = [MeetFilter]
     current_meet = models.Meet.objects.filter(is_current_meet=True)
-
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         # Add lnked raw id field functionality
@@ -256,11 +243,12 @@ class MeetDependentAdmin(admin.ModelAdmin):
                             default_filters.append(filter)
                     if default_filters:
                         return HttpResponseRedirect("{}?{}".format(url, "&".join(default_filters)))
-            except: pass
+            except:
+                pass
         return super(MeetDependentAdmin, self).changelist_view(request, *args, **kwargs)
 
     def has_change_permission(self, request, obj=None):
-        if self.current_meet.count() != 1: 
+        if self.current_meet.count() != 1:
             return False
         return True
 

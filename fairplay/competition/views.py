@@ -20,6 +20,7 @@ from ledsign.bigdot import BigDotUDP
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
+
 @csrf_exempt
 def led_sign(request):
     # print(request.body.decode())
@@ -54,7 +55,7 @@ def download_roster(request):
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
     # force download.
-    response['Content-Disposition'] = 'attachment;filename=roster_'+timestamp+'.csv'
+    response['Content-Disposition'] = 'attachment;filename=roster_' + timestamp + '.csv'
     # the csv writer
     writer = csv.writer(response)
 
@@ -84,7 +85,8 @@ def download_roster(request):
                 row.append(models.GymnastEvent.objects.get(gymnast=gymnast,
                                                            event=event).score)
             except:
-                row.append('DNE') # GymnastEvent matching query does not exist
+                # GymnastEvent matching query does not exist
+                row.append('DNE')
         writer.writerow(row)
     return response
 
@@ -99,7 +101,7 @@ def download_athlete_labels(request):
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
     # force download.
-    response['Content-Disposition'] = 'attachment;filename=labels_'+timestamp+'.csv'
+    response['Content-Disposition'] = 'attachment;filename=labels_' + timestamp + '.csv'
     # the csv writer
     writer = csv.writer(response)
 
@@ -140,7 +142,7 @@ def download_team_labels(request):
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
     # force download.
-    response['Content-Disposition'] = 'attachment;filename=labels_'+timestamp+'.csv'
+    response['Content-Disposition'] = 'attachment;filename=labels_' + timestamp + '.csv'
     # the csv writer
     writer = csv.writer(response)
 
@@ -214,7 +216,6 @@ class SessionCeremonyDivisionView(TemplateView):
             aa_leaderboard = []
             gymnasts = models.Gymnast.objects.filter(division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
             total_count = len(gymnasts)
-            # award_count = math.ceil(total_count * MEET.all_around_award_percentage)
             award_count = division.all_around_award_count
 
             if total_count == 2:
@@ -285,7 +286,6 @@ class SessionCeremonyEventView(TemplateView):
                 event_leaderboard = []
                 gymnast_events = models.GymnastEvent.objects.filter(event=event, gymnast__division=division).order_by("rank")
                 total_count = len(gymnast_events)
-                # award_count = math.ceil(total_count * MEET.event_award_percentage)
                 award_count = division.event_award_count
                 # special case of two athletes
                 if total_count == 2:
@@ -307,7 +307,7 @@ class SessionCeremonyEventView(TemplateView):
                                      'age_division': division.name,
                                      'gymnasts': event_leaderboard})
 
-                            # individual leaderboards
+            # individual leaderboards
             info = {}
             info['id'] = event.id
             info['name'] = event.name
@@ -608,7 +608,7 @@ class SessionCoachHospitalityView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(SessionCoachHospitalityView, self).get_context_data(**kwargs)
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
-        
+
         levels = Level.objects.all().order_by('group').distinct('group')
         levels_sorted = sorted(levels, key=operator.attrgetter('order'))
         context['all_levels'] = levels_sorted
@@ -624,7 +624,6 @@ class CoachSignInView(TemplateView):
         context['meet'] = meetconfig.Meet.objects.filter(is_current_meet=True)[0]
         context['coaches'] = Coach.objects.all().order_by('team', 'last_name', 'first_name')
         return context
-
 
 
 # API Viewsets

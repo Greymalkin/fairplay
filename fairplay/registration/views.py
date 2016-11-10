@@ -1,9 +1,7 @@
 import operator
 
-from datetime import datetime
-from django.db.models import Avg, Max, Min, Sum, Count
+from django.db.models import Count
 from django.db.models import Prefetch
-from django.conf import settings
 from django.views.generic import TemplateView
 
 from rest_framework import viewsets
@@ -34,7 +32,6 @@ class MeetBreakdownView(TemplateView):
         context['age_range'] = range(4, 19) #TODO: increase max range to 20
         context['total_registered'] = models.Gymnast.objects.filter(is_scratched=False).count()
         context['no_ages'] = models.Gymnast.objects.filter(age=None, is_scratched=False).count()
-        gymnast_info = []
         return context
 
 

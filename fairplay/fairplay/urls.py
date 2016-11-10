@@ -18,7 +18,7 @@ router.register(r'ledshows', competition.views.LEDShowViewSet)
 urlpatterns = patterns(
     '',
     url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^admin/',  include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
     url(r'^ledsign/', competition.views.led_sign),
     url(r'^roster/', competition.views.download_roster),
@@ -38,4 +38,4 @@ urlpatterns = patterns(
     url(r'^team/roster/(?P<id>\d+)/$', competition.views.SessionTeamRosterView.as_view()),
     url(r'^breakdown/$', registration.views.MeetBreakdownView.as_view()),
     url(r'^order/awards/$', registration.views.OrderingAwardsView.as_view()),
- )
+)

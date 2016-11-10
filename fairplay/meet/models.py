@@ -1,4 +1,3 @@
-import datetime
 from django.db import models
 from request_provider.signals import get_request
 
@@ -12,8 +11,8 @@ class Meet(models.Model):
     enable_ranking = models.BooleanField(
         'Ranking',
         default=False,
-        help_text='''When turned on, scores saved to the cms will cause ranks to adjust. 
-            Must be turned on while the meet is running. 
+        help_text='''When turned on, scores saved to the cms will cause ranks to adjust.
+            Must be turned on while the meet is running.
             When turned off, admin will load more quickly.''')
     event_award_percentage = models.FloatField(default=0.45)
     all_around_award_percentage = models.FloatField(default=0.5)
@@ -37,7 +36,8 @@ class MeetManager(models.Manager):
         try:
             current_meet = Meet.objects.get(is_current_meet=True)
             return qs.filter(meet=current_meet)
-        except: pass
+        except:
+            pass
         return qs
 
 

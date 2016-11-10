@@ -2,7 +2,6 @@ import csv
 import meet
 from django.core.management.base import BaseCommand
 from competition import models
-from django.conf import settings
 
 
 class Command(BaseCommand):
@@ -23,7 +22,7 @@ class Command(BaseCommand):
 
             divisions = models.Division.objects.filter(level=level, meet=current_meet)
             events = models.Event.objects.filter(meet=current_meet) #competition.Event
-            row = ['','','']
+            row = ['', '', '']
             for event in events:
                 row.append(event.initials.upper())
                 row.append('R')
@@ -38,7 +37,7 @@ class Command(BaseCommand):
                     if len(gymnasts) > 0:
                         writer.writerow((agediv.name,))
                         for gymnast in gymnasts:
-                            row = [gymnast.athlete_id, gymnast.last_name, gymnast.first_name,]
+                            row = [gymnast.athlete_id, gymnast.last_name, gymnast.first_name, ]
                             print(row)
 
                             for event in events:

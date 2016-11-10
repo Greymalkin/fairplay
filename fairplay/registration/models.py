@@ -7,6 +7,7 @@ from django.dispatch import receiver
 
 from meet.models import Meet, MeetManager
 
+
 class Team(models.Model):
     meet = models.ForeignKey(Meet, related_name='teams')
     gym = models.CharField(max_length=100, help_text="ex. Fairland Boys Gymnastics")
@@ -23,7 +24,7 @@ class Team(models.Model):
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
     per_team_award_cost = models.PositiveSmallIntegerField(
         'Team Award Cost',
-        null=True, blank=False, 
+        null=True, blank=False,
         default=settings.TEAM_AWARD_COST)
     team_awards = models.ManyToManyField(
         'competition.TeamAward',
@@ -135,7 +136,7 @@ class Gymnast(Person):
     # TODO can per_gymnast_cost default be a callable?
     per_gymnast_cost = models.PositiveSmallIntegerField(
         'Cost',
-        null=True, blank=False, 
+        null=True, blank=False,
         default=settings.GYMNAST_COST)
     dob = models.DateField(blank=True, null=True)
     age = models.PositiveSmallIntegerField(
@@ -148,12 +149,12 @@ class Gymnast(Person):
     is_scratched = models.BooleanField('Scratched?', default=False)
     division = models.ForeignKey(
         'competition.Division',
-        related_name='gymnasts', 
+        related_name='gymnasts',
         blank=True, null=True,
         verbose_name="Age division")
     starting_event = models.ForeignKey(
         'competition.Event',
-        null=True, blank=True, 
+        null=True, blank=True,
         related_name="starting_gymnasts")
     overall_score = models.FloatField(null=True, blank=True)
     tie_break = models.BigIntegerField(null=True, blank=True)
@@ -176,7 +177,7 @@ class Gymnast(Person):
         flagged = 'SCRATCHED ' if self.is_scratched else flagged
         usag = self.usag if self.usag and len(self.usag.strip()) else ''
         try:
-            level = 'L{}'.format(int(self.level)) 
+            level = 'L{}'.format(int(self.level))
         except:
             level = self.level
         return "{3}{1}, {0} ({2}) {4}".format(self.first_name, self.last_name, level, flagged, usag)
@@ -197,7 +198,6 @@ class Gymnast(Person):
     def event_rotation_gymnasts(session, event):
         qs = Gymnast.objects.filter(is_scratched=False, division__session=session, starting_event=event)
         return qs
-
 
 
 class Level(models.Model):
@@ -241,8 +241,8 @@ class Level(models.Model):
         qs = self.level_coaches()
         count = 0
         for coach in qs:
-            count += coach.coaches.all().count()  
-        return count      
+            count += coach.coaches.all().count()
+        return count
 
 
 class ShirtSize(models.Model):
@@ -258,7 +258,7 @@ class ShirtSize(models.Model):
         return self.name
 
 
-### Receivers
+# Receivers
 
 @receiver(m2m_changed, sender=Team.team_awards.through)
 def level_costs(sender, instance, **kwargs):
@@ -272,4 +272,3 @@ def gymnast_costs(sender, instance, **kwargs):
     instance.team.gymnast_cost = instance.team.calc_gymnast_cost()
     instance.team.total_cost = instance.team.team_award_cost + instance.team.gymnast_cost
     instance.team.save()
-

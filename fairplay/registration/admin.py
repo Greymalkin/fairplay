@@ -2,13 +2,12 @@ import requests
 import csv
 
 from collections import OrderedDict
-from datetime import date, timedelta
 from dateutil import parser
 from django.conf import settings
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.models import LogEntry
-from django.db.models import Count, Sum, Max
-from django.db.models.signals import pre_save, post_save
+from django.db.models import Count, Max
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
@@ -18,11 +17,9 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 
-from grappelli.forms import GrappelliSortableHiddenMixin
-from meet.models import Meet
 from meet.admin import MeetDependentAdmin, MeetFilter
 
-from competition.models import Event, GymnastEvent, TeamAward, Division, Session, update_rankings
+from competition.models import Event, GymnastEvent, Division, Session, update_rankings
 from . import models
 from . import forms as actionforms
 
@@ -37,7 +34,8 @@ def make_event_action(event):
 
     return (name, (action, name, "Set starting event to {}".format(event)))
 
-### Filters
+# Filters
+
 
 class StartingEventFilter(admin.SimpleListFilter):
     title = _('starting event')
@@ -145,7 +143,7 @@ class CoachMissingUsagFilter(SimpleListFilter):
                     | queryset.filter(background_expire_date=True))
 
 
-### Admins
+# Admins
 
 
 class LevelAdmin(MeetDependentAdmin):
@@ -156,9 +154,7 @@ class LevelAdmin(MeetDependentAdmin):
         fieldsets = super(LevelAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
             'fields': ('name', 'group', 'level', 'order'),
-            'description': ''
-            }),
-        )
+            'description': ''}), )
         return fieldsets
 
 
@@ -172,10 +168,9 @@ class CoachAdmin(MeetDependentAdmin):
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(CoachAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
-            'fields': ('first_name', 'last_name', 'usag', 'team', 'is_flagged', 'is_verified', 
+            'fields': ('first_name', 'last_name', 'usag', 'team', 'is_flagged', 'is_verified',
                        'usag_expire_date', 'safety_expire_date', 'background_expire_date', 'notes'),
-            'description': ''
-            }),
+            'description': ''}),
         )
         return fieldsets
 
@@ -219,22 +214,22 @@ class GymnastAdmin(MeetDependentAdmin):
                     'age',
                     # 'division',
                     'show_age_division',
-                    'shirt', 
+                    'shirt',
                     'session',
                     'starting_event',
                     'is_scratched',
                     'is_flagged',
                     'is_verified')
-    list_filter = [ 'team', 
-                    GymnastMissingUsagFilter,
-                    GymnastMissingDobFilter,
-                    HighLevelFilter,
-                    LevelFilter, 
-                    'team__team_awards',
-                    StartingEventFilter,
-                    SessionFilter,
-                    'is_scratched',
-                    'is_flagged',]
+    list_filter = ['team',
+                   GymnastMissingUsagFilter,
+                   GymnastMissingDobFilter,
+                   HighLevelFilter,
+                   LevelFilter,
+                   'team__team_awards',
+                   StartingEventFilter,
+                   SessionFilter,
+                   'is_scratched',
+                   'is_flagged', ]
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
     readonly_fields = ('team', 'age')
     raw_id_fields = ('team',)
@@ -243,12 +238,11 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'discipline', 'level',  'dob', 'age', 'shirt', 'notes'), }),
+        fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'discipline', 'level', 'dob', 'age', 'shirt', 'notes'), }),
                      ('Checks', {'classes': ('grp-collapse grp-closed',),
                                  'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
                      ('Meet', {'classes': ('grp-collapse grp-closed',),
-                               'fields': ('athlete_id', 'age', 'division', 'starting_event', 'overall_score', 'tie_break', 'rank'), }),
-                     )
+                               'fields': ('athlete_id', 'age', 'division', 'starting_event', 'overall_score', 'tie_break', 'rank'), }), )
         return fieldsets
 
     def get_readonly_fields(self, request, obj=None):
@@ -304,12 +298,12 @@ class GymnastAdmin(MeetDependentAdmin):
             if member.usag:
                 members.append(member.usag)
             else:
-                member.notes='missing usag id'
-                member.is_flagged=True
+                member.notes = 'missing usag id'
+                member.is_flagged = True
                 member.save()
 
         usag_max = settings.USAG_MAX_VERIFY
-        chunks = [members[x:x+usag_max] for x in range(0, len(members), usag_max)]
+        chunks = [members[x:x + usag_max] for x in range(0, len(members), usag_max)]
 
         verified_count = 0
         failed_count = 0
@@ -357,7 +351,7 @@ class GymnastAdmin(MeetDependentAdmin):
                                 gymnast = models.Gymnast.objects.get(usag=usag_id)
                                 notes = ""
                                 valid = True
-                                # print('*** {} and {} and {}'.format(str(gymnast.level.group), "".join(gymnast.level.name.split()).lower(), '{}{}'.format(level, division.lower()) ))  
+                                # print('*** {} and {} and {}'.format(str(gymnast.level.group), "".join(gymnast.level.name.split()).lower(), '{}{}'.format(level, division.lower()) ))
 
                                 if last_name.lower() != gymnast.last_name.lower():
                                     valid = False
@@ -371,7 +365,7 @@ class GymnastAdmin(MeetDependentAdmin):
                                     valid = False
                                     notes += "Level does not match USAG level (USAG: {})\n".format(level)
 
-                                if level_division and level_division.lower() != "".join(gymnast.level.name.split()).lower(): 
+                                if level_division and level_division.lower() != "".join(gymnast.level.name.split()).lower():
                                     valid = False
                                     notes += "Compulsory division does not match USAG level (USAG: {})\n".format(level_division)
 
@@ -441,7 +435,7 @@ class GymnastAdmin(MeetDependentAdmin):
             if d.level not in divisions_by_level:
                 divisions_by_level[d.level] = {}
             if d.min_age not in divisions_by_level[d.level]:
-                for age in range(d.min_age, d.max_age+1):
+                for age in range(d.min_age, d.max_age + 1):
                     divisions_by_level[d.level][age] = d
 
         # Calc comptition age and retrieve correct division for age + level combination
@@ -471,7 +465,7 @@ class GymnastAdmin(MeetDependentAdmin):
 
         for a in queryset:
             # Check to see if we've calculated the max id for this level before.  If so, grab that id.
-            if a.level.level  not in level_max_athlete_id:
+            if a.level.level not in level_max_athlete_id:
                 max_id = models.Gymnast.objects.filter(level__level=a.level.level).aggregate(Max('athlete_id'))
                 max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
                 # First one: ID begins with level number. level 4 = 4000
@@ -555,7 +549,7 @@ class GymnastInline(admin.StackedInline):
     model = models.Gymnast
     ordering = ('is_scratched', 'level', 'last_name', 'first_name')
     readonly_fields = ('age',)
-    fields = ('first_name', 
+    fields = ('first_name',
               'last_name',
               'per_gymnast_cost',
               'discipline',
@@ -580,11 +574,11 @@ class GymnastInline(admin.StackedInline):
 
 class TeamAdmin(MeetDependentAdmin):
     list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'show_paid_in_full', 'city', 'state')
-    list_filter = ('qualified','team_awards')
+    list_filter = ('qualified', 'team_awards')
     filter_horizontal = ('team_awards', )
     readonly_fields = ('gymnast_cost', 'total_cost', 'team_award_cost',)
     search_fields = ('gym', 'team', 'usag')
-    inlines = [CoachInline, GymnastInline] #
+    inlines = [CoachInline, GymnastInline]
     actions = ['export_with_notes', 'export_with_session']
 
     def get_fieldsets(self, request, obj=None):
@@ -593,13 +587,11 @@ class TeamAdmin(MeetDependentAdmin):
                                          'team',
                                          'usag',
                                          'per_team_award_cost',
-                                         'team_awards',),
-                     }),
+                                         'team_awards',), }),
                      ('Payment', {'fields': ('gymnast_cost',
                                              'team_award_cost',
                                              'total_cost',
-                                             'paid_in_full', ), 
-                     }),
+                                             'paid_in_full', ), }),
                      ('Contact', {'fields': ('first_name',
                                              'last_name',
                                              'phone',
@@ -608,12 +600,9 @@ class TeamAdmin(MeetDependentAdmin):
                                              'address_2',
                                              'city',
                                              'state',
-                                             'postal_code',                                             
-                                             'notes',  ),
-                                  'classes': ('grp-collapse grp-closed',),
-
-                     }),
-                     )
+                                             'postal_code',
+                                             'notes', ),
+                                  'classes': ('grp-collapse grp-closed',), }), )
         return fieldsets
 
     def get_queryset(self, request):
@@ -628,7 +617,6 @@ class TeamAdmin(MeetDependentAdmin):
             return self.readonly_fields
         else:
             return []
-
 
     def num_gymnasts(self, obj):
         return obj.gymnasts.filter(is_scratched=False).count()
@@ -678,13 +666,13 @@ class TeamAdmin(MeetDependentAdmin):
         team_name = queryset[0].team
         response['Content-Disposition'] = 'attachment; filename={}_bwi_roster.csv'.format(team_name)
         writer = csv.writer(response)
-        field_names = ['team', 
+        field_names = ['team',
                        'last_name',
                        'first_name',
                        'usag',
                        'dob',
                        'age',
-                       'shirt', 
+                       'shirt',
                        'is_scratched',
                        'level',
                        'notes', ]
@@ -698,7 +686,6 @@ class TeamAdmin(MeetDependentAdmin):
                 writer.writerow(field_values)
         return response
     export_with_notes.short_description = "Export with notes, as csv file"
-
 
     def show_paid_in_full(self, obj):
         return obj.paid_in_full
@@ -735,8 +722,7 @@ class PricingAdmin(MeetDependentAdmin):
         fieldsets = super(PricingAdmin, self).get_fieldsets(request, obj)
         fieldsets += ((None, {
             'fields': ('name', 'price'),
-            'description': ''
-            }),
+            'description': ''}),
         )
         return fieldsets
 

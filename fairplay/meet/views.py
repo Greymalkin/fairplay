@@ -1,6 +1,3 @@
-from django.shortcuts import get_object_or_404, render
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
@@ -20,7 +17,7 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
 
     @detail_route(methods=['get'], url_path="set")
     def set_active(self, request, pk=None):
-        """ Sets a meet as active, storing it in the user's session 
+        """ Sets a meet as active, storing it in the user's session
         ---
         omit_serializer: true
         """
@@ -53,6 +50,5 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
         except:
             request.session['meet'] = {}
             return Response({"status": "ranking behavior did not changed"}, status=status.HTTP_200_OK)
- 
-        return Response({"status": "enable ranking flag changed to {}".format(meet.enable_ranking)}, status=status.HTTP_200_OK)
 
+        return Response({"status": "enable ranking flag changed to {}".format(meet.enable_ranking)}, status=status.HTTP_200_OK)

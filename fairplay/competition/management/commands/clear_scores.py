@@ -15,7 +15,8 @@ class Command(BaseCommand):
             gymnast.save()
             try:
                 gymnast.scores.delete()
-            except: pass
+            except:
+                pass
 
         for gymnast_event in models.GymnastEvent.objects.all():
             gymnast_event.score = None
