@@ -32,15 +32,24 @@
 
   <div id="nav">
     <ul>
-      <li>Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}}</li>
-     </ul>
-     <ul>       
-      <li>Open Warm-Up: {{ session.session_start|date:"f a" }}  | </li>      
-      <li>Timed Warm-Up: {{ session.timed_warmup_start }}{% if session.warmup = "Traditional" %}, 
-            10 minutes  per event 
+      <li>
+        Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}}
+        {% if session.warmup != "Traditional" %}
+          |  Warm-Up/Compete First Event: {{ session.timed_warmup_start }}
         {% endif %}
       </li>
+     </ul>
+
+     <ul>       
+       {% if session.warmup = "Traditional" %}
+        <li>Open Warm-Up: {{ session.session_start|date:"f a" }}  | </li>      
+        <li>Timed Warm-Up: {{ session.timed_warmup_start }}{% if session.warmup = "Traditional" %}, 
+              10 minutes  per event 
+          {% endif %}
+        </li>
+      {% endif %}
     </ul>
+
   </div>
 
 
@@ -106,12 +115,20 @@
 
   <div id="nav">
     <ul>
-      <li>Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}}</li>
+      <li>
+        Level{{session.levels.count|pluralize}}: {{session.levels|join:", "}}
+        {% if session.warmup != "Traditional" %}
+          |  Warm-Up/Compete First Event: {{ session.timed_warmup_start }}
+        {% endif %}
+      </li>
     </ul>
+
+    {% if session.warmup = "Traditional" %}
      <ul>       
       <li>Open Warm-Up: {{ session.session_start }}  | </li>      
       <li>Timed Warm-Up: {{ session.timed_warmup_start }} </li>      
     </ul>
+    {% endif %}
 
   </div>
 
@@ -125,32 +142,27 @@
           {% for event in team.starting_events %}
 
             {% if session.warmup = "Traditional" %} 
-            <div class="warm {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
-              
-              {{ event.starting_event.warmup_event_starthere }} <span class="divisions">(Warm-up)</span>
-            </div>
+              <div class="warm {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
+                
+                {{ event.starting_event.warmup_event_starthere }} <span class="divisions">(Warm-up)</span>
+              </div>
 
-            <div class="start">
-              {{ event.starting_event }} <span class="divisions">(Competition)</span>
-            </div>
-
-            {% if team.starting_events.count > 1 %} 
-            <div style="float: left; clear: both;">Level {{event.level}}</div>
-            {% endif %} 
-
+              <div class="start">
+                {{ event.starting_event }} <span class="divisions">(Competition)</span>
+              </div>
 
             {% else %}
-            <!-- hide the warmup if this is not a traditional session -->
-            <div class="start {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
-              <!-- {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} --> 
-              {% if team.starting_events.count > 1 %} Level {{event.level}}: {% endif %} 
-              {{ event.starting_event }} <span class="divisions">(Competition)</span>
-            </div>
+
+              <!-- hide the warmup if this is not a traditional session -->
+              <div class="start {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
+                {{ event.starting_event }} <span class="divisions">(Competition)</span>
+              </div>
 
             {% endif%}
-         <div style="float: left; clear: both;">
-            {% team_rotation_gymnasts team.team session event.starting_event False %}
-          </div>
+
+           <div style="float: left; clear: both;">
+              {% team_rotation_gymnasts team.team session event.starting_event False %}
+           </div>
 
           {% endfor %}
 
