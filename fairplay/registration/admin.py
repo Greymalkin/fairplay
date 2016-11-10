@@ -75,18 +75,31 @@ class SessionFilter(admin.SimpleListFilter):
             return queryset
 
 
-class LevelFilter(SimpleListFilter):
+class HighLevelFilter(SimpleListFilter):
     title = ('Level')
     parameter_name = 'level'
 
     def lookups(self, request, model_admin):
         qs = model_admin.get_queryset(request)
-        return [(i, i) for i in qs.values_list('level__level', flat=True)
+        return [(i, i) for i in qs.values_list('level__group', flat=True).distinct('level__group').order_by('level__group', 'level__order')]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(level__group=self.value())
+
+
+class LevelFilter(SimpleListFilter):
+    title = ('Level Division')
+    parameter_name = 'level_div'
+
+    def lookups(self, request, model_admin):
+        qs = model_admin.get_queryset(request)
+        return [(i, i) for i in qs.values_list('level__name', flat=True)
                                   .distinct().order_by('level__order')]
 
     def queryset(self, request, queryset):
         if self.value():
-            return queryset.filter(level__level__exact=self.value())
+            return queryset.filter(level__name=self.value())
 
 
 class GymnastMissingUsagFilter(SimpleListFilter):
@@ -198,14 +211,15 @@ class GymnastEventInlineAdmin(admin.TabularInline):
 class GymnastAdmin(MeetDependentAdmin):
     list_display = ('last_name',
                     'first_name',
+                    'show_team',
                     'athlete_id',
                     'usag',
-                    'show_team',
+                    'dob',
                     'level',
                     'age',
-                    'dob',
-                    'shirt', 
+                    # 'division',
                     'show_age_division',
+                    'shirt', 
                     'session',
                     'starting_event',
                     'is_scratched',
@@ -214,7 +228,8 @@ class GymnastAdmin(MeetDependentAdmin):
     list_filter = [ 'team', 
                     GymnastMissingUsagFilter,
                     GymnastMissingDobFilter,
-                    'level', 
+                    HighLevelFilter,
+                    LevelFilter, 
                     'team__team_awards',
                     StartingEventFilter,
                     SessionFilter,

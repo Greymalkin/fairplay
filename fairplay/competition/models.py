@@ -170,7 +170,7 @@ class Session(models.Model):
 
     @property
     def levels(self):
-        levels = self.divisions.order_by('level_id').distinct('level_id').values_list('level__level', flat=True)
+        levels = self.divisions.order_by('level_id').distinct('level_id').values_list('level__name', flat=True)
         return levels
 
     @property
@@ -471,7 +471,7 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
                 tie_break += int(int(gymnast_event.score * 10) * math.pow(10, p))
             p += 3
             
-            #is there a column in ScoreRankEvent that matches gymnast_event initials?
+            #is there a column in ScoreRankEvent that matches gymnast_event initials?  If none, this will fail silently.
             setattr(score, gymnast_event.event.initials, gymnast_event.score)
 
         instance.gymnast.tie_break = tie_break

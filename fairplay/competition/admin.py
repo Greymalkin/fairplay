@@ -440,6 +440,7 @@ admin.site.register(models.Gymnast, GymnastAdmin)
 admin.site.register(models.TeamAward, TeamAwardAdmin)
 admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
 admin.site.register(models.TeamAwardRankEvent, TeamAwardRankEventAdmin)
-admin.site.register(models.ScoreRankEvent, ScoreRankEventAdmin)
+admin.site.register(models.ScoreRankEvent)
 admin.site.register(models.MensArtisticGymnast, MensArtisticGymnastAdmin)
 admin.site.register(models.WomensArtisticGymnast, WomensArtisticGymnastAdmin)
+
