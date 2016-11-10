@@ -11,6 +11,11 @@ class Command(BaseCommand):
         for gymnast_event in models.GymnastEvent.objects.all():
             gymnast_event.score = self.random_score()
             gymnast_event.save()
+    
+            score, created = models.ScoreRankEvent.objects.get_or_create(meet=gymnast_event.meet, gymnast=gymnast_event.gymnast)
+            # set score to column in ScoreRankEvent that matches gymnast_event initials.  If none, this will fail silently.
+            setattr(score, gymnast_event.event.initials, gymnast_event.score)
+            score.save()
 
         for division in models.Division.objects.all():
             ranking.update_division_ranking(division)
