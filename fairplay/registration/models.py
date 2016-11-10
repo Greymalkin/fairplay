@@ -74,7 +74,7 @@ class Team(models.Model):
         except:
             return 0
 
-    def rotation_gymnasts(self, session, event):
+    def team_rotation_gymnasts(self, session, event):
         qs = self.gymnasts.filter(is_scratched=False, division__session=session, starting_event=event)
         return qs
 
@@ -193,6 +193,11 @@ class Gymnast(Person):
             return age
         else:
             return None
+
+    def event_rotation_gymnasts(session, event):
+        qs = Gymnast.objects.filter(is_scratched=False, division__session=session, starting_event=event)
+        return qs
+
 
 
 class Level(models.Model):
