@@ -148,14 +148,16 @@
               </div>
 
               <div class="start">
-                {{ event.starting_event }} <span class="divisions">(Competition)</span>
+                {{ event.starting_event }} <span class="divisions">(Competition)</span> 
               </div>
 
             {% else %}
 
               <!-- hide the warmup if this is not a traditional session -->
               <div class="start {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
-                {{ event.starting_event }} <span class="divisions">(Competition)</span>
+                {{ event.starting_event }} 
+                {% if session.warmup = "Traditional" %} <span class="divisions">(Competition)</span> {% endif %}
+
               </div>
 
             {% endif%}
