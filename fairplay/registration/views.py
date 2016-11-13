@@ -29,7 +29,7 @@ class MeetBreakdownView(TemplateView):
 
         context['level_groups'] = level_groups
         context['level_divisions'] = level_divisions
-        context['age_range'] = range(4, 19) #TODO: increase max range to 20
+        context['age_range'] = range(4, 20)
         context['total_registered'] = models.Gymnast.objects.filter(is_scratched=False).count()
         context['no_ages'] = models.Gymnast.objects.filter(age=None, is_scratched=False).count()
         return context
