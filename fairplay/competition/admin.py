@@ -279,9 +279,11 @@ class TeamAwardAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(TeamAwardAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {
-            'fields': ('name', 'levels', 'award_count', 'order',),
-            'description': ''}), )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {
+                'fields': ('name', 'levels', 'award_count', 'order',),
+                'description': ''}), )
         return fieldsets
 
 
@@ -305,9 +307,11 @@ class GymnastEventAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastEventAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {
-            'fields': ('gymnast', 'event', 'score',),
-            'description': ''}), )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {
+                'fields': ('gymnast', 'event', 'score',),
+                'description': ''}), )
         return fieldsets
 
 # TODO: Come back to this one
@@ -333,20 +337,24 @@ class DivisionAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(DivisionAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {
-            'fields': ('level', 'name', 'short_name', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count'),
-            'description': ''}), )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {
+                'fields': ('level', 'name', 'short_name', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count'),
+                'description': ''}), )
         return fieldsets
 
 
-class EventAdmin(MeetDependentAdmin):
+class EventAdmin(MeetDependentAdmin):  # TODO: Remove Meet Dependency?
     list_display = ('name', 'initials', 'order',)
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(EventAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {
-            'fields': ('name', 'initials', 'sign', 'order'),
-            'description': ''}), )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {
+                'fields': ('name', 'initials', 'sign', 'order'),
+                'description': ''}), )
         return fieldsets
 
 
@@ -356,15 +364,17 @@ class SessionAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(SessionAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {
-            'fields': ('name',
-                       'divisions',
-                       'warmup',
-                       'session_start',
-                       'timed_warmup_start',
-                       'presentation_start',
-                       'competition_start'),
-            'description': ''}), )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {
+                'fields': ('name',
+                           'divisions',
+                           'warmup',
+                           'session_start',
+                           'timed_warmup_start',
+                           'presentation_start',
+                           'competition_start'),
+                'description': ''}), )
         return fieldsets
 
 
@@ -385,9 +395,11 @@ class LEDSignAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(LEDSignAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {
-            'fields': ('name', 'device'),
-            'description': ''}), )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {
+                'fields': ('name', 'device'),
+                'description': ''}), )
         return fieldsets
 
 
@@ -409,7 +421,7 @@ class LEDShowAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Division, DivisionAdmin)
 admin.site.register(models.LEDSign, LEDSignAdmin)
-admin.site.register(models.Event, EventAdmin) #competition.Event
+admin.site.register(models.Event, EventAdmin)  # competition.Event
 admin.site.register(models.GymnastEvent, GymnastEventAdmin)
 admin.site.register(models.LEDShow, LEDShowAdmin)
 admin.site.register(models.Session, SessionAdmin)

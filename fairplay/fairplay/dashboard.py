@@ -222,12 +222,14 @@ class CustomIndexDashboard(Dashboard):
                     })
 
             # Table of Starting Events, with links to Competition.Gymnast admin
+            # TODO... had to hard code mensartisticgymnast in the url ... not good
+            # Used to go to competition/gymnast/... 
                 header = ""
                 counts = ""
                 for event in Event.objects.all():
                     count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                     header += '<th>{}</th>'.format(event.initials)
-                    link = '/admin/competition/gymnast/?meet={}&session={}&starting_event__id__exact={}'.format(session.meet.id, session.id, event.id)
+                    link = '/admin/competition/mensartisticgymnast/?meet={}&session={}&starting_event={}'.format(session.meet.id, session.id, event.id)
                     counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
                 self.children.append(modules.LinkList(

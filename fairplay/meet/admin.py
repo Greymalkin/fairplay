@@ -19,7 +19,7 @@ from competition.models import Event, TeamAward, GymnastEvent
 
 
 class MeetAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'host', 'date', 'show_current_meet', 'set_meet', 'enable_ranking', 'set_enable_ranking')
+    list_display = ('short_name', 'host', 'date', 'show_current_meet', 'set_meet')
     actions = ['copy_meet']
 
     def set_meet(self, obj):
@@ -27,11 +27,12 @@ class MeetAdmin(admin.ModelAdmin):
     set_meet.short_description = ""
     set_meet.allow_tags = True
 
-    def set_enable_ranking(self, obj):
-        onoff = 'Off' if obj.enable_ranking else 'On'
-        return "<a class='setRanking' href='#' data-meet={} data-ranking={}>Turn Ranking {}</a>".format(obj.id, not obj.enable_ranking, onoff)
-    set_enable_ranking.short_description = ""
-    set_enable_ranking.allow_tags = True
+    # TODO: Get Rid
+    # def set_enable_ranking(self, obj):
+    #     onoff = 'Off' if obj.enable_ranking else 'On'
+    #     return "<a class='setRanking' href='#' data-meet={} data-ranking={}>Turn Ranking {}</a>".format(obj.id, not obj.enable_ranking, onoff)
+    # set_enable_ranking.short_description = ""
+    # set_enable_ranking.allow_tags = True
 
     def show_current_meet(self, obj):
         return obj.is_current_meet
@@ -181,6 +182,26 @@ class MeetDependentAdmin(admin.ModelAdmin):
     list_filter = [MeetFilter]
     current_meet = models.Meet.objects.filter(is_current_meet=True)
 
+    def get_fieldsets(self, request, obj=None):
+        # If there's no active meet, hide fields until active meet has been set
+        fieldsets = super(MeetDependentAdmin, self).get_fieldsets(request, obj)
+        if not request.session.get('meet', ''):
+            fieldsets = ((None, {
+                'fields': ('meet', ),
+                'description': 'Please go to the <a href="{}">Meet admin</a> and set an Active Meet.'.format(reverse('admin:meet_meet_changelist'))}),
+            )
+        return fieldsets
+
+    def get_formsets_with_inlines(self, request, obj=None):
+        # if there's a session project, but you're not editing the session project, do not display inlines.
+        # necessary because the macro phases and channels of a non-active project are filtered out by the inlines'
+        # model managers when there's a session project, giving the appearance that you've lost data.
+        # you haven't, you just aren't allowed to see it until the project is set to be active.
+        if obj:
+            if not request.session.get('meet', {}):
+                return []
+        return super(MeetDependentAdmin, self).get_formsets_with_inlines(request, obj)
+
     def formfield_for_dbfield(self, db_field, **kwargs):
         # Add lnked raw id field functionality
         if db_field.name in self.raw_id_fields:
@@ -196,7 +217,7 @@ class MeetDependentAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         # when the session knows the current meet, don't let meet be editable
         # meet will be automatically set to the session meet when model is saved
-        if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', ''):
+        if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', '') or not request.session.get('meet', ''):
             self.readonly_fields += ('meet',)
             self.empty_value_display = request.session['meet'].get('short_name', '???')
             return self.readonly_fields

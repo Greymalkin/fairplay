@@ -152,9 +152,11 @@ class LevelAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(LevelAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {
-            'fields': ('name', 'group', 'level', 'order'),
-            'description': ''}), )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {
+                'fields': ('name', 'group', 'level', 'order'),
+                'description': ''}), )
         return fieldsets
 
 
@@ -167,11 +169,13 @@ class CoachAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(CoachAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {
-            'fields': ('first_name', 'last_name', 'usag', 'team', 'is_flagged', 'is_verified',
-                       'usag_expire_date', 'safety_expire_date', 'background_expire_date', 'notes'),
-            'description': ''}),
-        )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {
+                'fields': ('first_name', 'last_name', 'usag', 'team', 'is_flagged', 'is_verified',
+                           'usag_expire_date', 'safety_expire_date', 'background_expire_date', 'notes'),
+                'description': ''}),
+            )
         return fieldsets
 
     def has_usag(self, obj):
@@ -237,12 +241,14 @@ class GymnastAdmin(MeetDependentAdmin):
     inlines = [GymnastEventInlineAdmin]
 
     def get_fieldsets(self, request, obj=None):
+        # If there's no active meet, hide fields until active meet has been set
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'discipline', 'level', 'dob', 'age', 'shirt', 'notes'), }),
-                     ('Checks', {'classes': ('grp-collapse grp-closed',),
-                                 'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
-                     ('Meet', {'classes': ('grp-collapse grp-closed',),
-                               'fields': ('athlete_id', 'age', 'division', 'starting_event', 'overall_score', 'tie_break', 'rank'), }), )
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'discipline', 'level', 'dob', 'age', 'shirt', 'notes'), }),
+                         ('Checks', {'classes': ('grp-collapse grp-closed',),
+                                     'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
+                         ('Meet', {'classes': ('grp-collapse grp-closed',),
+                                   'fields': ('athlete_id', 'age', 'division', 'starting_event', 'overall_score', 'tie_break', 'rank'), }), )
         return fieldsets
 
     def get_readonly_fields(self, request, obj=None):
@@ -583,26 +589,28 @@ class TeamAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(TeamAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('gym',
-                                         'team',
-                                         'usag',
-                                         'per_team_award_cost',
-                                         'team_awards',), }),
-                     ('Payment', {'fields': ('gymnast_cost',
-                                             'team_award_cost',
-                                             'total_cost',
-                                             'paid_in_full', ), }),
-                     ('Contact', {'fields': ('first_name',
-                                             'last_name',
-                                             'phone',
-                                             'email',
-                                             'address_1',
-                                             'address_2',
-                                             'city',
-                                             'state',
-                                             'postal_code',
-                                             'notes', ),
-                                  'classes': ('grp-collapse grp-closed',), }), )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {'fields': ('gym',
+                                             'team',
+                                             'usag',
+                                             'per_team_award_cost',
+                                             'team_awards',), }),
+                         ('Payment', {'fields': ('gymnast_cost',
+                                                 'team_award_cost',
+                                                 'total_cost',
+                                                 'paid_in_full', ), }),
+                         ('Contact', {'fields': ('first_name',
+                                                 'last_name',
+                                                 'phone',
+                                                 'email',
+                                                 'address_1',
+                                                 'address_2',
+                                                 'city',
+                                                 'state',
+                                                 'postal_code',
+                                                 'notes', ),
+                                      'classes': ('grp-collapse grp-closed',), }), )
         return fieldsets
 
     def get_queryset(self, request):

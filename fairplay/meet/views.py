@@ -37,18 +37,18 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
         }
         return Response({"status": "active meet: {}".format(request.session['meet'])}, status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'])
-    def toggle_ranking(self, request, pk=None):
-        """ Changes the enable_ranking flag to its opposite
-        ---
-        omit_serializer: true
-        """
-        try:
-            meet = models.Meet.objects.get(id=int(pk))
-            meet.enable_ranking = not meet.enable_ranking
-            meet.save()
-        except:
-            request.session['meet'] = {}
-            return Response({"status": "ranking behavior did not changed"}, status=status.HTTP_200_OK)
+    # @detail_route(methods=['get'])
+    # def toggle_ranking(self, request, pk=None):
+    #     """ Changes the enable_ranking flag to its opposite
+    #     ---
+    #     omit_serializer: true
+    #     """
+    #     try:
+    #         meet = models.Meet.objects.get(id=int(pk))
+    #         meet.enable_ranking = not meet.enable_ranking
+    #         meet.save()
+    #     except:
+    #         request.session['meet'] = {}
+    #         return Response({"status": "ranking behavior did not changed"}, status=status.HTTP_200_OK)
 
-        return Response({"status": "enable ranking flag changed to {}".format(meet.enable_ranking)}, status=status.HTTP_200_OK)
+    #     return Response({"status": "enable ranking flag changed to {}".format(meet.enable_ranking)}, status=status.HTTP_200_OK)
