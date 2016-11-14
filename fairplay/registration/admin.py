@@ -37,12 +37,26 @@ def make_event_action(event):
 # Filters
 
 
+class DisciplineFilter(admin.SimpleListFilter):
+    title = _('discipline')
+    parameter_name = 'discipline'
+
+    def lookups(self, request, model_admin):
+        lookups = [('mag', 'Men\'s Artistic'), ('wag', 'Women\'s Artistic')]
+        return lookups
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(discipline=self.value())
+        return queryset
+
+
 class StartingEventFilter(admin.SimpleListFilter):
     title = _('starting event')
     parameter_name = 'starting_event'
 
     def lookups(self, request, model_admin):
-        lookups = [(s.id, s.name) for s in Event.objects.all()] #competition.Event
+        lookups = [(s.id, s.name) for s in Event.objects.all()]  # competition.Event
         lookups.append(('', '(None)'))
         return lookups
 
@@ -225,6 +239,7 @@ class GymnastAdmin(MeetDependentAdmin):
                     'is_flagged',
                     'is_verified')
     list_filter = ['team',
+                   DisciplineFilter,
                    GymnastMissingUsagFilter,
                    GymnastMissingDobFilter,
                    HighLevelFilter,
