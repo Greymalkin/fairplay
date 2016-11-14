@@ -42,8 +42,6 @@ def update_division_ranking(division):
         last_tie_break = None
         # Set ranks, break ties.
         for gymnast in gymnasts:
-            # print('gymnast score:', gymnast['score'])
-
             # skip no score
             if gymnast['score'] is None:
                 continue
@@ -82,7 +80,7 @@ def update_division_ranking(division):
         gymnast['max_score'] = info['max_score']
         gymnasts.append(gymnast)
 
-    gymnasts = multikeysort(gymnasts, ('total_score', 'max_score'))
+    gymnasts = multikeysort(gymnasts, ('total_score', 'max_score', 'tie_break', ))
 
     # rank them by total_score, and tie_break
     rank = 0

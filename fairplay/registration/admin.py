@@ -502,7 +502,7 @@ class GymnastAdmin(MeetDependentAdmin):
     set_athlete_id.short_description = "Set athlete id"
 
     def create_events(self, modeladmin, req, qset):
-        events = Event.objects.all() #competition.Event
+        events = Event.objects.all()  # competition.Event
 
         post_save.disconnect(
             None,

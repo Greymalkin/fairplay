@@ -65,7 +65,7 @@ class RankingTests(TestCase):
         competition.models.GymnastEvent.objects.create(meet=m,
                                                        gymnast=john,
                                                        event=ph,
-                                                       score=11.7)
+                                                       score=11.9)
         competition.models.GymnastEvent.objects.create(meet=m,
                                                        gymnast=john,
                                                        event=pb,
@@ -88,7 +88,7 @@ class RankingTests(TestCase):
         competition.models.GymnastEvent.objects.create(meet=m,
                                                        gymnast=bob,
                                                        event=vt,
-                                                       score=11.5)
+                                                       score=11.6)
         competition.models.GymnastEvent.objects.create(meet=m,
                                                        gymnast=bob,
                                                        event=ph,
@@ -100,7 +100,7 @@ class RankingTests(TestCase):
         competition.models.GymnastEvent.objects.create(meet=m,
                                                        gymnast=bob,
                                                        event=hb,
-                                                       score=10.3)
+                                                       score=10.4)
         competition.models.GymnastEvent.objects.create(meet=m,
                                                        gymnast=bob,
                                                        event=sr,
@@ -110,6 +110,11 @@ class RankingTests(TestCase):
         john = registration.models.Gymnast.objects.get(athlete_id=1001)
         bob = registration.models.Gymnast.objects.get(athlete_id=1002)
         self.assertNotEqual(john, bob)
+
+    def test_same_score(self):
+        john = registration.models.Gymnast.objects.get(athlete_id=1001)
+        bob = registration.models.Gymnast.objects.get(athlete_id=1002)
+        self.assertEqual(john.overall_score, bob.overall_score)
 
     def test_aa_highest_rank(self):
         john = registration.models.Gymnast.objects.get(athlete_id=1001)
@@ -123,3 +128,7 @@ class RankingTests(TestCase):
     def test_aa_second_place(self):
         john = registration.models.Gymnast.objects.get(athlete_id=1001)
         self.assertEqual(john.rank, 2)
+
+    # new test:  is the tie break value for john and bob what I expect?
+
+
