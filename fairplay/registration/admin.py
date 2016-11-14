@@ -241,8 +241,8 @@ class GymnastAdmin(MeetDependentAdmin):
     inlines = [GymnastEventInlineAdmin]
 
     def get_fieldsets(self, request, obj=None):
-        # If there's no active meet, hide fields until active meet has been set
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
+        # If there's no active meet, hide fields until active meet has been set
         if request.session.get('meet', ''):
             fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'discipline', 'level', 'dob', 'age', 'shirt', 'notes'), }),
                          ('Checks', {'classes': ('grp-collapse grp-closed',),
@@ -728,10 +728,12 @@ class PricingAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(PricingAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {
-            'fields': ('name', 'price'),
-            'description': ''}),
-        )
+        # If there's no active meet, hide fields until active meet has been set
+        if request.session.get('meet', ''):
+            fieldsets += ((None, {
+                'fields': ('name', 'price'),
+                'description': ''}),
+            )
         return fieldsets
 
 

@@ -141,7 +141,7 @@ class StartingEventFilter(admin.SimpleListFilter):
     parameter_name = 'starting_event'
 
     def lookups(self, request, model_admin):
-        lookups = [(s.id, s.name) for s in models.Event.objects.all()] #competition.Event
+        lookups = [(s.id, s.name) for s in models.Event.objects.all()]  # competition.Event
         lookups.append(('', '(None)'))
         return lookups
 
