@@ -462,6 +462,7 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
         score, created = ScoreRankEvent.objects.get_or_create(meet=instance.meet, gymnast=instance.gymnast)
         tie_break = 0
 
+        # same as in Gymnast.compute_tie_break()
         p = 0
         for gymnast_event in gymnast_events:
             if gymnast_event.score is not None:

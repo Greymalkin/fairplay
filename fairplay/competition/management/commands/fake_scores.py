@@ -17,6 +17,10 @@ class Command(BaseCommand):
             setattr(score, gymnast_event.event.initials, gymnast_event.score)
             score.save()
 
+        for gymnast in models.Gymnast.objects.all():
+            gymnast.tie_break = gymnast.compute_tie_break()
+            gymnast.save()
+
         for division in models.Division.objects.all():
             ranking.update_division_ranking(division)
 

@@ -1,3 +1,4 @@
+import math
 from datetime import date, timedelta
 
 from django.db import models
@@ -198,6 +199,15 @@ class Gymnast(Person):
     def event_rotation_gymnasts(session, event):
         qs = Gymnast.objects.filter(is_scratched=False, division__session=session, starting_event=event)
         return qs
+
+    def compute_tie_break(self):
+        p = 0
+        tie_break = 0
+        for gymnast_event in self.events.all().order_by('score'):
+            if gymnast_event.score is not None:
+                tie_break += int(int(gymnast_event.score * 10) * math.pow(10, p))
+            p += 3
+        return tie_break
 
 
 class Level(models.Model):
