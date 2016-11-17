@@ -3,7 +3,7 @@
     var eventTable = {};
     var currentEvent = null;
     var currentSession = null;
-    var currentAthlete = null;
+    var currentGymnast = null;
     var currentGymnastEventId = null;
     var introText = "";
 
@@ -77,7 +77,7 @@
             }
         });
 
-        currentAthlete = data;
+        currentGymnast = data;
         $("#scoreboard").show();
         $("#athlete-id-confirm").text(data.athlete_id);
         $("#athlete-last-name-confirm").text(data.last_name);
@@ -123,12 +123,12 @@
             })
             .success(function(data) {
                 showScore(score);
-                currentAthlete = null;
+                currentGymnast = null;
                 currentGymnastEventId = null;
             })
             .error(function(data) {
                 alert("Problem saving athlete event score!");
-                currentAthlete = null;
+                currentGymnast = null;
                 currentGymnastEventId = null;
             });
 

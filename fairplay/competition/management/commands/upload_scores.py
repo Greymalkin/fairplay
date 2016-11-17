@@ -61,7 +61,7 @@ class Command(BaseCommand):
         self.running = False
 
     def generate_scores(self, session_names):
-        currentMeet = meet.models.Meet.objects.get(is_current_meet=True)
+        currentMeet = meet.models.Meet.objects.filter(is_current_meet=True)[0]
         currentSessions = competition.models.Session.objects.filter(meet=currentMeet)
 
         session_info = []
@@ -120,7 +120,7 @@ class Command(BaseCommand):
                         t['levels'].append(l)
                     level = gymnast_event.gymnast.division.level
                     gymnast = None
-                    l = {'name': level.name.upper(), 'athletes': []}  # TODO .atheletes -> change to gymnast
+                    l = {'name': level.name.upper(), 'athletes': []}  # TODO .athletes -> change to gymnast
 
                 if gymnast_event.gymnast != gymnast:
                     if gymnast is not None:
