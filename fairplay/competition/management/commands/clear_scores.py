@@ -1,23 +1,28 @@
 from django.core.management.base import BaseCommand
 from competition import models
+from registration.models import Gymnast
 from django.db.models.signals import post_save
 
 
 class Command(BaseCommand):
     def handle(self, *args, **kwargs):
-        post_save.disconnect(models.update_rankings, sender=models.AthleteEvent, dispatch_uid='update_rankings')
+        post_save.disconnect(models.update_rankings, sender=models.GymnastEvent, dispatch_uid='update_rankings')
 
-        for athlete in models.Athlete.objects.all():
-            athlete.overall_score = None
-            athlete.rank = None
-            athlete.tie_break = None
-            athlete.save()
+        for gymnast in Gymnast.objects.all():
+            gymnast.overall_score = None
+            gymnast.rank = None
+            gymnast.tie_break = None
+            gymnast.save()
+            try:
+                gymnast.scores.delete()
+            except:
+                pass
 
-        for athlete_event in models.AthleteEvent.objects.all():
-            athlete_event.score = None
-            athlete_event.rank = None
-            athlete_event.save()
+        for gymnast_event in models.GymnastEvent.objects.all():
+            gymnast_event.score = None
+            gymnast_event.rank = None
+            gymnast_event.save()
 
         models.TeamAwardRank.objects.all().delete()
 
-        post_save.connect(models.update_rankings, sender=models.AthleteEvent, dispatch_uid='update_rankings')
+        post_save.connect(models.update_rankings, sender=models.GymnastEvent, dispatch_uid='update_rankings')

@@ -12,10 +12,15 @@ from django.core.urlresolvers import reverse
 from grappelli.dashboard import modules, Dashboard
 from grappelli.dashboard.utils import get_admin_site_name
 
+from request_provider.signals import get_request
+
 from meet.models import Meet
+from meet.views import get_current_meet_count
 from competition.models import LEDShow
 from competition.models import Session, Event
 from registration.models import Gymnast, Level
+
+
 
 roster_html = """
 <div style="margin-left:10px; margin-right:10px; margin-bottom:10px; margin-top:60px;">
@@ -36,12 +41,8 @@ roster_html += """
 <script src="/static/js/dashboard.js"></script>
 """
 
-try:
-    MEET = Meet.objects.get(is_current_meet=True)
-except:
-    MEET = None
 
-# print('Current Meet:', MEET.id)
+# print('Current Meet:', MEET)
 
 class CustomIndexDashboard(Dashboard):
     """
@@ -51,17 +52,32 @@ class CustomIndexDashboard(Dashboard):
     def init_with_context(self, context):
         site_name = get_admin_site_name(context)
 
-        # append an app list module for "Administration"
         self.children.append(modules.ModelList(
-            _('Meet Settings'),
+            _('Meet'),
             column=1,
             collapsible=False,
             models=(
                 'meet.models.Meet',
+                'competition.models.Session',
                 ),
         ))
 
-        # append an app list module for "Administration"
+        self.children.append(modules.ModelList(
+            _('Configuration'),
+            column=1,
+            collapsible=True,
+            css_classes=('grp-closed',),
+            models=(
+                'competition.models.Event', #competition.Event
+                'registration.models.Level',
+                'competition.models.Division',
+                'competition.models.TeamAward',
+                'registration.models.ShirtSize',
+                'competition.models.LEDShow',
+                'competition.models.LEDSign',
+                ),
+        ))
+
         self.children.append(modules.ModelList(
             _('Registration'),
             column=1,
@@ -70,32 +86,21 @@ class CustomIndexDashboard(Dashboard):
                 'registration.models.Team',
                 'registration.models.Coach',
                 'registration.models.Gymnast',
-                'registration.models.LevelPricing',
-                'registration.models.GymnastPricing',
-                'registration.models.Level',
-                'registration.models.ShirtSize',
                 ),
         ))
 
-        # append an app list module for "Administration"
         self.children.append(modules.ModelList(
             _('Competition'),
             column=1,
             collapsible=False,
             models=(
-                'competition.models.Athlete',
-                'competition.models.Division',
-                'competition.models.Session',
-                'competition.models.Event',
-                'competition.models.LEDShow',
-                'competition.models.Team',
-                'competition.models.TeamAward',
+                'competition.models.MensArtisticGymnast',
+                'competition.models.WomensArtisticGymnast',
                 'competition.models.TeamAwardRank',
-                'competition.models.TeamAwardRankAthleteEvent',
+                'competition.models.TeamAwardRankEvent',
                 ),
         ))
 
-        # append an app list module for "Administration"
         self.children.append(modules.ModelList(
             _('Administration'),
             css_classes=('grp-closed',),
@@ -103,86 +108,70 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             models=(
                 'django.contrib.*',
-                'competition.models.LEDSign',
-                'meet.models.Meet',),
+            ),
         ))
 
-        self.children.append(modules.LinkList(
-            _('Tools'),
-            column=3,
-            children=[
-                {
-                    'title': _('Scoreboard Control'),
-                    'url': '/static/scoreboard.html',
-                    'external': False,
-                },
-                {
-                    'title': _('Download Roster'),
-                    'url': '/roster',
-                    'external': False,
-                },
-                {
-                    'title': 'Download Athlete Labels',
-                    'url': '/labels/athlete/',
-                    'external': False,
-                },
-                {
-                    'title': 'Download Team Labels',
-                    'url': '/labels/team/',
-                    'external': False,
-                },
-                {
-                    'title': 'Coaches Sign In',
-                    'url': '/coaches/signin/',
-                    'external': False,
-                },
-            ],
-            post_content=roster_html
-        ))
+        if get_current_meet_count() == 1:
+            self.children.append(modules.LinkList(
+                _('Tools'),
+                column=2,
+                children=[
+                    {
+                        'title': _('Scoreboard Control'),
+                        'url': '/static/scoreboard.html',
+                        'external': False,
+                    },
+                    {
+                        'title': _('Download Roster'),
+                        'url': '/roster',
+                        'external': False,
+                    },
+                    {
+                        'title': 'Download Athlete Labels',
+                        'url': '/labels/athlete/',
+                        'external': False,
+                    },
+                    {
+                        'title': 'Download Team Labels',
+                        'url': '/labels/team/',
+                        'external': False,
+                    },
+                    {
+                        'title': 'Coaches Sign In',
+                        'url': '/coaches/signin/',
+                        'external': False,
+                    },
+                ],
+                post_content=roster_html
+            ))
 
-        try:
             links = []
             links.append({
-                'title': 'Registration Metrics',
-                'url': '/',
+                'title': 'Meet Breakdown',
+                'url': '/breakdown/',
                 'external': False,
                 }),
             links.append({
-                'title': 'For Ordering Team Awards',
+                'title': 'Team Awards Breakdown',
                 'url': '/order/awards/',
                 'external': False,
                 }),
-            athlete_info = ""
-            for level in Level.objects.filter(meet=MEET):
-                level_count = Gymnast.objects.filter(meet=MEET, level=level, is_scratched=False).count()
-                athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
-                for age in range(4, 19):
-                    age_count = Gymnast.objects.filter(meet=MEET, level=level, age=age, is_scratched=False).count()
-                    if age_count > 0:
-                        athlete_info += "<li>{}yo ({} athletes)</li>".format(age, age_count)
-
-                age_count = Gymnast.objects.filter(meet=MEET, level=level, age=None, is_scratched=False).count()
-                if age_count > 0:
-                    athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
-                athlete_info += "</ul></p>"
 
             self.children.append(modules.LinkList(
-                _('Meet Breakdown'),
-                column=3,
+                _('Registration Metrics'),
+                column=2,
                 children=links,
-                post_content=athlete_info,
-                css_classes=('grp-closed',),
+                # post_content=athlete_info,
+                css_classes=('grp-open',),
             ))
-        except:
-            # no meet set, whoops
-            pass
 
-        try:
-            sessions = Session.objects.filter(meet=MEET)
+
+        # For every Session, links for printables
+            sessions = Session.objects.all()
             for session in sessions:
                 links = []
                 links.append({
-                    'title': 'Awards Ceremony',
+                    'title': 'Awards Ceremony (By event)',
                     'url': '/results/ceremony/event/{}'.format(session.id),
                     'external': False,
                     })
@@ -216,16 +205,6 @@ class CustomIndexDashboard(Dashboard):
                     'url': '/scoresheet/{}'.format(session.id),
                     'external': False,
                     })
-                # links.append({
-                #     'title': 'Download Athlete Labels',
-                #     'url': '/labels/athlete/{}'.format(session.id),
-                #     'external': False,
-                #     })
-                # links.append({
-                #     'title': 'Download Team Labels',
-                #     'url': '/labels/team/{}'.format(session.id),
-                #     'external': False,
-                #     })
                 links.append({
                     'title': 'Coaches Hospitality',
                     'url': '/coaches/hospitality/{}'.format(session.id),
@@ -242,30 +221,30 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                     })
 
+            # Table of Starting Events, with links to Competition.Gymnast admin
+            # TODO... had to hard code mensartisticgymnast in the url ... not good
+            # Used to go to competition/gymnast/... 
                 header = ""
                 counts = ""
-                for event in Event.objects.filter(meet=MEET):
+                for event in Event.objects.all():
                     count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                     header += '<th>{}</th>'.format(event.initials)
-                    link = '/admin/competition/athlete/?session={}&starting_event__id__exact={}'.format(session.id, event.id)
+                    link = '/admin/competition/mensartisticgymnast/?meet={}&session={}&starting_event={}'.format(session.meet.id, session.id, event.id)
                     counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
                 self.children.append(modules.LinkList(
                     _(session.name),
-                    column=2,
+                    column=3,
                     children=links,
                     css_classes=('grp-closed',),
                     post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
                 ))
-        except:
-            # no meet set, whoops
-            pass
 
         # append a recent actions module
         self.children.append(
             modules.Group(
                 _('Logging'),
-                column=3,
+                column=2,
                 collapsible=True,
                 exclude=('django.contrib.*',),
                 children=[
@@ -276,12 +255,6 @@ class CustomIndexDashboard(Dashboard):
                             'django.contrib.admin.models.LogEntry',
                         ),
                     ),
-                    modules.RecentActions(
-                        _('Recent Actions'),
-                        limit=5,
-                        collapsible=False,
-                        column=1,
-                    )
                 ],
             ),
         )

@@ -18,8 +18,8 @@
 
   <body>
     <div class="container">
-      <h2>{{meet.name}} - {{session.name}}<h2>
-      <h3>{{meet.date}}</h3>
+      <h2>{{session.meet.name}} - {{session.name}}<h2>
+      <h3>{{session.session_start|date:"D d M Y"}}</h3>
       {% for division in divisions %}
         {% include "individual_results.html" %}
       {% endfor %}

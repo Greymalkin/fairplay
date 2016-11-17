@@ -1,7 +1,10 @@
 from .base import *
 
 DEBUG = True
-TEMPLATE_DEBUG = True
+
+INSTALLED_APPS += (
+    'django_extensions',
+)
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
@@ -9,7 +12,7 @@ TEMPLATE_DEBUG = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'fairplay',
+        'NAME': 'ludwig',
         'USER': 'fairplay',
         'PASSWORD': 'dbmaster',
         'HOST': 'localhost',
@@ -19,3 +22,6 @@ DATABASES = {
 }
 
 STATIC_ROOT = 'local_static'
+
+# Django Debug Toolbar
+INTERNAL_IPS = ('127.0.0.1', 'localhost')

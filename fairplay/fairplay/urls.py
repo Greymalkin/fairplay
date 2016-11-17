@@ -3,12 +3,14 @@ from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 import competition.views
 import registration.views
+import meet.views
 
 router = DefaultRouter()
+router.register(r'meet', meet.views.MeetViewSet)
 router.register(r'events', competition.views.EventViewSet)
 router.register(r'teams', competition.views.TeamViewSet)
 router.register(r'athletes', competition.views.AthleteViewSet)
-router.register(r'athleteevents', competition.views.AthleteEventViewSet)
+router.register(r'athleteevents', competition.views.GymnastEventViewSet)
 router.register(r'sessions', competition.views.SessionViewSet)
 router.register(r'ledshows', competition.views.LEDShowViewSet)
 
@@ -16,7 +18,7 @@ router.register(r'ledshows', competition.views.LEDShowViewSet)
 urlpatterns = patterns(
     '',
     url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^admin/',  include(admin.site.urls)),
+    url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
     url(r'^ledsign/', competition.views.led_sign),
     url(r'^roster/', competition.views.download_roster),

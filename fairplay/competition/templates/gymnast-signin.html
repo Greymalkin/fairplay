@@ -27,12 +27,12 @@
       </tr>
     </thead>
 
-    {% for athlete in gymnasts %}
+    {% for gymnast in gymnasts %}
     <tbody>
       <tr>
-        <td>{{ athlete.team.team }}</td>
-        <td>{{ athlete.athlete_id}}</td>
-        <td>{{ athlete.last_name }}, {{ athlete.first_name }} </td>
+        <td>{{ gymnast.team.team }}</td>
+        <td>{{ gymnast.athlete_id}}</td>
+        <td>{{ gymnast.last_name }}, {{ gymnast.first_name }} </td>
         <td>&nbsp;</td>
       </tr>
     </tbody>

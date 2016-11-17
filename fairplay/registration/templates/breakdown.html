@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load breakdown %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,8 +18,60 @@
 
   <body>
 
-  <p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong>
-  <ul style='margin-left:20px;margin-bottom:10px'>
+<h2> Meet Breakdown Report</h2>
+  <!-- How many gymnasts are registered but we don't know how old they are... these won't show up in the above counts -->
+
+  <p style="font-weight: bold; font-style: italic;">There are {{total_registered}} registered gymnasts.</p>
+  {% if no_ages > 0 %}
+    <p style="font-weight: bold; font-style: italic;">There are {{no_ages}} gymnasts without an age in the system.</p>
+  {% endif %}
+
+
+<div style="width: 400px">
+  <!-- How many gymnasts are registered in each major level (level group) -->
+  <div style="float: left;">
+  {% for level in level_groups %}
+    <p style='margin-left:12px;'><strong>Level {{level.group}} ({{level.num_gymnasts_across_divisions}} athletes)</strong></p>
+    <ul style='margin-left:20px;margin-bottom:10px'>    
+    {% for i in age_range %}
+      {% if level|group_age_counts:i > 0 %}
+        <li>{{i}}yo ({{ level|group_age_counts:i }} athletes) </li>
+      {% endif %}
+    {% endfor %}
+
+    <!-- no age gymnasts -->
+    {% if level|group_age_counts > 0 %}
+        <li>No age ({{ level|group_age_counts }} athletes) </li>
+    {% endif%}
+    </ul>
+  {% endfor %}
+  </div>
+
+  <!-- How many gymnasts are registered in each level division -->
+  <div style="float: right;">
+  {% for level in level_divisions %}
+    <p style='margin-left:12px;'><strong>Level {{level.name}} ({{level.per_divison_gymnasts}} athletes)</strong></p>
+    <ul style='margin-left:20px;margin-bottom:10px'>
+    {% for i in age_range %}
+      {% if level|division_age_counts:i > 0 %}
+        <li>{{i}}yo ({{ level|division_age_counts:i }} athletes) </li>
+      {% endif %}
+    {% endfor %}
+
+    <!-- no age gymnasts -->
+    {% if level|division_age_counts > 0 %}
+        <li>No age ({{ level|division_age_counts }} athletes) </li>
+    {% endif%}
+
+    </ul>
+
+    <!-- Use this loop if you want to print out a list of the gymnasts in this level division -->
+    {% for l in level.levdiv_gymnasts %}
+    {% endfor %}
+  {% endfor %}
+  </div>
+
+</div>
 
   </body>
 </html>

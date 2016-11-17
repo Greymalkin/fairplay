@@ -6,12 +6,12 @@
         <th style="width: 200px;">Team</th>
         <th style="width: 200px;">Gymnast</th>
       </tr>
-    {% for athlete in leaderboard.athletes %}
+    {% for gymnast in leaderboard.gymnasts %}
       <tr class="crossable">
-        <td>{{athlete.rank}}</td>
-        <td>{{athlete.score}}</td>
-        <td>{{athlete.team}}</td>
-        <td>{{athlete.name}}</td>
+        <td>{{gymnast.rank}}</td>
+        <td>{{gymnast.score}}</td>
+        <td>{{gymnast.team}}</td>
+        <td>{{gymnast.name}}</td>
       </tr>
     {% endfor %}
 </table>

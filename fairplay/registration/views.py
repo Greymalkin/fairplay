@@ -1,21 +1,12 @@
-from datetime import datetime
+import operator
 
-from django.conf import settings
+from django.db.models import Count
+from django.db.models import Prefetch
 from django.views.generic import TemplateView
 
 from rest_framework import viewsets
-from meet import models as meetconfig
-
-from . import models
-
-
-MEET, created = meetconfig.Meet.objects.get_or_create(
-    is_current_meet=True,
-    defaults={
-        'name': 'AUTO CREATED',
-        'short_name': 'AUTO CREATED',
-        'host': 'AUTO CREATED',
-        'date': datetime.today(), })
+from competition.models import TeamAward
+from . import models, serializers
 
 
 class MeetBreakdownView(TemplateView):
@@ -23,20 +14,24 @@ class MeetBreakdownView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(MeetBreakdownView, self).get_context_data(**kwargs)
-        context['athletes'] = {}
-        athlete_info = []
-        # for level in models.Level.objects.all():
-        #     level_count = models.Gymnast.objects.filter(meet=MEET, level=level, is_scratched=False).count()
-        #     athlete_info += "<p style='margin-left:12px;'><strong>Level {} ({} athletes)</strong><ul style='margin-left:20px;margin-bottom:10px'>".format(level, level_count)
-        #     for age in range(4, 19):
-        #         age_count = Gymnast.objects.filter(meet=MEET, level=level, age=age, is_scratched=False).count()
-        #         if age_count > 0:
-        #             athlete_info += "<li>{}yo ({} athletes)</li>".format(age, age_count)
+        level_divisions = models.Level.objects.filter(gymnasts__is_scratched=False).\
+            annotate(per_divison_gymnasts=Count('gymnasts'))\
+            .prefetch_related(
+                Prefetch(
+                    "gymnasts",
+                    queryset=models.Gymnast.objects.filter(is_scratched=False),
+                    to_attr="levdiv_gymnasts"
+                )
+            )
 
-        #     age_count = Gymnast.objects.filter(meet=MEET, level=level, age=None, is_scratched=False).count()
-        #     if age_count > 0:
-        #         athlete_info += "<li>No age ({} athletes)</li>".format(age_count)
-        #     athlete_info += "</ul></p>"
+        levels = models.Level.objects.all().order_by('group').distinct('group')
+        level_groups = sorted(levels, key=operator.attrgetter('order'))
+
+        context['level_groups'] = level_groups
+        context['level_divisions'] = level_divisions
+        context['age_range'] = range(4, 20)
+        context['total_registered'] = models.Gymnast.objects.filter(is_scratched=False).count()
+        context['no_ages'] = models.Gymnast.objects.filter(age=None, is_scratched=False).count()
         return context
 
 
@@ -45,5 +40,10 @@ class OrderingAwardsView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(OrderingAwardsView, self).get_context_data(**kwargs)
-
+        context['awards'] = TeamAward.objects.all()
         return context
+
+
+class TeamViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = models.Team.objects.all()
+    serializer_class = serializers.TeamSerializer

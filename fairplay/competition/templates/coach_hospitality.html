@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load breakdown %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,7 +18,22 @@
 
   <body>
 
-
+  <h1> Coaches Hospitality </h1>
+  <p>coaches by team and level, not session specific</p>
+  {% for level in all_levels %}
+    <h3> 
+      Level {% if level.level = 999 %} {{ level.name }} {% else %} {{ level.level }} {% endif%}: 
+      {% level_coaches_count level %} coaches
+    </h3>
+    {% for team in level|level_coaches %}
+      <p> {{team.team}}: {{ team.coaches.all.count }} </p>
+      <ul>
+      {% for coach in team.coaches.all %}
+        <li> {{coach}} </li>
+      {% endfor %}
+      </ul>
+    {% endfor %}
+  {% endfor %}
 
   </body>
 </html>

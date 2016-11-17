@@ -1,6 +1,7 @@
 *.pyo
 *.pyc
 *.orig
+*.ipynb
 .DS_Store
 venv/
 __pycache__
