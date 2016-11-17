@@ -203,7 +203,7 @@ class SessionCeremonyDivisionView(TemplateView):
                     if a.score is not None and a.score != 0:
                         event_leaderboard.append({
                             'athlete_id': a.gymnast.athlete_id,
-                            'name': '{} {}.'.format(a.gymnast.first_name, a.gymnast.last_name[0]),
+                            'name': '{} {}'.format(a.gymnast.first_name, a.gymnast.last_name),
                             'team': a.gymnast.team.team,
                             'score': a.score,
                             'rank': a.rank
@@ -229,7 +229,7 @@ class SessionCeremonyDivisionView(TemplateView):
                 if a.overall_score is not None and a.overall_score != 0:
                     aa_leaderboard.append({
                         'athlete_id': a.athlete_id,
-                        'name': '{} {}.'.format(a.first_name, a.last_name[0]),
+                        'name': '{} {}'.format(a.first_name, a.last_name),
                         'team': a.team.team,
                         'score': a.overall_score,
                         'rank': a.rank
@@ -301,7 +301,7 @@ class SessionCeremonyEventView(TemplateView):
                     if a.score is not None and a.score != 0:
                         event_leaderboard.append({
                             'athlete_id': a.gymnast.athlete_id,
-                            'name': '{} {}.'.format(a.gymnast.first_name, a.gymnast.last_name[0]),
+                            'name': '{} {}'.format(a.gymnast.first_name, a.gymnast.last_name),
                             'team': a.gymnast.team.team,
                             'score': a.score,
                             'rank': a.rank
@@ -337,7 +337,7 @@ class SessionCeremonyEventView(TemplateView):
                 if a.overall_score is not None and a.overall_score != 0:
                     aa_leaderboard.append({
                         'athlete_id': a.athlete_id,
-                        'name': '{} {}.'.format(a.first_name, a.last_name[0]),
+                        'name': '{} {}'.format(a.first_name, a.last_name),
                         'team': a.team.team,
                         'score': a.overall_score,
                         'rank': a.rank

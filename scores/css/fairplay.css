@@ -17,6 +17,11 @@ body {
     display: none;
 }
 
+li {
+    list-style-position: outside;
+    margin-left: 1em;
+}
+
 h1 {
     width: 100%;
     background: #000;

@@ -1,5 +1,11 @@
 (function($) {
 
+    function wrapMessage(message) {
+        return function() {
+            $.post('/ledsign/', message);
+        }
+    }
+
     function showLEDShow(ledShowID) {
         $.getJSON("/api/ledshows/" + ledShowID + "/")
         .success(function(data) {
@@ -9,7 +15,7 @@
                     "message": data.messages[i].message
                 };
 
-                $.post('/ledsign/', JSON.stringify(signData));
+                setTimeout(wrapMessage(JSON.stringify(signData)), i * 100 + 100);
             }
         });
     }
