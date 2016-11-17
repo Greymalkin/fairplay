@@ -178,6 +178,7 @@ class CoachAdmin(MeetDependentAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag', 'is_verified')
     list_filter = (MeetFilter, CoachMissingUsagFilter, 'team')
     search_fields = ('last_name', 'first_name', 'usag')
+    actions = ['export_as_csv']
     # raw_id_fields = ('team',)
     # autocomplete_lookup_fields = {'fk': ['team']}
 
@@ -199,6 +200,21 @@ class CoachAdmin(MeetDependentAdmin):
         return missing
     has_usag.short_description = "USAG?"
     has_usag.boolean = True
+
+    def export_as_csv(self, request, queryset):
+        """ Generic csv export admin action. """
+        opts = self.model._meta
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(str(opts).replace('.', '_'))
+        writer = csv.writer(response)
+        field_names = [field.name for field in opts.fields]
+        # Write a first row with header information
+        writer.writerow(field_names)
+        # Write data rows
+        for obj in queryset:
+            writer.writerow([getattr(obj, field) for field in field_names])
+        return response
+    export_as_csv.short_description = "Export as csv file"
 
     def has_add_permission(self, request, obj=None):
             return False

@@ -120,7 +120,7 @@ class Command(BaseCommand):
                         t['levels'].append(l)
                     level = gymnast_event.gymnast.division.level
                     gymnast = None
-                    l = {'name': level.level, 'athletes': []}  # TODO .atheletes -> change to gymnast
+                    l = {'name': level.name.upper(), 'athletes': []}  # TODO .atheletes -> change to gymnast
 
                 if gymnast_event.gymnast != gymnast:
                     if gymnast is not None:
