@@ -37,6 +37,7 @@ def update_division_ranking(division):
             gymnasts.append(gymnast)
 
         rank = 0
+        place = 0
         last_score = None
         last_total_score = None
         last_tie_break = None
@@ -50,20 +51,28 @@ def update_division_ranking(division):
                 pass
             else:
                 rank += 1
+
+            if gymnast['score'] != last_score:
+                place += 1
+
             last_score = gymnast['score']
             last_total_score = gymnast['total_score']
             last_tie_break = gymnast['tie_break']
             gymnast['rank'] = rank
+            gymnast['place'] = place
 
             gymnast['gymnast_event'].rank = gymnast['rank']
-            gymnast['gymnast_event'].save(update_fields=('rank', ))
+            gymnast['gymnast_event'].place = gymnast['place']
+            gymnast['gymnast_event'].save(update_fields=('rank', 'place'))
 
         # rank all of the no-shows last
         rank += 1
+        place += 1
         for gymnast in gymnasts:
             if gymnast['score'] is None:
                 gymnast['gymnast_event'].rank = rank
-                gymnast['gymnast_event'].save(update_fields=('rank', ))
+                gymnast['gymnast_event'].place = place
+                gymnast['gymnast_event'].save(update_fields=('rank', 'place'))
 
     # make a list of all gymnasts in this division
     gymnasts = []
@@ -84,6 +93,7 @@ def update_division_ranking(division):
 
     # rank them by total_score, and tie_break
     rank = 0
+    place = 0
     last_total_score = None
     last_tie_break = None
     for gymnast in gymnasts:
@@ -91,15 +101,21 @@ def update_division_ranking(division):
             pass
         else:
             rank += 1
+
+        if gymnast['total_score'] != last_total_score:
+            place += 1
+
         last_total_score = gymnast['total_score']
         last_tie_break = gymnast['tie_break']
         gymnast['rank'] = rank
+        gymnast['place'] = place
         gymnast['score'] = gymnast['total_score']
 
         # save rank/score data for overall
         a = models.Gymnast.objects.get(athlete_id=gymnast['athlete_id'])
         a.overall_score = gymnast['score']
         a.rank = gymnast['rank']
+        a.place = gymnast['place']
         a.save()
 
 
