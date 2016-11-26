@@ -277,14 +277,14 @@ class SessionCeremonyEventView(TemplateView):
         # start populating the context
         context['session'] = session
         context['events'] = []
-        events = models.Event.objects.all() #competition.Event
+        events = models.Event.objects.all()  # competition.Event
 
         for event in events:
             leaderboards = []
             for division in session.divisions.all().order_by('level', 'min_age'):
 
                 event_leaderboard = []
-                gymnast_events = models.GymnastEvent.objects.filter(event=event, gymnast__division=division).order_by("rank")
+                gymnast_events = models.GymnastEvent.objects.filter(event=event, gymnast__division=division, gymnast__is_scratched=False).order_by("rank")
                 total_count = len(gymnast_events)
                 award_count = division.event_award_count
                 # special case of two athletes

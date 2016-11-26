@@ -8,4 +8,3 @@ class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Team
         fields = ('id', 'team',)
- 

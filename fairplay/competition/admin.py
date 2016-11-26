@@ -175,7 +175,7 @@ class GymnastAdmin(MeetDependentAdmin):
     ''' Base admin for the Mens Artistic and Women's Artistic admins. '''
     search_fields = ['athlete_id', 'last_name', 'first_name']
     inlines = (GymnastEventInlineAdmin, )
-    readonly_fields = ('overall_score', 'rank', 'tie_break', 'age', 'team')
+    readonly_fields = ('overall_score', 'rank', 'place', 'tie_break', 'age', 'team')
     list_filter = (TeamFilter, SessionFilter, StartingEventFilter, AgeDivisionFilter, LevelFilter, LevelDivisionFilter)
     list_per_page = 50
     list_display = ['athlete_id', 'last_name', 'first_name', 'show_team', 'division', 'session', 'starting_event']
@@ -190,6 +190,7 @@ class GymnastAdmin(MeetDependentAdmin):
                                           'starting_event',
                                           'overall_score',
                                           'rank',
+                                          'place',
                                           'tie_break', ), }), )
         return fieldsets
 
@@ -302,7 +303,7 @@ class TeamAwardRankEventAdmin(MeetDependentAdmin):
 
 
 class GymnastEventAdmin(MeetDependentAdmin):
-    list_display = ('gymnast', 'event', 'score',)
+    list_display = ('gymnast', 'event', 'score', 'rank', 'place')
     search_fields = ['gymnast__first_name', 'gymnast__last_name', 'id', ]
 
     def get_fieldsets(self, request, obj=None):
@@ -310,7 +311,7 @@ class GymnastEventAdmin(MeetDependentAdmin):
         # If there's no active meet, hide fields until active meet has been set
         if request.session.get('meet', ''):
             fieldsets += ((None, {
-                'fields': ('gymnast', 'event', 'score',),
+                'fields': ('gymnast', 'event', 'score', 'rank', 'place'),
                 'description': ''}), )
         return fieldsets
 

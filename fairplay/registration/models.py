@@ -160,6 +160,7 @@ class Gymnast(Person):
     overall_score = models.FloatField(null=True, blank=True)
     tie_break = models.BigIntegerField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)
+    place = models.PositiveSmallIntegerField(null=True, blank=True)
     athlete_id = models.PositiveSmallIntegerField(
         blank=True, null=True,
         verbose_name='Athlete ID',

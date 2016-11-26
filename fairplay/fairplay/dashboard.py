@@ -68,7 +68,7 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             css_classes=('grp-closed',),
             models=(
-                'competition.models.Event', #competition.Event
+                'competition.models.Event',  # competition.Event
                 'registration.models.Level',
                 'competition.models.Division',
                 'competition.models.TeamAward',
@@ -96,6 +96,7 @@ class CustomIndexDashboard(Dashboard):
             models=(
                 'competition.models.MensArtisticGymnast',
                 'competition.models.WomensArtisticGymnast',
+                'competition.models.GymnastEvent',
                 'competition.models.TeamAwardRank',
                 'competition.models.TeamAwardRankEvent',
                 ),

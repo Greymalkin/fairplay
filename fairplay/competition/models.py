@@ -258,10 +258,13 @@ class GymnastEvent(models.Model):
     event = models.ForeignKey(Event, related_name="gymnasts")
     score = models.FloatField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True)
+    place = models.PositiveSmallIntegerField(null=True)
 
     objects = MeetManager()
 
     class Meta():
+        verbose_name = 'Gymnast > Rank > Place'
+        verbose_name_plural = 'Gymnast > Rank > Place'
         ordering = ['gymnast', 'event']
         unique_together = ('gymnast', 'event',)
 

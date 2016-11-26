@@ -2,6 +2,7 @@
 <table class="table table-striped leaderboard" style="width: auto;">
       <tr>
         <th style="width: 40px;">Rank</th>
+        <th style="width: 40px;">Place</th>
         <th style="width: 80px;">Score</th>
         <th style="width: 200px;">Team</th>
         <th style="width: 200px;">Gymnast</th>
@@ -9,6 +10,7 @@
     {% for gymnast in leaderboard.gymnasts %}
       <tr class="crossable">
         <td>{{gymnast.rank}}</td>
+        <td>{{gymnast.place}}</td>
         <td>{{gymnast.score}}</td>
         <td>{{gymnast.team}}</td>
         <td>{{gymnast.name}}</td>
