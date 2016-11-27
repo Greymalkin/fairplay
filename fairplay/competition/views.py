@@ -291,6 +291,10 @@ class SessionCeremonyEventView(TemplateView):
                 if total_count == 2:
                     award_count = 1
 
+                # push out award count on tie at last place
+                while award_count < len(gymnast_events) and gymnast_events[award_count - 1].score == gymnast_events[award_count].score:
+                    award_count += 1
+
                 for a in gymnast_events[:award_count]:
                     if a.score is not None and a.score != 0:
                         event_leaderboard.append({
