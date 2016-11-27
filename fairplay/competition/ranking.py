@@ -38,6 +38,7 @@ def update_division_ranking(division):
 
         rank = 0
         place = 0
+        place_skip = 1
         last_score = None
         last_total_score = None
         last_tie_break = None
@@ -53,7 +54,11 @@ def update_division_ranking(division):
                 rank += 1
 
             if gymnast['score'] != last_score:
-                place += 1
+                place += place_skip
+                place_skip = 1
+            else:
+                place_skip += 1
+
 
             last_score = gymnast['score']
             last_total_score = gymnast['total_score']
@@ -67,7 +72,7 @@ def update_division_ranking(division):
 
         # rank all of the no-shows last
         rank += 1
-        place += 1
+        place += place_skip
         for gymnast in gymnasts:
             if gymnast['score'] is None:
                 gymnast['gymnast_event'].rank = rank
@@ -94,6 +99,7 @@ def update_division_ranking(division):
     # rank them by total_score, and tie_break
     rank = 0
     place = 0
+    place_skip = 1
     last_total_score = None
     last_tie_break = None
     for gymnast in gymnasts:
@@ -103,7 +109,10 @@ def update_division_ranking(division):
             rank += 1
 
         if gymnast['total_score'] != last_total_score:
-            place += 1
+            place += place_skip
+            place_skip = 1
+        else:
+            place_skip += 1
 
         last_total_score = gymnast['total_score']
         last_tie_break = gymnast['tie_break']
