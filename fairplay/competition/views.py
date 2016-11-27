@@ -298,7 +298,8 @@ class SessionCeremonyEventView(TemplateView):
                             'name': '{} {}'.format(a.gymnast.first_name, a.gymnast.last_name),
                             'team': a.gymnast.team.team,
                             'score': a.score,
-                            'rank': a.rank
+                            'rank': a.rank,
+                            'place': a.place
                         })
 
                 leaderboards.append({'event': event.name,
@@ -334,7 +335,8 @@ class SessionCeremonyEventView(TemplateView):
                         'name': '{} {}'.format(a.first_name, a.last_name),
                         'team': a.team.team,
                         'score': a.overall_score,
-                        'rank': a.rank
+                        'rank': a.rank,
+                        'place': a.place
                     })
             leaderboards.append({'event': 'All Around',
                                  'initials': "aa",
@@ -380,7 +382,7 @@ class SessionIndividualView(TemplateView):
 
         # calculate_session_ranking(context['session'])
 
-        context['events'] = models.Event.objects.all() #competition.Event
+        context['events'] = models.Event.objects.all()  # competition.Event
         context['divisions'] = []
         for division in context['session'].divisions.all().order_by('level', 'min_age'):
             gymnasts = []
@@ -392,7 +394,7 @@ class SessionIndividualView(TemplateView):
                     score = gymnast_event.score
                     if score is None:
                         score = 0.0
-                    events.append({'score': score, 'rank': gymnast_event.rank})
+                    events.append({'score': score, 'rank': gymnast_event.rank, 'place': gymnast_event.place})
 
                 gymnasts.append({'info': gymnast, 'events': events})
             context['divisions'].append({'info': division.title(), 'gymnasts': gymnasts})
@@ -633,7 +635,7 @@ class LEDShowViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.LEDShowSerializer
 
 
-class EventViewSet(viewsets.ReadOnlyModelViewSet): #competition.Event
+class EventViewSet(viewsets.ReadOnlyModelViewSet):  # competition.Event
     queryset = models.Event.objects.filter(meet__is_current_meet=True)
     serializer_class = serializers.EventSerializer
 
