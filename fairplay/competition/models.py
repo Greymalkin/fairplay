@@ -335,21 +335,33 @@ class MensArtisticGymnast(MasterGymnast):
 
     def sr(self):
         return self.scores.sr
+    sr.admin_order_field = 'scores__sr'
+    sr.short_description = 'SR'
 
     def hb(self):
         return self.scores.hb
+    hb.admin_order_field = 'scores__hb'
+    hb.short_description = 'HB'
 
     def fx(self):
         return self.scores.fx
+    fx.admin_order_field = 'scores__fx'
+    fx.short_description = 'FX'
 
     def pb(self):
         return self.scores.pb
+    pb.admin_order_field = 'scores__pb'
+    pb.short_description = 'PB'
 
     def vt(self):
         return self.scores.vt
+    vt.admin_order_field = 'scores__vt'
+    vt.short_description = 'VT'
 
     def ph(self):
         return self.scores.ph
+    ph.admin_order_field = 'scores__PH'
+    ph.short_description = 'PH'
 
 
 class WomensArtisticGymnastManager(MeetManager):
