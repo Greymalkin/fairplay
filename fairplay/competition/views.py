@@ -50,7 +50,7 @@ def led_sign(request):
 @csrf_exempt
 def download_roster(request):
     gymnasts = models.Gymnast.objects.all().order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
-    events = models.Event.objects.all() #competition.Event
+    events = models.Event.objects.all()  # competition.Event
 
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
@@ -187,7 +187,7 @@ class SessionCeremonyDivisionView(TemplateView):
             leaderboards = []
 
             # division per event leaderboard
-            for event in models.Event.objects.all(): #competition.Event
+            for event in models.Event.objects.all():  # competition.Event
                 event_leaderboard = []
                 gymnast_events = models.GymnastEvent.objects.filter(event=event, gymnast__division=division).order_by("rank")
                 total_count = len(gymnast_events)
@@ -200,7 +200,8 @@ class SessionCeremonyDivisionView(TemplateView):
                     if a.score is not None and a.score != 0:
                         event_leaderboard.append({
                             'athlete_id': a.gymnast.athlete_id,
-                            'name': '{} {}'.format(a.gymnast.first_name, a.gymnast.last_name),
+                            'abbr_name': '{} {}.'.format(a.gymnast.first_name, a.gymnast.last_name[0]),
+                            'full_name': '{} {}'.format(a.gymnast.first_name, a.gymnast.last_name),
                             'team': a.gymnast.team.team,
                             'score': a.score,
                             'rank': a.rank
@@ -225,7 +226,8 @@ class SessionCeremonyDivisionView(TemplateView):
                 if a.overall_score is not None and a.overall_score != 0:
                     aa_leaderboard.append({
                         'athlete_id': a.athlete_id,
-                        'name': '{} {}'.format(a.first_name, a.last_name),
+                        'abbr_name': '{} {}.'.format(a.first_name, a.last_name[0]),
+                        'full_name': '{} {}'.format(a.first_name, a.last_name),
                         'team': a.team.team,
                         'score': a.overall_score,
                         'rank': a.rank
@@ -292,14 +294,16 @@ class SessionCeremonyEventView(TemplateView):
                     award_count = 1
 
                 # push out award count on tie at last place
-                while award_count < len(gymnast_events) and gymnast_events[award_count - 1].score == gymnast_events[award_count].score:
-                    award_count += 1
+                if session.meet.all_last_place_ties_in_awards:
+                    while award_count < len(gymnast_events) and gymnast_events[award_count - 1].score == gymnast_events[award_count].score:
+                        award_count += 1
 
                 for a in gymnast_events[:award_count]:
                     if a.score is not None and a.score != 0:
                         event_leaderboard.append({
                             'athlete_id': a.gymnast.athlete_id,
-                            'name': '{} {}'.format(a.gymnast.first_name, a.gymnast.last_name),
+                            'abbr_name': '{} {}.'.format(a.gymnast.first_name, a.gymnast.last_name[0]),
+                            'full_name': '{} {}'.format(a.gymnast.first_name, a.gymnast.last_name),
                             'team': a.gymnast.team.team,
                             'score': a.score,
                             'rank': a.rank,
@@ -336,7 +340,8 @@ class SessionCeremonyEventView(TemplateView):
                 if a.overall_score is not None and a.overall_score != 0:
                     aa_leaderboard.append({
                         'athlete_id': a.athlete_id,
-                        'name': '{} {}'.format(a.first_name, a.last_name),
+                        'abbr_name': '{} {}.'.format(a.first_name, a.last_name[0]),
+                        'full_name': '{} {}'.format(a.first_name, a.last_name),
                         'team': a.team.team,
                         'score': a.overall_score,
                         'rank': a.rank,

@@ -15,6 +15,7 @@ class Meet(models.Model):
     #         When turned off, admin will load more quickly.''')
     event_award_percentage = models.FloatField(default=0.45)
     all_around_award_percentage = models.FloatField(default=0.5)
+    all_last_place_ties_in_awards = models.BooleanField(default=False)
     notes = models.TextField(null=True, blank=True)
 
     class Meta:

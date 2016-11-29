@@ -59,7 +59,6 @@ def update_division_ranking(division):
             else:
                 place_skip += 1
 
-
             last_score = gymnast['score']
             last_total_score = gymnast['total_score']
             last_tie_break = gymnast['tie_break']
