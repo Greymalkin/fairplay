@@ -121,7 +121,7 @@ def download_athlete_labels(request):
             session = gymnast.division.session.first().name
 
         label = {}
-        label['id'] = gymnast.athlete_id
+        label['id'] = str(gymnast.athlete_id)
         label['name'] = '{} {}'.format(gymnast.first_name, gymnast.last_name)
         label['team'] = gymnast.team.team
         label['info'] = 'Level: {} Div: {} Session: {}'.format(
@@ -132,7 +132,7 @@ def download_athlete_labels(request):
 
     sheet.add_labels(athlete_labels)
 
-    buffer = StringIO.StringIO()
+    buffer = StringIO()
     sheet.save(buffer)
 
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
