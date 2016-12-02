@@ -174,9 +174,6 @@ class SessionCeremonyDivisionView(TemplateView):
         context = super(SessionCeremonyDivisionView, self).get_context_data(**kwargs)
         session = models.Session.objects.get(id=self.kwargs['id'])
 
-        # go do the actual math
-        # calculate_session_ranking(session)
-
         # start populating the context
         context['session'] = session
         context['divisions'] = []
@@ -273,9 +270,6 @@ class SessionCeremonyEventView(TemplateView):
         context = super(SessionCeremonyEventView, self).get_context_data(**kwargs)
         session = models.Session.objects.get(id=self.kwargs['id'])
 
-        # go do the actual math
-        # calculate_session_ranking(session)
-
         # start populating the context
         context['session'] = session
         context['events'] = []
@@ -366,9 +360,9 @@ class SessionCeremonyEventView(TemplateView):
 
         team_awards = []
         for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
-            ranking.update_team_ranking(team_award)
+            # ranking.update_team_ranking(team_award)
 
-            tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
+            tars = team_award.team_ranks.all().order_by('rank')
             teams = []
 
             for t in tars[:team_award.award_count]:
