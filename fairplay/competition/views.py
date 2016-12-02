@@ -153,7 +153,7 @@ def download_team_labels(request):
     specs = labels.Specification(
         215.9, 279.4, 3, 10, 66.675, 25.4,
         row_gap=0, corner_radius=2, left_margin=5, right_margin=5)
-    sheet = labels.Sheet(specs, draw_athlete_label, border=False)
+    sheet = labels.Sheet(specs, draw_team_label, border=False)
 
     team_labels = []
     for session in sessions:
