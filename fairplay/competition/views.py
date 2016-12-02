@@ -157,7 +157,7 @@ def download_team_labels(request):
 
     team_labels = []
     for session in sessions:
-        levels = ','.join(map(str, sorted(session.levels)))
+        levels = ', '.join(map(str, sorted(session.levels)))
 
         teams = Team.objects.filter(gymnasts__division__session=session).\
             order_by('gymnasts__division__session', 'team').distinct()
@@ -166,7 +166,7 @@ def download_team_labels(request):
             team_labels.append({
                 'team': team.team,
                 'session': session.name,
-                'level': 'Level: {}'.format(levels)})
+                'level': 'Level: {}'.format(levels.upper())})
 
     sheet.add_labels(team_labels)
 
