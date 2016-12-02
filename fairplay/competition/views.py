@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 import csv
 import operator
-from io import StringIO
+from io import BytesIO
 
 from django.conf import settings
 from django.views.generic import TemplateView
@@ -132,7 +132,7 @@ def download_athlete_labels(request):
 
     sheet.add_labels(athlete_labels)
 
-    buffer = StringIO()
+    buffer = BytesIO()
     sheet.save(buffer)
 
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
