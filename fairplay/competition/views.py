@@ -140,23 +140,22 @@ def download_athlete_labels(request):
     return response
 
 
+def draw_team_label(label, width, height, obj):
+    label.add(shapes.String(10, 53, obj['team'], fontName="Helvetica-Bold", fontSize=16))
+    label.add(shapes.String(10, 38, obj['session'], fontName="Helvetica", fontSize=12))
+    label.add(shapes.String(10, 10, obj['level'], fontName="Helvetica", fontSize=10))
+
+
 @csrf_exempt
 def download_team_labels(request):
     sessions = models.Session.objects.all()
 
-    response = HttpResponse(content_type='text/csv')
-    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
-    # force download.
-    response['Content-Disposition'] = 'attachment;filename=labels_' + timestamp + '.csv'
-    # the csv writer
-    writer = csv.writer(response)
+    specs = labels.Specification(
+        215.9, 279.4, 3, 10, 66.675, 25.4,
+        row_gap=0, corner_radius=2, left_margin=5, right_margin=5)
+    sheet = labels.Sheet(specs, draw_athlete_label, border=False)
 
-    writer.writerow([
-        'Team',
-        'Session',
-        'Levels',
-    ])
-
+    team_labels = []
     for session in sessions:
         levels = ','.join(map(str, sorted(session.levels)))
 
@@ -164,11 +163,18 @@ def download_team_labels(request):
             order_by('gymnasts__division__session', 'team').distinct()
 
         for team in teams:
-            writer.writerow([
-                team.team,
-                session.name,
-                levels
-            ])
+            team_labels.append({
+                'team': team.team,
+                'session': session.name,
+                'levels': 'Level: {}'.format(levels)})
+
+    sheet.add_labels(team_labels)
+
+    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment;filename=team_labels_' + timestamp + '.pdf'
+    sheet.save(response)
+
     return response
 
 
