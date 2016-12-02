@@ -220,8 +220,8 @@ class TeamAward(models.Model):
 
 class TeamAwardRank(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_ranks')
-    team = models.ForeignKey(Team)
-    team_award = models.ForeignKey(TeamAward)
+    team = models.ForeignKey(Team, related_name='team_ranks')
+    team_award = models.ForeignKey(TeamAward, related_name='team_ranks')
     rank = models.PositiveSmallIntegerField(null=True)
     score = models.FloatField(null=True)
 
