@@ -166,7 +166,7 @@ def download_team_labels(request):
             team_labels.append({
                 'team': team.team,
                 'session': session.name,
-                'levels': 'Level: {}'.format(levels)})
+                'level': 'Level: {}'.format(levels)})
 
     sheet.add_labels(team_labels)
 
