@@ -132,7 +132,7 @@ def download_athlete_labels(request):
 
     sheet.add_labels(athlete_labels)
 
-    buffer = StringIO.StringIO()
+    buffer = StringIO()
     sheet.save(buffer)
 
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
