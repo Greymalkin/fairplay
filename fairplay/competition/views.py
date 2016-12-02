@@ -121,7 +121,7 @@ def download_athlete_labels(request):
             session = gymnast.division.session.first().name
 
         label = {}
-        label['id'] = gymnast.athlete_id
+        label['id'] = str(gymnast.athlete_id)
         label['name'] = '{} {}'.format(gymnast.first_name, gymnast.last_name)
         label['team'] = gymnast.team.team
         label['info'] = 'Level: {} Div: {} Session: {}'.format(
