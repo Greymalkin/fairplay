@@ -124,8 +124,8 @@ def download_athlete_labels(request):
         label['id'] = str(gymnast.athlete_id)
         label['name'] = '{} {}'.format(gymnast.first_name, gymnast.last_name)
         label['team'] = gymnast.team.team
-        label['info'] = 'Level: {} Div: {} Session: {}'.format(
-            gymnast.level.level,
+        label['info'] = '{2} Level: {0} Div: {1}'.format(
+            gymnast.level.name.upper(),
             gymnast.division.short_name if gymnast.division else '',
             session)
         athlete_labels.append(label)
@@ -136,7 +136,6 @@ def download_athlete_labels(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;filename=athlete_labels_' + timestamp + '.pdf'
     sheet.save(response)
-
 
     return response
 
