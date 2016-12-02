@@ -132,12 +132,11 @@ def download_athlete_labels(request):
 
     sheet.add_labels(athlete_labels)
 
-    buffer = BytesIO()
-    sheet.save(buffer)
-
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
-    response = HttpResponse(buffer, content_type='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment;filename=athlete_labels_' + timestamp + '.pdf'
+    sheet.save(response)
+
 
     return response
 
