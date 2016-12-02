@@ -263,8 +263,8 @@ class GymnastEvent(models.Model):
     objects = MeetManager()
 
     class Meta():
-        verbose_name = 'Gymnast > Rank > Place'
-        verbose_name_plural = 'Gymnast > Rank > Place'
+        verbose_name = 'Gymnast Event'
+        verbose_name_plural = 'Gymnast Events > Rank > Score > Place'
         ordering = ['gymnast', 'event']
         unique_together = ('gymnast', 'event',)
 

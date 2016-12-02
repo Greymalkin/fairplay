@@ -169,6 +169,7 @@ class GymnastEventInlineAdmin(admin.TabularInline):
     max_num = 0
     readonly_fields = ('event', )
     fields = ('event', 'score',)
+    verbose_name_plural = 'Gymnast Events'
 
 
 class GymnastAdmin(MeetDependentAdmin):
