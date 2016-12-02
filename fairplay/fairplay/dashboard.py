@@ -119,7 +119,7 @@ class CustomIndexDashboard(Dashboard):
                 children=[
                     {
                         'title': _('Scoreboard Control'),
-                        'url': '/static/scoreboard.html',
+                        'url': '/scoreboard',
                         'external': False,
                     },
                     {
@@ -224,7 +224,7 @@ class CustomIndexDashboard(Dashboard):
 
             # Table of Starting Events, with links to Competition.Gymnast admin
             # TODO... had to hard code mensartisticgymnast in the url ... not good
-            # Used to go to competition/gymnast/... 
+            # Used to go to competition/gymnast/...
                 header = ""
                 counts = ""
                 for event in Event.objects.all():

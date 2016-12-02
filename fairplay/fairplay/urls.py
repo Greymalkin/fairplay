@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
 import competition.views
 import registration.views
@@ -20,6 +21,7 @@ urlpatterns = patterns(
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
+    url(r'^scoreboard/$', TemplateView.as_view(template_name='scoreboard.html')),
     url(r'^ledsign/', competition.views.led_sign),
     url(r'^roster/', competition.views.download_roster),
     url(r'^coaches/signin/$', competition.views.CoachSignInView.as_view()),

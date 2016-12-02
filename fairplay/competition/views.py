@@ -2,9 +2,13 @@ import json
 from datetime import datetime
 import csv
 import operator
+from io import StringIO
 
 from django.conf import settings
 from django.views.generic import TemplateView
+
+import labels
+from reportlab.graphics import shapes
 
 
 from rest_framework import viewsets
@@ -91,6 +95,13 @@ def download_roster(request):
     return response
 
 
+def draw_athlete_label(label, width, height, obj):
+    label.add(shapes.String(10, 53, obj['id'], fontName="Helvetica-Bold", fontSize=16))
+    label.add(shapes.String(10, 38, obj['name'], fontName="Helvetica", fontSize=12))
+    label.add(shapes.String(10, 24, obj['team'], fontName="Helvetica", fontSize=11))
+    label.add(shapes.String(10, 10, obj['info'], fontName="Helvetica", fontSize=10))
+
+
 @csrf_exempt
 def download_athlete_labels(request):
     gymnasts = models.Gymnast.objects.all().\
@@ -98,39 +109,35 @@ def download_athlete_labels(request):
         order_by('division__session', 'team', 'division', 'last_name', 'first_name').\
         select_related()
 
-    response = HttpResponse(content_type='text/csv')
-    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
-    # force download.
-    response['Content-Disposition'] = 'attachment;filename=labels_' + timestamp + '.csv'
-    # the csv writer
-    writer = csv.writer(response)
+    specs = labels.Specification(
+        215.9, 279.4, 3, 10, 66.675, 25.4,
+        row_gap=0, corner_radius=2, left_margin=5, right_margin=5)
+    sheet = labels.Sheet(specs, draw_athlete_label, border=False)
 
-    writer.writerow([
-        'ID',
-        'First Name',
-        'Last Name',
-        'Team',
-        'Level',
-        'Level Division',
-        'Age Division',
-        'Session'
-    ])
-
+    athlete_labels = []
     for gymnast in gymnasts:
         session = 'None'
         if gymnast.division and gymnast.division.session.first():
             session = gymnast.division.session.first().name
 
-        writer.writerow([
-            gymnast.athlete_id,
-            gymnast.first_name,
-            gymnast.last_name,
-            gymnast.team.team,
+        label = {}
+        label['id'] = gymnast.athlete_id
+        label['name'] = '{} {}'.format(gymnast.first_name, gymnast.last_name)
+        label['team'] = gymnast.team.team
+        label['info'] = 'Level: {} Div: {} Session: {}'.format(
             gymnast.level.level,
-            gymnast.level.name,
-            gymnast.division.short_name if gymnast.division else 'None',
-            session,
-        ])
+            gymnast.division.short_name if gymnast.division else '',
+            session)
+        athlete_labels.append(label)
+
+    sheet.add_labels(athlete_labels)
+
+    buffer = StringIO.StringIO()
+    sheet.save(buffer)
+
+    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment;filename=athlete_labels_' + timestamp + '.pdf'
 
     return response
 
