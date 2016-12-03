@@ -219,7 +219,9 @@ class MeetDependentAdmin(admin.ModelAdmin):
         # meet will be automatically set to the session meet when model is saved
         if self.fieldsets and self.fieldsets[0][1]['fields'][0] == 'meet' and request.session.get('meet', '') or not request.session.get('meet', ''):
             self.readonly_fields += ('meet',)
-            self.empty_value_display = request.session['meet'].get('short_name', '???')
+            # Change the display text of empty elements
+            if request.session.get('meet', ''):
+                self.empty_value_display = request.session['meet'].get('short_name', '???')
             return self.readonly_fields
         else:
             return []
@@ -229,7 +231,7 @@ class MeetDependentAdmin(admin.ModelAdmin):
         # if none, pull meet from session
         # if none in session, error thrown, however shouldn't happen since normal form validation on meet field fires first
         try:
-            meet = obj.meet
+            obj.meet
         except ObjectDoesNotExist:
             obj.meet = models.Meet.objects.get(id=request.session['meet']['id'])
         return super(MeetDependentAdmin, self).save_model(request, obj, form, change)
@@ -241,7 +243,7 @@ class MeetDependentAdmin(admin.ModelAdmin):
             obj.delete()
         for instance in instances:
             try:
-                meet = instance.meet
+                instance.meet
             except (ObjectDoesNotExist, AttributeError):
                 instance.meet = models.Meet.objects.get(id=request.session['meet']['id'])
             instance.save()
