@@ -1,28 +1,21 @@
 import json
-from datetime import datetime
 import csv
 import operator
-from io import BytesIO
-
-from django.conf import settings
-from django.views.generic import TemplateView
-
 import labels
+from datetime import datetime
+from django.conf import settings
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView
 from reportlab.graphics import shapes
-
-
 from rest_framework import viewsets
 
+from ledsign.bigdot import BigDotUDP
 from meet import models as meetconfig
 from registration.models import Team, Coach, Level
 from . import models
 from . import serializers
 from . import ranking
-
-from ledsign.bigdot import BigDotUDP
-
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 
 
 @csrf_exempt
@@ -371,7 +364,7 @@ class SessionCeremonyEventView(TemplateView):
 
         team_awards = []
         for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
-            # ranking.update_team_ranking(team_award)
+            ranking.update_team_ranking(team_award)
 
             tars = team_award.team_ranks.all().order_by('rank')
             teams = []
