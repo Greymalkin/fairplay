@@ -28,12 +28,12 @@ body {
 }
 
 .container {
-    display: flex;
+
 }
 
 #competition {
     display: none;
-    flex: 1;
+    height: 300px;
 }
 
 input {
@@ -41,24 +41,55 @@ input {
 }
 
 #athlete-id-entry {
-    width: 80px;
+    width: 120px;
+    font-size: 2em;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+#athlete-score-form {
+    display: none;
+    clear: both;
+}
+
+#athlete-score-entry {
+    width: 120px;
+    font-size: 2em;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 #athlete-find-button {
     margin-top: 5px;
     margin-bottom: 15px;
-    width: 80px;
+    width: 120px;
+    font-size: 1.5em;
+}
+
+#athlete-save-button {
+    margin-top: 5px;
+    margin-bottom: 15px;
+    width: 120px;
+    font-size: 1.5em;
+}
+
+#search {
+    float: left;
 }
 
 #scoreboard {
     display: none;
-    width: 100%;
-    flex: 1;
+    float: left;
+    width: 420px;
+    margin-top: 25px;
+    margin-left: 20px;
+    font-size: 1.2em;
 }
 
 #history {
     display: none;
-    width: 250px;
+    width: 350px;
+    font-size: 1.2em;
 }
 
 h4 {

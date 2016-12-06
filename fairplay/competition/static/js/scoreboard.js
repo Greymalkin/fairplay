@@ -39,6 +39,7 @@
         $("#history").show();
 
         $("#scoreboard").hide();
+        $("#athlete-score-form").hide();
         $("#history-list").empty();
 
         $("#topnav li").removeClass("active");
@@ -79,6 +80,7 @@
 
         currentGymnast = data;
         $("#scoreboard").show();
+        $("#athlete-score-form").show();
         $("#athlete-id-confirm").text(data.athlete_id);
         $("#athlete-last-name-confirm").text(data.last_name);
         $("#athlete-first-name-confirm").text(data.first_name);
@@ -111,6 +113,7 @@
 
         if (score >= 0 && score <= 20) {
             $("#scoreboard").fadeOut();
+            $("#athlete-score-form").fadeOut();
             $.ajax({
                 url: '/api/athleteevents/' + currentGymnastEventId + '/',
                 data: JSON.stringify({
@@ -222,6 +225,9 @@
         console.log("ERROR ", e);
     }
 
+    $(".navbar-brand").click(function() {
+        document.documentElement.webkitRequestFullscreen();
+    });
     $("#athlete-id-entry").on("keypress", onChangeAthleteID);
     $("#athlete-score-entry").on("keypress", onScoreKey);
     $("#athlete-find-button").click(loadAthlete);
