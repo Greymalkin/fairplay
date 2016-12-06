@@ -205,6 +205,9 @@ def download_medal_labels(request):
                     'place': ordinal(place),
                     'event': 'All Around',
                 })
+
+    sheet.add_labels(medal_labels)
+
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
     response = HttpResponse(content_type='applicaiton/pdf')
     response['content-Disposition'] = 'attachment;filename=medal_labels_' + timestamp + '.pdf'
