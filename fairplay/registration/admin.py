@@ -235,6 +235,7 @@ class GymnastEventInlineAdmin(admin.TabularInline):
     fields = ('event', 'score',)
     classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-closed',)
+    verbose_name_plural = 'Gymnast Events'
 
 
 class GymnastAdmin(MeetDependentAdmin):

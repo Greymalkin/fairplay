@@ -7,19 +7,13 @@ To activate your index dashboard add the following to your settings.py::
 """
 
 from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
 
 from grappelli.dashboard import modules, Dashboard
 from grappelli.dashboard.utils import get_admin_site_name
 
-from request_provider.signals import get_request
-
-from meet.models import Meet
 from meet.views import get_current_meet_count
-from competition.models import LEDShow
-from competition.models import Session, Event
-from registration.models import Gymnast, Level
-
+from registration.models import Gymnast
+from competition.models import LEDShow, Session, Event
 
 
 roster_html = """
@@ -42,12 +36,7 @@ roster_html += """
 """
 
 
-# print('Current Meet:', MEET)
-
 class CustomIndexDashboard(Dashboard):
-    """
-    Custom index dashboard for www.
-    """
 
     def init_with_context(self, context):
         site_name = get_admin_site_name(context)
@@ -166,7 +155,6 @@ class CustomIndexDashboard(Dashboard):
                 css_classes=('grp-open',),
             ))
 
-
         # For every Session, links for printables
             sessions = Session.objects.all()
             for session in sessions:
@@ -223,14 +211,12 @@ class CustomIndexDashboard(Dashboard):
                     })
 
             # Table of Starting Events, with links to Competition.Gymnast admin
-            # TODO... had to hard code mensartisticgymnast in the url ... not good
-            # Used to go to competition/gymnast/...
                 header = ""
                 counts = ""
                 for event in Event.objects.all():
                     count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                     header += '<th>{}</th>'.format(event.initials)
-                    link = '/admin/competition/mensartisticgymnast/?meet={}&session={}&starting_event={}'.format(session.meet.id, session.id, event.id)
+                    link = '/admin/registration/gymnast/?meet={}&session={}&starting_event={}'.format(session.meet.id, session.id, event.id)
                     counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
                 self.children.append(modules.LinkList(

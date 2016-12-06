@@ -1,9 +1,8 @@
 import csv
 import math
 
-from django import forms
 from django.forms.models import BaseInlineFormSet
-from django.contrib import admin, messages
+from django.contrib import admin
 from django.conf import settings
 from django.db.models import Sum
 from django.http import HttpResponse
@@ -169,6 +168,7 @@ class GymnastEventInlineAdmin(admin.TabularInline):
     max_num = 0
     readonly_fields = ('event', )
     fields = ('event', 'score',)
+    verbose_name_plural = 'Gymnast Events'
 
 
 class GymnastAdmin(MeetDependentAdmin):

@@ -1,7 +1,7 @@
 import math
 from colorama import Fore
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Sum, F
 from django.db.models.signals import post_save
 
 from meet.models import Meet, MeetManager
@@ -136,6 +136,16 @@ class Division(models.Model):
     num_gymnasts.short_description = "Gymnasts"
 
 
+def total_meet_medals():
+    ''' For individual medals, count the number of awards we are giving in each division
+            and multiply by the number of events
+        For all around medals, count the number of awards we are giving in each division
+            and subtract 3 for each division, as 1st-3rd place get trophies '''
+    medals = Division.objects.all().\
+        aggregate(total_medals=Sum('all_around_award_count') - (Count('name') * 3) + Sum(F('event_award_count') * 6))
+    return medals['total_medals']
+
+
 class Session(models.Model):
     meet = models.ForeignKey(Meet, related_name='sessions')
     name = models.CharField(max_length=255, help_text="Session name")
@@ -263,8 +273,8 @@ class GymnastEvent(models.Model):
     objects = MeetManager()
 
     class Meta():
-        verbose_name = 'Gymnast > Rank > Place'
-        verbose_name_plural = 'Gymnast > Rank > Place'
+        verbose_name = 'Gymnast Event'
+        verbose_name_plural = 'Gymnast Events > Rank > Score > Place'
         ordering = ['gymnast', 'event']
         unique_together = ('gymnast', 'event',)
 
