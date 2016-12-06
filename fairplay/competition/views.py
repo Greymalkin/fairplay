@@ -174,15 +174,16 @@ def download_team_labels(request):
 
 def draw_medal_label(label, width, height, obj):
     label.add(shapes.String(width / 2.0, 80, obj['meet'], fontName="Helvetica", fontSize=7, textAnchor="middle"))
-    label.add(shapes.String(width / 2.0, 60, obj['place'] + ' Place', fontName="Helvetica-Bold", fontSize=10, textAnchor="middle"))
+    label.add(shapes.String(width / 2.0, 60, obj['place'], fontName="Helvetica-Bold", fontSize=10, textAnchor="middle"))
     label.add(shapes.String(width / 2.0, 48, obj['event'], fontName="Helvetica-Bold", fontSize=10, textAnchor="middle"))
     label.add(shapes.String(width / 2.0, 35, obj['level'], fontName="Helvetica", fontSize=8, textAnchor="middle"))
-    label.add(shapes.String(width / 2.0, 25, obj['age-div'], fontName="Helvetica", fontSize=8, textAnchor="middle"))
+    label.add(shapes.String(width / 2.0, 25, obj['age_div'], fontName="Helvetica", fontSize=8, textAnchor="middle"))
 
 
 @csrf_exempt
 def download_medal_labels(request):
-    specs = labels.Specification(215.9, 279.4, 4, 5, 38.1, 38.1, corner_radius=19.0)
+    specs = labels.Specification(215.9, 279.4, 4, 5, 38.1, 38.1,
+        corner_radius=19.0, top_margin=20, bottom_margin=20)
     sheet = labels.Sheet(specs, draw_medal_label, border=False)
 
     medal_labels = []
@@ -193,9 +194,9 @@ def download_medal_labels(request):
                 medal_labels.append({
                     'meet': division.meet.short_name,
                     'session': division.session.first().name,
-                    'level': division.level.name.upper(),
-                    'age_div': division.short_name,
-                    'place': ordinal(place + 1),
+                    'level': 'Level: {}'.format(division.level.name.upper()),
+                    'age_div': 'Div: {}'.format(division.short_name),
+                    'place': '{} Place'.format(ordinal(place + 1)),
                     'event': event.name,
                 })
         # All Around Awards, skipping 1st-3rd place
@@ -204,9 +205,9 @@ def download_medal_labels(request):
                 medal_labels.append({
                     'meet': division.meet.short_name,
                     'session': division.session.first().name,
-                    'level': division.level.name.upper(),
-                    'age_div': division.short_name,
-                    'place': ordinal(place),
+                    'level': 'Level: {}'.format(division.level.name.upper()),
+                    'age_div': 'Div: {}'.format(division.short_name),
+                    'place': '{} Place'.format(ordinal(place)),
                     'event': 'All Around',
                 })
 
@@ -216,6 +217,7 @@ def download_medal_labels(request):
     response = HttpResponse(content_type='applicaiton/pdf')
     response['content-Disposition'] = 'attachment;filename=medal_labels_' + timestamp + '.pdf'
     sheet.save(response)
+    return response
 
 
 class SessionCeremonyDivisionView(TemplateView):
