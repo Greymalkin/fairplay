@@ -127,6 +127,11 @@ class CustomIndexDashboard(Dashboard):
                         'external': False,
                     },
                     {
+                        'title': 'Download Medal Labels',
+                        'url': '/labels/medal/',
+                        'external': False,
+                    },
+                    {
                         'title': 'Coaches Sign In',
                         'url': '/coaches/signin/',
                         'external': False,

@@ -3,6 +3,7 @@ import csv
 import operator
 import labels
 from datetime import datetime
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -169,6 +170,48 @@ def download_team_labels(request):
     sheet.save(response)
 
     return response
+
+
+def draw_medal_label(label, width, height, obj):
+    label.add(shapes.String(0, 0, obj, fontName="Helvetica-Bold", fontsize=10))
+
+
+@csrf_exempt
+def download_medal_labels(request):
+    specs = labels.Specification()
+    sheet = labels.Sheet(specs, draw_medal_label, border=False)
+
+    medal_labels = []
+    for division in models.Division.objects.all():
+        # Event Awards
+        for event in models.Event.objects.all():
+            for place in range(division.event_award_count):
+                medal_labels.append({
+                    'meet': division.meet.short_name,
+                    'session': division.session.first().name,
+                    'level': division.level.name.upper(),
+                    'age_div': division.short_name,
+                    'place': ordinal(place + 1),
+                    'event': event.name,
+                })
+        # All Around Awards, skipping 1st-3rd place
+        if division.all_around_award_count > 3:
+            for place in range(4, division.all_around_award_count + 1):
+                medal_labels.append({
+                    'meet': division.meet.short_name,
+                    'session': division.session.first().name,
+                    'level': division.level.name.upper(),
+                    'age_div': division.short_name,
+                    'place': ordinal(place),
+                    'event': 'All Around',
+                })
+
+    sheet.add_labels(medal_labels)
+
+    timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
+    response = HttpResponse(content_type='applicaiton/pdf')
+    response['content-Disposition'] = 'attachment;filename=medal_labels_' + timestamp + '.pdf'
+    sheet.save(response)
 
 
 class SessionCeremonyDivisionView(TemplateView):

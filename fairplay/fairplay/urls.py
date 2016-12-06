@@ -33,6 +33,7 @@ urlpatterns = patterns(
     url(r'^scoresheet/(?P<id>\d+)/$', competition.views.SessionScoresheetView.as_view()),
     url(r'^labels/athlete/$', competition.views.download_athlete_labels),
     url(r'^labels/team/$', competition.views.download_team_labels),
+    url(r'^labels/medal/$', competition.views.download_medal_labels),
     url(r'^rotations/(?P<id>\d+)/$', competition.views.SessionRotationView.as_view()),
     url(r'^announcer/(?P<id>\d+)/$', competition.views.SessionAnnouncerView.as_view()),
     url(r'^gymnast/signin/(?P<id>\d+)/$', competition.views.SessionGymnastSignInView.as_view()),
