@@ -173,12 +173,16 @@ def download_team_labels(request):
 
 
 def draw_medal_label(label, width, height, obj):
-    label.add(shapes.String(0, 0, obj, fontName="Helvetica-Bold", fontsize=10))
+    label.add(shapes.String(width / 2.0, 80, obj['meet'], fontName="Helvetica", fontSize=7, textAnchor="middle"))
+    label.add(shapes.String(width / 2.0, 60, obj['place'] + ' Place', fontName="Helvetica-Bold", fontSize=10, textAnchor="middle"))
+    label.add(shapes.String(width / 2.0, 48, obj['event'], fontName="Helvetica-Bold", fontSize=10, textAnchor="middle"))
+    label.add(shapes.String(width / 2.0, 35, obj['level'], fontName="Helvetica", fontSize=8, textAnchor="middle"))
+    label.add(shapes.String(width / 2.0, 25, obj['age-div'], fontName="Helvetica", fontSize=8, textAnchor="middle"))
 
 
 @csrf_exempt
 def download_medal_labels(request):
-    specs = labels.Specification()
+    specs = labels.Specification(215.9, 279.4, 4, 5, 38.1, 38.1, corner_radius=19.0)
     sheet = labels.Sheet(specs, draw_medal_label, border=False)
 
     medal_labels = []
