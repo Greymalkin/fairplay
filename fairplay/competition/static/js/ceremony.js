@@ -8,8 +8,12 @@
     $($("select")).change();
 
     $(".crossable").click(function(event) {
-        $(event.target).parent().css("color", "#ddd");
-        $(event.target).parent().css("text-decoration", "line-through");
+    	console.log();
+    	if ($(event.target).parent().hasClass('crossed-off')) {
+	        $(event.target).parent().removeClass('crossed-off');
+    	} else {
+	        $(event.target).parent().addClass('crossed-off');
+    	}
     });
 
 })();

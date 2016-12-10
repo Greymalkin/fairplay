@@ -33,6 +33,7 @@
 
     function onSelectEvent(event) {
         currentEvent = null;
+        console.log(window.location.hash)
         for (var p in eventTable) {
             if ("#" + eventTable[p].initials == window.location.hash) {
                 currentEvent = eventTable[p];

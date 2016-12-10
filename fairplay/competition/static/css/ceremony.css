@@ -43,3 +43,8 @@ td {
     padding-bottom: 4px;
     padding-left: 8px;
 }
+
+.crossed-off {
+    color: #ddd;
+    text-decoration: line-through;
+}
