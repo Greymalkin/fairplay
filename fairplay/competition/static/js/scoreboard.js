@@ -31,10 +31,13 @@
         }
     });
 
-    function onSelectEvent(event) {
+    function onSetEvent(event) {
         currentEvent = null;
+
+        var parts = window.location.pathname.split('/');
+        var initials = parts[parts.length - 1];
         for (var p in eventTable) {
-            if ("#" + eventTable[p].initials == window.location.hash) {
+            if (eventTable[p].initials == initials) {
                 currentEvent = eventTable[p];
                 break;
             }
@@ -192,7 +195,7 @@
     }
 
     function processEvents(data) {
-        $("#event-select").empty();
+        // $("#event-select").empty();
 
         for (var i=0; i<data.length; ++i) {
             // if ("#" + data[i].name == window.location.hash) {
@@ -207,7 +210,7 @@
             console.log(eventTable)
         }
 
-        onSelectEvent();
+        onSetEvent();
     }
 
     // get a wrapped list of event IDs
@@ -243,7 +246,6 @@
     $("#athlete-score-entry").on("keypress", onScoreKey);
     $("#athlete-find-button").click(loadAthlete);
     $("#athlete-save-button").click(saveAthlete);
-    $("#event-select").change(onSelectEvent)
 
     $.getJSON('/api/events')
     .success(processEvents)

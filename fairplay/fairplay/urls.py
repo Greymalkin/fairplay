@@ -21,7 +21,7 @@ urlpatterns = patterns(
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
-    url(r'^scoreboard/$', TemplateView.as_view(template_name='scoreboard.html')),
+    url(r'^scoreboard/(.*)', TemplateView.as_view(template_name='scoreboard.html')),
     url(r'^ledsign/', competition.views.led_sign),
     url(r'^roster/', competition.views.download_roster),
     url(r'^coaches/signin/$', competition.views.CoachSignInView.as_view()),
