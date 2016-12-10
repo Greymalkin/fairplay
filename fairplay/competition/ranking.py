@@ -18,7 +18,7 @@ def update_division_ranking(division):
     # TODO: ? setattr(score, '{}_rank'.format(gymnast_event.event.initials), gymnast_event.score)
 
     # All gymnasts in division (age division), including their event score, overall score, and max score
-    division_gymnasts = models.GymnastEvent.objects.filter(gymnast__division=division).annotate(total_score=Sum('gymnast__events__score'))
+    division_gymnasts = models.GymnastEvent.objects.filter(gymnast__division=division, gymnast__is_scratched=False).annotate(total_score=Sum('gymnast__events__score'))
 
     for event in models.Event.objects.all():  # competition.Event
         gymnasts = []
