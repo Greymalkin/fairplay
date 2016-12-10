@@ -32,7 +32,17 @@
     });
 
     function onSelectEvent(event) {
-        currentEvent  = eventTable[$("#event-select").val()];
+        currentEvent = null;
+        for (var p in eventTable) {
+            if ("#" + eventTable[p].initials == window.location.hash) {
+                currentEvent = eventTable[p];
+                break;
+            }
+        }
+
+        if (currentEvent == null) {
+            return null;
+        }
 
         $("#event-name").text(currentEvent.name);
         $("#competition").show();
@@ -53,7 +63,7 @@
 
         $("#athlete-id-entry").focus();
 
-        window.location.hash = $("#event-select option:selected").text();
+        // window.location.hash = $("#event-select option:selected").text();
     }
 
     function onChangeAthleteID(event) {
@@ -185,15 +195,16 @@
         $("#event-select").empty();
 
         for (var i=0; i<data.length; ++i) {
-            if ("#" + data[i].name == window.location.hash) {
+            // if ("#" + data[i].name == window.location.hash) {
 
-                $("#event-select").append('<option value="' + data[i].id + '" selected>' + data[i].name + '</option>');
-            } else {
-                $("#event-select").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
-            }
+            //     $("#event-select").append('<option value="' + data[i].id + '" selected>' + data[i].name + '</option>');
+            // } else {
+            //     $("#event-select").append('<option value="' + data[i].id + '">' + data[i].name + '</option>');
+            // }
 
             eventList.push(data[i]);
             eventTable[data[i].id] = data[i];
+            console.log(eventTable)
         }
 
         onSelectEvent();
