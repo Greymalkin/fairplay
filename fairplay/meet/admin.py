@@ -11,8 +11,6 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.html import escape
 
-from request_provider.signals import get_request
-
 from . import models
 from registration.models import Level
 from competition.models import Event, TeamAward, GymnastEvent

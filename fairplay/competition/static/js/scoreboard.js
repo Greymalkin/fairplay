@@ -33,13 +33,14 @@
 
     function onSetEvent(event) {
         currentEvent = null;
-<<<<<<< HEAD
-        console.log(window.location.hash)
-=======
 
         var parts = window.location.pathname.split('/');
         var initials = parts[parts.length - 1];
->>>>>>> f992b997c61e561599c2e9da9ae5aac244f3c22b
+
+        if (initials.length == 0) {
+            initials = parts[parts.length - 2];
+        }
+
         for (var p in eventTable) {
             if (eventTable[p].initials == initials) {
                 currentEvent = eventTable[p];
