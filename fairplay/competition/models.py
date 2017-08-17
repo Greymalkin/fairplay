@@ -44,7 +44,7 @@ class Event(models.Model):
         warmup = None
         try:
             warmup = Event.objects.filter(meet=self.meet, order__gt=self.order)[0]
-        except:
+        except Exception:
             warmup = Event.objects.filter(meet=self.meet).order_by('order')[0]
         return warmup
 
@@ -54,7 +54,7 @@ class Event(models.Model):
         warmup = None
         try:
             warmup = Event.objects.filter(meet=self.meet, order__lt=self.order).order_by('-order')[0]
-        except:
+        except Exception:
             warmup = Event.objects.filter(meet=self.meet).order_by('-order')[0]
         return warmup
 
@@ -65,23 +65,13 @@ class ScoreRankEvent(models.Model):
     meet = models.ForeignKey(Meet, related_name='scores')
     gymnast = models.OneToOneField(MasterGymnast, related_name="scores")
     fx = models.FloatField(null=True, blank=True)
-    # fx_rank = models.PositiveSmallIntegerField(null=True)
     ph = models.FloatField(null=True, blank=True)
-    # ph_rank = models.PositiveSmallIntegerField(null=True)
     sr = models.FloatField(null=True, blank=True)
-    # sr_rank = models.PositiveSmallIntegerField(null=True)
     vt = models.FloatField(null=True, blank=True)
-    # vt_rank = models.PositiveSmallIntegerField(null=True)
     pb = models.FloatField(null=True, blank=True)
-    # pb_rank = models.PositiveSmallIntegerField(null=True)
     hb = models.FloatField(null=True, blank=True)
-    # hb_rank = models.PositiveSmallIntegerField(null=True)
     ub = models.FloatField(null=True, blank=True)
-    # ub_rank = models.PositiveSmallIntegerField(null=True, blank=True)
     bb = models.FloatField(null=True, blank=True)
-    # bb_rank = models.PositiveSmallIntegerField(null=True)
-    # aa = models.FloatField(null=True, blank=True)
-    # aa_rank = models.PositiveSmallIntegerField(null=True)
 
     objects = MeetManager()
 
@@ -174,7 +164,7 @@ class Session(models.Model):
             num_gymnasts = [a.gymnasts.filter(is_scratched=False).count() for a in self.divisions.all()]
             num_gymnasts = (sum(num_gymnasts))
             return num_gymnasts
-        except:
+        except Exception:
             return 0
     num_gymnasts.short_description = "Gymnasts"
 
@@ -202,7 +192,7 @@ class TeamAward(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_awards')
     name = models.CharField(max_length=255)
     levels = models.ManyToManyField(Level, related_name='team_awards')
-    award_count = models.PositiveSmallIntegerField(default=3, help_text='Number of places team awards will go out to')
+    award_count = models.PositiveSmallIntegerField(default=0, help_text='Number of places team awards will go out to')
     order = models.PositiveSmallIntegerField(default=0)
 
     objects = MeetManager()
@@ -224,7 +214,7 @@ class TeamAward(models.Model):
                 gymnasts__is_scratched=False,
                 gymnasts__level__group__in=self.levels.all().values('group')).annotate(num_gymnasts=Count('id'))
             return teams
-        except:
+        except Exception:
             return Team.objects.filter(id=0).annotate(num_gymnasts=Count('id'))
 
 
@@ -292,7 +282,7 @@ class CompetitionGymnastManager(MeetManager):
         try:
             current_meet = Meet.objects.get(is_current_meet=True)[0]
             return qs.filter(meet=current_meet)
-        except:
+        except Exception:
             pass
         return qs
 
@@ -326,7 +316,7 @@ class MensArtisticGymnastManager(MeetManager):
         try:
             current_meet = Meet.objects.get(is_current_meet=True)[0]
             return qs.filter(meet=current_meet)
-        except:
+        except Exception:
             pass
         return qs
 
@@ -381,7 +371,7 @@ class WomensArtisticGymnastManager(MeetManager):
         try:
             current_meet = Meet.objects.get(is_current_meet=True)[0]
             return qs.filter(meet=current_meet)
-        except:
+        except Exception:
             pass
         return qs
 

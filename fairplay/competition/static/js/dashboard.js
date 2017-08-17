@@ -7,6 +7,7 @@
     }
 
     function showLEDShow(ledShowID) {
+        console.log('hey?');
         $.getJSON("/api/ledshows/" + ledShowID + "/")
         .success(function(data) {
             for (var i=0; i<data.messages.length; ++i) {

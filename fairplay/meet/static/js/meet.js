@@ -11,6 +11,13 @@
                 location.reload(true);
             })
         });
+
+        $('#active-meet-select').on('change', function(){
+            console.log(this.value);
+            apiCall('/api/meet/' + this.value +'/set').done(function(data){
+                location.reload(true);
+            })
+        })
     }
 
     // Django CSRF (based on django doc)

@@ -7,3 +7,4 @@ class MeetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Meet
+        fields = '__all__'

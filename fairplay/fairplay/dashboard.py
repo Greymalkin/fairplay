@@ -11,9 +11,10 @@ from django.utils.translation import ugettext_lazy as _
 from grappelli.dashboard import modules, Dashboard
 from grappelli.dashboard.utils import get_admin_site_name
 
-from meet.views import get_current_meet_count
+from meet.views import get_current_meet_count, get_current_meet_id, get_current_meet_name
 from registration.models import Gymnast
 from competition.models import LEDShow, Session, Event
+from meet.models import Meet
 
 
 roster_html = """
@@ -35,11 +36,38 @@ roster_html += """
 <script src="/static/js/dashboard.js"></script>
 """
 
+# meet_name = get_current_meet_name()
+
+# meets_html = """
+# <div style="margin-left:10px; margin-right:10px; margin-bottom:10px;">
+# <label for="active-meet-select" class="grp-listing-small">{}</label>
+# <select id="active-meet-select">
+# <option value="">---</option>
+# """.format(meet_name)
+
+# for meet in Meet.objects.all().order_by('short_name'):
+#     try:
+#         if get_current_meet_id()[0] == meet.id:
+#             meets_html += '<option selected value="{}">{}</option>'.format(meet.id, meet.name)
+#         else:
+#             meets_html += '<option value="{}">{}</option>'.format(meet.id, meet.name)
+#     except Exception:
+#         meets_html += '<option value="{}">{}</option>'.format(meet.id, meet.name)
+
+# meets_html += """
+# </select>
+# <input id="active-meet-button" type="button" value="Set Active Meet" class="grp-button grp-default" style="width:100%;margin-top: 10px;"/>
+# </div>"""
+# meets_html += """
+# <script src="/static/js/meet.js"></script>"""
+
+# roster_html += meets_html
+
 
 class CustomIndexDashboard(Dashboard):
 
     def init_with_context(self, context):
-        site_name = get_admin_site_name(context)
+        # site_name = get_admin_site_name(context)
 
         self.children.append(modules.ModelList(
             _('Meet'),
@@ -102,6 +130,13 @@ class CustomIndexDashboard(Dashboard):
         ))
 
         if get_current_meet_count() == 1:
+            # self.children.append(modules.LinkList(
+            #     _('Active Meet'),
+            #     column=2,
+            #     children=[],
+            #     post_content=meets_html
+            # ))
+
             self.children.append(modules.LinkList(
                 _('Tools'),
                 column=2,

@@ -22,7 +22,7 @@ class MeetBreakdownView(TemplateView):
                     queryset=models.Gymnast.objects.filter(is_scratched=False),
                     to_attr="levdiv_gymnasts"
                 )
-            )
+        )
 
         levels = models.Level.objects.all().order_by('group').distinct('group')
         level_groups = sorted(levels, key=operator.attrgetter('order'))

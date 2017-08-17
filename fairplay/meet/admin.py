@@ -12,12 +12,12 @@ from django.http import HttpResponseRedirect
 from django.utils.html import escape
 
 from . import models
-from registration.models import Level
-from competition.models import Event, TeamAward, GymnastEvent
+from registration.models import Level, Team
+from competition.models import Event, TeamAward, GymnastEvent, Division, Session
 
 
 class MeetAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'host', 'date', 'show_current_meet', 'set_meet')
+    list_display = ('short_name', 'host', 'date', 'show_current_meet', 'set_meet', 'set_enable_ranking')
     actions = ['copy_meet']
 
     def set_meet(self, obj):
@@ -25,28 +25,33 @@ class MeetAdmin(admin.ModelAdmin):
     set_meet.short_description = ""
     set_meet.allow_tags = True
 
-    # TODO: Get Rid
-    # def set_enable_ranking(self, obj):
-    #     onoff = 'Off' if obj.enable_ranking else 'On'
-    #     return "<a class='setRanking' href='#' data-meet={} data-ranking={}>Turn Ranking {}</a>".format(obj.id, not obj.enable_ranking, onoff)
-    # set_enable_ranking.short_description = ""
-    # set_enable_ranking.allow_tags = True
+    def set_enable_ranking(self, obj):
+        onoff = 'OFF!' if obj.enable_ranking else 'On'
+        return "<a class='setRanking' href='#' data-meet={} data-ranking={}>Turn Ranking {}</a>".format(obj.id, not obj.enable_ranking, onoff)
+    set_enable_ranking.short_description = ""
+    set_enable_ranking.allow_tags = True
 
     def show_current_meet(self, obj):
-        return obj.is_current_meet
+        from request_provider.signals import get_request
+        request = get_request()
+        test = request.session.get('meet')
+        if not test or test['id'] != obj.id:
+            return False
+        return True
     show_current_meet.short_description = "Active Meet"
     show_current_meet.boolean = True
 
     def save_model(self, request, obj, form, change):
         if obj.is_current_meet:
-            # only alllow a single default
-            self.model.objects.all().exclude(id=obj.id).update(is_current_meet=False)
+            # only alllow a single default, make sure ranking is off
+            self.model.objects.all().exclude(id=obj.id).update(is_current_meet=False, enable_ranking=False)
 
             # Set current meet in session
             request.session['meet'] = {
                 "id": obj.id,
                 "name": obj.name,
-                "short_name": obj.short_name
+                "short_name": obj.short_name,
+                "enable_ranking": obj.enable_ranking
             }
         # Current meet was toggled off.  Remove from session
         elif request.session.get('meet', '') and request.session['meet'].get('id', 0) == obj.id:
@@ -72,12 +77,15 @@ class MeetAdmin(admin.ModelAdmin):
         levels = Level.objects.filter(meet=current_meet)
         events = Event.objects.filter(meet=current_meet)
         awards = TeamAward.objects.filter(meet=current_meet)
+        teams = Team.objects.filter(meet=current_meet)
+        divisions = Division.objects.filter(meet=current_meet)
+        sessions = Session.objects.filter(meet=current_meet)
 
         new_meet = deepcopy(current_meet)
         new_meet.name = 'New MEET!'
         new_meet.short_name = 'New MEET!'
         new_meet.is_current_meet = False
-        new_meet.date = datetime.datetime.today()
+        new_meet.date = None
         new_meet.id = None
         new_meet.save()
 
@@ -97,6 +105,50 @@ class MeetAdmin(admin.ModelAdmin):
             post_save.disconnect(receiver=None, sender=Event, dispatch_uid='populate_event')
             old_obj.save()
             # post_save.connect(receiver=None, sender=GymnastEvent, dispatch_uid='update_rankings')
+
+        for team in teams:
+            old_obj = copy(team)
+            old_obj.id = None
+            old_obj.meet = new_meet
+            old_obj.updated = None
+            old_obj.gymnast_cost = 0
+            old_obj.team_award_cost = 0
+            old_obj.total_cost = 0
+            old_obj.paid_in_full = False
+            old_obj.notes = None
+            old_obj.qualified = True
+            old_obj.save()
+
+            for coach in team.coaches.all():
+                coach.id = None
+                coach.meet = new_meet
+                coach.team = old_obj
+                coach.save()
+
+        for award in awards:
+            old_obj = copy(award)
+            old_obj.id = None
+            old_obj.meet = new_meet
+            old_obj.award_count = 0
+            old_obj.save()
+
+        for division in divisions:
+            old_obj = copy(division)
+            old_obj.id = None
+            old_obj.meet = new_meet
+            old_obj.event_award_count = 0
+            old_obj.all_around_award_count = 0
+            old_obj.save()
+
+        for session in sessions:
+            old_obj = copy(session)
+            old_obj.id = None
+            old_obj.meet = new_meet
+            old_obj.session_start = None
+            old_obj.timed_warmup_start = None
+            old_obj.competition_start = None
+            old_obj.presentation_start = None
+            old_obj.save()
 
         messages.success(request, 'New meet {} copied from {}'.format(new_meet.name, current_meet.name))
 

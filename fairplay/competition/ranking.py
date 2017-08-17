@@ -8,12 +8,15 @@ def multikeysort(items, columns):
 
     for col in reversed(columns):
         result = sorted(result, key=lambda x: 0 if x[col] is None else x[col], reverse=True)
-
     return result
 
 
 def update_division_ranking(division):
     from . import models
+
+    # ranking takes a long time.  don't slow down the admin, check if it has been enabled first.
+    if not division.meet.enable_ranking:
+        return False
 
     # TODO: ? setattr(score, '{}_rank'.format(gymnast_event.event.initials), gymnast_event.score)
 
@@ -132,6 +135,10 @@ def update_team_ranking(team_award):
 
     teams = []
     meet = team_award.meet
+
+    # ranking takes a long time.  don't slow down the admin, check if it has been enabled first.
+    if not meet.enable_ranking:
+        return False
 
     models.TeamAwardRank.objects.filter(team_award=team_award).delete()
 

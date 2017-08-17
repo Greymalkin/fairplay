@@ -9,6 +9,18 @@ def get_current_meet_count():
     return models.Meet.objects.filter(is_current_meet=True).count()
 
 
+def get_current_meet_id():
+    return models.Meet.objects.filter(is_current_meet=True).values_list('id', flat=True)
+
+
+def get_current_meet_name():
+    try:
+        name = models.Meet.objects.filter(is_current_meet=True).values_list('short_name', flat=True)[0]
+    except Exception:
+        name = 'NO ACTIVE MEET'
+    return name
+
+
 class MeetViewSet(viewsets.ReadOnlyModelViewSet):
     """ Retrieve a meet by its id """
     queryset = models.Meet.objects.all()
@@ -22,11 +34,11 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
         omit_serializer: true
         """
         try:
-            models.Meet.objects.all().exclude(id=int(pk)).update(is_current_meet=False)
+            models.Meet.objects.all().exclude(id=int(pk)).update(is_current_meet=False, enable_ranking=False)
             meet = models.Meet.objects.get(id=int(pk))
             meet.is_current_meet = True
             meet.save()
-        except:
+        except Exception:
             request.session['meet'] = {}
             return Response({"status": "active meet cleared"}, status=status.HTTP_200_OK)
 
@@ -37,18 +49,18 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
         }
         return Response({"status": "active meet: {}".format(request.session['meet'])}, status=status.HTTP_200_OK)
 
-    # @detail_route(methods=['get'])
-    # def toggle_ranking(self, request, pk=None):
-    #     """ Changes the enable_ranking flag to its opposite
-    #     ---
-    #     omit_serializer: true
-    #     """
-    #     try:
-    #         meet = models.Meet.objects.get(id=int(pk))
-    #         meet.enable_ranking = not meet.enable_ranking
-    #         meet.save()
-    #     except:
-    #         request.session['meet'] = {}
-    #         return Response({"status": "ranking behavior did not changed"}, status=status.HTTP_200_OK)
+    @detail_route(methods=['get'])
+    def toggle_ranking(self, request, pk=None):
+        """ Changes the enable_ranking flag to its opposite
+        ---
+        omit_serializer: true
+        """
+        try:
+            meet = models.Meet.objects.get(id=int(pk))
+            meet.enable_ranking = not meet.enable_ranking
+            meet.save()
+        except Exception:
+            request.session['meet'] = {}
+            return Response({"status": "no change to enable ranking"}, status=status.HTTP_200_OK)
 
-    #     return Response({"status": "enable ranking flag changed to {}".format(meet.enable_ranking)}, status=status.HTTP_200_OK)
+        return Response({"status": "enable ranking flag changed to {}".format(meet.enable_ranking)}, status=status.HTTP_200_OK)

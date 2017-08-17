@@ -1,5 +1,5 @@
 import math
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta
 
 from django.db import models
 from django.conf import settings
@@ -73,18 +73,16 @@ class Team(models.Model):
             else:
                 self.team_award_cost = 0
             return self.team_award_cost
-        except:
+        except Exception:
             return 0
 
     def team_rotation_gymnasts(self, session, event):
         qs = self.gymnasts.filter(is_scratched=False, division__session=session, starting_event=event)
         return qs
 
+    # TODO: add a property that figures out if this team qualifies for team awards
 
-    #TODO: add a property that figures out if this team qualifies for team awards
-
-
-    #TODO: add a property that reports if this team is paid in full
+    # TODO: add a property that reports if this team is paid in full
 
 
 class Person(models.Model):
@@ -180,7 +178,7 @@ class Gymnast(Person):
         usag = self.usag if self.usag and len(self.usag.strip()) else ''
         try:
             level = 'L{}'.format(int(self.level))
-        except:
+        except Exception:
             level = self.level
         return "{3}{1}, {0} ({2}) {4}".format(self.first_name, self.last_name, level, flagged, usag)
 
@@ -267,6 +265,39 @@ class ShirtSize(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Notes(models.Model):
+    author = models.CharField(max_length=50, blank=False, null=False)
+    note = models.CharField(max_length=255, blank=False, null=False)
+    created = models.DateTimeField(auto_now_add=True)
+
+    objects = MeetManager()
+
+    class Meta:
+        ordering = ['-created']
+        abstract = True
+
+    def __str__(self):
+        return '{} {}'.format(self.author, datetime.strftime(self.created, '%Y-%m-%d'))
+
+
+class TeamNotes(Notes):
+    meet = models.ForeignKey(Meet, related_name='team_notes')
+    team = models.ForeignKey(Team, related_name='team_notes')
+
+    class Meta:
+        verbose_name = 'Team Note'
+        verbose_name_plural = 'Team Notes'
+
+
+class GymnastNotes(Notes):
+    meet = models.ForeignKey(Meet, related_name='gymnast_notes')
+    gymnast = models.ForeignKey(Gymnast, related_name='gymnast_notes')
+
+    class Meta:
+        verbose_name = 'Gymnast Note'
+        verbose_name_plural = 'Gymnast Notes'
 
 
 # Receivers

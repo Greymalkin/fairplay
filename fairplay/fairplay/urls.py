@@ -1,10 +1,14 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
 import competition.views
 import registration.views
 import meet.views
+
+admin.site.site_header = settings.GRAPPELLI_ADMIN_TITLE = '{} Gymnastics Scoreboard'.format('Fairplay')
 
 router = DefaultRouter()
 router.register(r'meet', meet.views.MeetViewSet)
@@ -15,9 +19,17 @@ router.register(r'athleteevents', competition.views.GymnastEventViewSet)
 router.register(r'sessions', competition.views.SessionViewSet)
 router.register(r'ledshows', competition.views.LEDShowViewSet)
 
+urlpatterns = []
 
-urlpatterns = patterns(
-    '',
+if settings.DEBUG:
+    import debug_toolbar
+    # urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
+
+
+urlpatterns += [
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include(router.urls)),
@@ -41,4 +53,4 @@ urlpatterns = patterns(
     url(r'^team/roster/(?P<id>\d+)/$', competition.views.SessionTeamRosterView.as_view()),
     url(r'^breakdown/$', registration.views.MeetBreakdownView.as_view()),
     url(r'^order/awards/$', registration.views.OrderingAwardsView.as_view()),
-)
+]

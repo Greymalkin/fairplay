@@ -41,6 +41,7 @@ class EventSerializer(serializers.ModelSerializer):  # competition.Event
 class DivisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Division
+        fields = '__all__'
 
 
 class SessionSerializer(serializers.ModelSerializer):
@@ -48,6 +49,7 @@ class SessionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Session
+        fields = '__all__'
 
 
 class GymnastEventSerializer(serializers.ModelSerializer):

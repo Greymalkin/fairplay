@@ -1,5 +1,6 @@
 import requests
 import csv
+import datetime
 
 from collections import OrderedDict
 from dateutil import parser
@@ -14,6 +15,7 @@ from django.core.urlresolvers import reverse
 from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.http import HttpResponse
+from django.utils.safestring import mark_safe
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 
@@ -238,6 +240,20 @@ class GymnastEventInlineAdmin(admin.TabularInline):
     verbose_name_plural = 'Gymnast Events'
 
 
+class GymnastNoteInlineAdmin(admin.TabularInline):
+    model = models.GymnastNotes
+    extra = 1
+    exclude = ['meet']
+    verbose_name_plural = 'Notes'
+    readonly_fields = ['created']
+    fields = ['author', 'note', 'created']
+    classes = ('grp-collapse grp-open', 'grp-collapse grp-closed', )
+    inline_classes = ('grp-collapse grp-open',)
+
+    def created(self, obj):
+        return obj.created
+
+
 class GymnastAdmin(MeetDependentAdmin):
     list_display = ('last_name',
                     'first_name',
@@ -267,20 +283,30 @@ class GymnastAdmin(MeetDependentAdmin):
                    'is_scratched',
                    'is_flagged', ]
     search_fields = ('last_name', 'first_name', 'usag', 'athlete_id')
-    readonly_fields = ('team', 'age')
+    readonly_fields = ('link_team', 'age')
     raw_id_fields = ('team',)
     ordering = ('last_name', 'first_name')
-    inlines = [GymnastEventInlineAdmin]
+    inlines = [GymnastNoteInlineAdmin, GymnastEventInlineAdmin]
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
         # If there's no active meet, hide fields until active meet has been set
         if request.session.get('meet', ''):
-            fieldsets += ((None, {'fields': ('team', 'first_name', 'last_name', 'usag', 'discipline', 'level', 'dob', 'age', 'shirt', 'notes'), }),
-                         ('Checks', {'classes': ('grp-collapse grp-closed',),
-                                     'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
-                         ('Meet', {'classes': ('grp-collapse grp-closed',),
-                                   'fields': ('athlete_id', 'age', 'division', 'starting_event', 'overall_score', 'tie_break', 'rank'), }), )
+            fieldsets += (
+                (None, {'fields': (
+                    'link_team',
+                    ('first_name', 'last_name'),
+                    ('usag', 'discipline',),
+                    ('dob', 'age',),
+                    'level',
+                    'shirt',
+                    ('is_verified', 'is_us_citizen', 'is_scratched', 'is_flagged',), ), }),
+                    # ('Checks', {'classes': ('grp-collapse grp-closed',), 'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
+                ('Meet', {'classes': (
+                    'grp-collapse grp-closed',),
+                    'fields': (
+                        'athlete_id', 'age', 'division', 'starting_event', 'overall_score', 'tie_break', 'rank'), }), )
+
         return fieldsets
 
     def get_readonly_fields(self, request, obj=None):
@@ -296,6 +322,13 @@ class GymnastAdmin(MeetDependentAdmin):
         return obj.team.team
     show_team.short_description = "Team"
     show_team.admin_order_field = 'team__team'
+
+    def link_team(self, obj):
+        url = reverse('admin:%s_%s_change' % (
+            obj._meta.app_label,  'team'), args=[obj.team.id] )
+        return mark_safe(u'<a href="{}">{}</a>'.format(url, obj.team.team))
+    link_team.short_description = "Team"
+
 
     def show_age_division(self, obj):
         return obj.division
@@ -366,6 +399,7 @@ class GymnastAdmin(MeetDependentAdmin):
                             division = level_division = ''
                             (usag_id, last_name, first_name, dob, member_type, level, club_id, club, club_status, status) = row
 
+                            # WARNING! this bit is fragile and subject to enfuckage
                             # handles jd level
                             if len(level) == 2:
                                 pass
@@ -373,14 +407,14 @@ class GymnastAdmin(MeetDependentAdmin):
                                 # handles the old way of USAG levels, MLEVEL10
                                 try:
                                     level = int(level[6:])
-                                except:
+                                except Exception:
                                     # handles the new way of USAG levels with divisions M7D1
                                     try:
                                         division = level[-2:]
                                         level = level[:-2]
                                         level = level[1:]
                                         level_division = '{}{}'.format(level, division)
-                                    except:
+                                    except Exception:
                                         level = None
 
                             dob = parser.parse(dob).date()
@@ -421,10 +455,10 @@ class GymnastAdmin(MeetDependentAdmin):
                                 else:
                                     failed_count += 1
 
-                            except:
+                            except Exception:
                                 failed_count += 1
 
-                    except:
+                    except Exception:
                         messages.error(request, 'Could not parse data from USAG verification service!')
                 messages.success(request, 'Verified {} gymnasts, flagged {} gymnasts for review'.format(verified_count, failed_count))
             else:
@@ -482,7 +516,7 @@ class GymnastAdmin(MeetDependentAdmin):
                 try:
                     gymnast.division = divisions_by_level[gymnast.level][gymnast.competition_age]
                     gymnast.save()
-                except:
+                except Exception:
                     messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(gymnast, gymnast.competition_age, gymnast.level))
 
         if rows_updated == 1:
@@ -586,21 +620,35 @@ class CoachInline(admin.StackedInline):
 class GymnastInline(admin.StackedInline):
     model = models.Gymnast
     ordering = ('is_scratched', 'level', 'last_name', 'first_name')
-    readonly_fields = ('age',)
-    fields = ('first_name',
-              'last_name',
-              'per_gymnast_cost',
-              'discipline',
-              'usag',
-              'dob',
-              'age',
-              'is_us_citizen',
-              'shirt',
-              'level',
-              'is_scratched',
-              'is_flagged',
-              'is_verified',
-              'notes')
+    readonly_fields = ('age', 'edit', 'show_notes')
+    # fields = ('edit', 
+    #           'first_name',
+    #           'last_name',
+    #           'per_gymnast_cost',
+    #           'discipline',
+    #           'usag',
+    #           'dob',
+    #           'age',
+    #           'is_us_citizen',
+    #           'shirt',
+    #           'level',
+    #           'is_scratched',
+    #           'is_flagged',
+    #           'is_verified',
+    #           'show_notes')
+    fieldsets = (
+        (None, {'fields': (
+            ('first_name', 'last_name'),
+            ('usag', 'discipline',),
+            ('dob', 'age',),
+            'level',
+            'shirt',
+            ('is_verified', 'is_us_citizen', 'is_scratched', 'is_flagged',),
+            'per_gymnast_cost',
+            'show_notes',
+            'edit', ), }),
+        )
+
     classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-closed',)
     extra = 1
@@ -609,6 +657,36 @@ class GymnastInline(admin.StackedInline):
         js = ('{}js/competitionAge.js'.format(settings.STATIC_URL),
               '{}js/moment.min.js'.format(settings.STATIC_URL))
 
+    def edit(self, obj):
+        if not obj.id:
+            return ''
+        url = reverse('admin:%s_%s_change' % (
+            obj._meta.app_label,  obj._meta.model_name), args=[obj.id] )
+        return mark_safe(u'<a href="{u}">Add Notes</a>'.format(u=url))
+    edit.short_description = ''
+
+    def show_notes(self, obj):
+        all_notes = [(note.author, note.note, note.created) for note in obj.gymnast_notes.all()]
+        show = ''
+        for note in all_notes:
+            show += '{} {} ({}) <br/><br/>'.format(datetime.datetime.strftime(note[2], '%Y-%m-%d %I:%M %p'), note[1], note[0])
+        return mark_safe(show)
+    show_notes.short_description = "Notes"
+
+
+class TeamNotesInlineAdmin(admin.TabularInline):
+    model = models.TeamNotes
+    extra = 1
+    exclude = ['meet']
+    verbose_name_plural = 'Notes'
+    readonly_fields = ['created']
+    fields = ['author', 'note', 'created']
+    classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-closed',)
+
+    def created(self, obj):
+        return obj.created
+
 
 class TeamAdmin(MeetDependentAdmin):
     list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'show_paid_in_full', 'city', 'state')
@@ -616,7 +694,7 @@ class TeamAdmin(MeetDependentAdmin):
     filter_horizontal = ('team_awards', )
     readonly_fields = ('gymnast_cost', 'total_cost', 'team_award_cost',)
     search_fields = ('gym', 'team', 'usag')
-    inlines = [CoachInline, GymnastInline]
+    inlines = [TeamNotesInlineAdmin, CoachInline, GymnastInline]
     actions = ['export_with_notes', 'export_with_session']
 
     def get_fieldsets(self, request, obj=None):
@@ -640,8 +718,7 @@ class TeamAdmin(MeetDependentAdmin):
                                                  'address_2',
                                                  'city',
                                                  'state',
-                                                 'postal_code',
-                                                 'notes', ),
+                                                 'postal_code'),
                                       'classes': ('grp-collapse grp-closed',), }), )
         return fieldsets
 
@@ -693,7 +770,7 @@ class TeamAdmin(MeetDependentAdmin):
                 field_values = [getattr(gymnast, field) for field in field_names]
                 try:
                     field_values.append(gymnast.division.session.first())
-                except:
+                except Exception:
                     field_values.append(None)
                 writer.writerow(field_values)
         return response

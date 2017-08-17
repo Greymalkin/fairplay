@@ -28,14 +28,14 @@ def led_sign(request):
         try:
             sign = BigDotUDP(settings.LED_SIGN_HOST, settings.LED_SIGN_PORT)
             sign.show_message(data['device'], data['message'])
-        except:
+        except Exception:
             response = {'success': False, 'reason': 'could not send to sign'}
 
     elif 'device' in data:
         try:
             sign = BigDotUDP(settings.LED_SIGN_HOST, settings.LED_SIGN_PORT)
             sign.set_address(data['device'])
-        except:
+        except Exception:
             response = {'success': False, 'reason': 'could not set sign address'}
 
     else:
@@ -82,7 +82,7 @@ def download_roster(request):
             try:
                 row.append(models.GymnastEvent.objects.get(gymnast=gymnast,
                                                            event=event).score)
-            except:
+            except Exception:
                 # GymnastEvent matching query does not exist
                 row.append('DNE')
         writer.writerow(row)
@@ -413,6 +413,8 @@ class SessionCeremonyEventView(TemplateView):
 
         team_awards = []
         for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
+
+            # !! This calculates the team ranking for this award level.  It takes a hella long time.
             ranking.update_team_ranking(team_award)
 
             tars = team_award.team_ranks.all().order_by('rank')
