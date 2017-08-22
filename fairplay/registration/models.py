@@ -96,8 +96,6 @@ class Team(models.Model):
 
     # TODO: add a property that figures out if this team qualifies for team awards
 
-    # TODO: add a property that reports if this team is paid in full
-
 
 class Person(models.Model):
     first_name = models.CharField('First Name', max_length=100)
