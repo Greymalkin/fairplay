@@ -614,7 +614,7 @@ class CoachInline(admin.StackedInline):
     exclude = ('notes', 'is_flagged', 'is_verified', 'meet')
     classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-open',)
-    extra = 1
+    extra = 0
 
 
 class GymnastInline(admin.StackedInline):
@@ -638,20 +638,20 @@ class GymnastInline(admin.StackedInline):
     #           'show_notes')
     fieldsets = (
         (None, {'fields': (
+            'per_gymnast_cost',
             ('first_name', 'last_name'),
             ('usag', 'discipline',),
             ('dob', 'age',),
             'level',
             'shirt',
             ('is_verified', 'is_us_citizen', 'is_scratched', 'is_flagged',),
-            'per_gymnast_cost',
             'show_notes',
             'edit', ), }),
         )
 
     classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-closed',)
-    extra = 1
+    extra = 0
 
     class Media:
         js = ('{}js/competitionAge.js'.format(settings.STATIC_URL),
@@ -688,13 +688,23 @@ class TeamNotesInlineAdmin(admin.TabularInline):
         return obj.created
 
 
+class PaymentsInlineAdmin(admin.TabularInline):
+    model = models.Payments
+    extra = 0
+    exclude = ['meet']
+    fields = ['amount', 'paid', 'detail']
+    classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
+    inline_classes = ('grp-collapse grp-closed',)
+
+
+
 class TeamAdmin(MeetDependentAdmin):
     list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'show_paid_in_full', 'city', 'state')
     list_filter = ('qualified', 'team_awards')
     filter_horizontal = ('team_awards', )
-    readonly_fields = ('gymnast_cost', 'total_cost', 'team_award_cost',)
+    readonly_fields = ('gymnast_cost', 'total_cost', 'team_award_cost', 'total_payments', 'show_paid_in_full')
     search_fields = ('gym', 'team', 'usag')
-    inlines = [TeamNotesInlineAdmin, CoachInline, GymnastInline]
+    inlines = [PaymentsInlineAdmin, TeamNotesInlineAdmin, CoachInline, GymnastInline]
     actions = ['export_with_notes', 'export_with_session']
 
     def get_fieldsets(self, request, obj=None):
@@ -706,10 +716,11 @@ class TeamAdmin(MeetDependentAdmin):
                                              'usag',
                                              'per_team_award_cost',
                                              'team_awards',), }),
-                         ('Payment', {'fields': ('gymnast_cost',
+                         ('Registration', {'fields': ('gymnast_cost',
                                                  'team_award_cost',
                                                  'total_cost',
-                                                 'paid_in_full', ), }),
+                                                 'total_payments',
+                                                 'show_paid_in_full', ), }),
                          ('Contact', {'fields': ('first_name',
                                                  'last_name',
                                                  'phone',
@@ -717,7 +728,6 @@ class TeamAdmin(MeetDependentAdmin):
                                                  'address_1',
                                                  'address_2',
                                                  'city',
-                                                 'state',
                                                  'postal_code'),
                                       'classes': ('grp-collapse grp-closed',), }), )
         return fieldsets
@@ -776,6 +786,7 @@ class TeamAdmin(MeetDependentAdmin):
         return response
     export_with_session.short_description = "Export with session, as csv file"
 
+    # TODO... needs to be updated now that notes is a child model
     def export_with_notes(self, request, queryset):
         """ Generic csv export admin action. """
         opts = self.model._meta
@@ -805,8 +816,13 @@ class TeamAdmin(MeetDependentAdmin):
     export_with_notes.short_description = "Export with notes, as csv file"
 
     def show_paid_in_full(self, obj):
-        return obj.paid_in_full
+        return obj.is_paid_in_full
     show_paid_in_full.short_description = "Paid in Full"
+    show_paid_in_full.boolean = True
+
+    def total_payments(self, obj):
+        return obj.calc_amount_paid
+    total_payments.short_description = "Total Payments"
 
 
 class LogAdmin(admin.ModelAdmin):

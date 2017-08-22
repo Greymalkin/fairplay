@@ -37,7 +37,6 @@ class Team(models.Model):
     gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
     team_award_cost = models.DecimalField('Total Team Award Cost', decimal_places=2, max_digits=6, default=0)
     total_cost = models.DecimalField('Total Cost', decimal_places=2, max_digits=6, default=0)
-    paid_in_full = models.BooleanField('Paid In Full?', default=False)
     notes = models.TextField(blank=True, null=True)
     qualified = models.BooleanField(default=True, help_text="Qualifies for team awards")
 
@@ -75,6 +74,21 @@ class Team(models.Model):
             return self.team_award_cost
         except Exception:
             return 0
+
+    @property
+    def calc_amount_paid(self):
+        total = 0
+        for payment in self.payments.all():
+            total += payment.amount
+        return total
+
+    @property
+    def is_paid_in_full(self):
+        return self.calc_total_cost() <= self.calc_amount_paid
+
+    @property
+    def is_refund_eligible(self):
+        return self.calc_total_cost() >= self.calc_amount_paid
 
     def team_rotation_gymnasts(self, session, event):
         qs = self.gymnasts.filter(is_scratched=False, division__session=session, starting_event=event)
@@ -299,6 +313,25 @@ class GymnastNotes(Notes):
         verbose_name = 'Gymnast Note'
         verbose_name_plural = 'Gymnast Notes'
 
+
+class Payments(models.Model):
+    meet = models.ForeignKey(Meet, related_name='payments')
+    team = models.ForeignKey(Team, related_name="payments")
+    amount = models.DecimalField(
+        'Amount Paid',
+        decimal_places=2, max_digits=6,
+        help_text='Enter a negative number for a refund')
+    paid = models.DateField("Date", help_text="Date on the check, bank transfer, etc.")
+    detail = models.CharField(
+        max_length=255,
+        help_text="Check #, transfer confirmation #, how was delivered or to whom, etc.",
+        blank=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Payment'
+        verbose_name_plural = 'Payments'
+        ordering = ['paid']
 
 # Receivers
 

@@ -51,7 +51,7 @@ class MeetAdmin(admin.ModelAdmin):
                 "id": obj.id,
                 "name": obj.name,
                 "short_name": obj.short_name,
-                "enable_ranking": obj.enable_ranking
+                "enable_ranking": obj.enable_ranking,
             }
         # Current meet was toggled off.  Remove from session
         elif request.session.get('meet', '') and request.session['meet'].get('id', 0) == obj.id:
@@ -114,7 +114,6 @@ class MeetAdmin(admin.ModelAdmin):
             old_obj.gymnast_cost = 0
             old_obj.team_award_cost = 0
             old_obj.total_cost = 0
-            old_obj.paid_in_full = False
             old_obj.notes = None
             old_obj.qualified = True
             old_obj.save()
