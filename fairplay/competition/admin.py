@@ -171,6 +171,7 @@ class GymnastEventInlineAdmin(admin.TabularInline):
     verbose_name_plural = 'Gymnast Events'
 
 
+@admin.register(models.Gymnast)
 class GymnastAdmin(MeetDependentAdmin):
     ''' Base admin for the Mens Artistic and Women's Artistic admins. '''
     search_fields = ['athlete_id', 'last_name', 'first_name']
@@ -228,6 +229,7 @@ class GymnastAdmin(MeetDependentAdmin):
             return False
 
 
+@admin.register(models.MensArtisticGymnast)
 class MensArtisticGymnastAdmin(GymnastAdmin):
     pass
 
@@ -249,6 +251,7 @@ class MensArtisticGymnastAdmin(GymnastAdmin):
         return result
 
 
+@admin.register(models.WomensArtisticGymnast)
 class WomensArtisticGymnastAdmin(GymnastAdmin):
     pass
 
@@ -268,6 +271,7 @@ class WomensArtisticGymnastAdmin(GymnastAdmin):
         return result
 
 
+@admin.register(models.TeamAward)
 class TeamAwardAdmin(MeetDependentAdmin):
     list_display = ('name', 'award_count', 'order', )
     filter_horizontal = ('levels',)
@@ -288,6 +292,7 @@ class TeamAwardAdmin(MeetDependentAdmin):
         return fieldsets
 
 
+@admin.register(models.TeamAwardRank)
 class TeamAwardRankAdmin(MeetDependentAdmin):
     list_display = ('team', 'team_award', 'rank', 'score')
 
@@ -295,6 +300,7 @@ class TeamAwardRankAdmin(MeetDependentAdmin):
             return False
 
 
+@admin.register(models.TeamAwardRankEvent)
 class TeamAwardRankEventAdmin(MeetDependentAdmin):
     list_display = ('team_award_rank', 'event', 'gymnast_event', 'rank')
 
@@ -302,6 +308,7 @@ class TeamAwardRankEventAdmin(MeetDependentAdmin):
             return False
 
 
+@admin.register(models.GymnastEvent)
 class GymnastEventAdmin(MeetDependentAdmin):
     list_display = ('gymnast', 'event', 'score', 'rank', 'place')
     search_fields = ['gymnast__first_name', 'gymnast__last_name', 'id', ]
@@ -315,6 +322,8 @@ class GymnastEventAdmin(MeetDependentAdmin):
                 'description': ''}), )
         return fieldsets
 
+
+@admin.register(models.Division)
 # TODO: Come back to this one
 class DivisionAdmin(MeetDependentAdmin):
     list_display = ('name', 'level', 'num_gymnasts', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count')
@@ -346,7 +355,9 @@ class DivisionAdmin(MeetDependentAdmin):
         return fieldsets
 
 
-class EventAdmin(MeetDependentAdmin):  # TODO: Remove Meet Dependency?
+@admin.register(models.Event)
+class EventAdmin(MeetDependentAdmin):
+    # TODO: competition.Event... Remove Meet Dependency?
     list_display = ('name', 'initials', 'order',)
 
     def get_fieldsets(self, request, obj=None):
@@ -359,6 +370,7 @@ class EventAdmin(MeetDependentAdmin):  # TODO: Remove Meet Dependency?
         return fieldsets
 
 
+@admin.register(models.Session)
 class SessionAdmin(MeetDependentAdmin):
     list_display = ('name', 'num_gymnasts', 'warmup', 'session_start', 'timed_warmup_start', 'presentation_start', 'competition_start', )
     filter_horizontal = ('divisions',)
@@ -379,11 +391,13 @@ class SessionAdmin(MeetDependentAdmin):
         return fieldsets
 
 
+@admin.register(models.ScoreRankEvent)
 class ScoreRankEventAdmin(MeetDependentAdmin):
     list_display = ('gymnast', 'fx', 'ph', 'sr', 'vt', 'pb', 'hb', 'ub', 'bb')
     search_fields = ['gymnast__last_name', 'gymnast__first_name', 'gymnast__usag']
 
 
+@admin.register(models.LEDSign)
 class LEDSignAdmin(MeetDependentAdmin):
     list_display = ('name', 'device', 'connect')
 
@@ -411,6 +425,7 @@ class LEDShowMessageInline(admin.TabularInline):
     min_num = 6
 
 
+@admin.register(models.LEDShow)
 class LEDShowAdmin(admin.ModelAdmin):
     model = models.LEDShow
     list_display = ('name',)
@@ -418,18 +433,3 @@ class LEDShowAdmin(admin.ModelAdmin):
     fieldsets = ((None, {
         'fields': ('name',),
         'description': LED_SIGN_CODES}), )
-
-
-admin.site.register(models.Division, DivisionAdmin)
-admin.site.register(models.LEDSign, LEDSignAdmin)
-admin.site.register(models.Event, EventAdmin)  # competition.Event
-admin.site.register(models.GymnastEvent, GymnastEventAdmin)
-admin.site.register(models.LEDShow, LEDShowAdmin)
-admin.site.register(models.Session, SessionAdmin)
-admin.site.register(models.Gymnast, GymnastAdmin)
-admin.site.register(models.TeamAward, TeamAwardAdmin)
-admin.site.register(models.TeamAwardRank, TeamAwardRankAdmin)
-admin.site.register(models.TeamAwardRankEvent, TeamAwardRankEventAdmin)
-admin.site.register(models.ScoreRankEvent)
-admin.site.register(models.MensArtisticGymnast, MensArtisticGymnastAdmin)
-admin.site.register(models.WomensArtisticGymnast, WomensArtisticGymnastAdmin)

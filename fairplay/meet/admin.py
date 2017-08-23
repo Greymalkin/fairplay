@@ -16,6 +16,7 @@ from registration.models import Level, Team
 from competition.models import Event, TeamAward, GymnastEvent, Division, Session
 
 
+@admin.register(models.Meet)
 class MeetAdmin(admin.ModelAdmin):
     list_display = ('short_name', 'host', 'date', 'show_current_meet', 'set_meet', 'set_enable_ranking')
     actions = ['copy_meet']
@@ -313,6 +314,3 @@ class MeetDependentAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return True
-
-
-admin.site.register(models.Meet, MeetAdmin)

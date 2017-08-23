@@ -162,6 +162,7 @@ class CoachMissingUsagFilter(SimpleListFilter):
 # Admins
 
 
+@admin.register(models.Level)
 class LevelAdmin(MeetDependentAdmin):
     list_display = ('name', 'group', 'level', 'order')
     list_editable = ('order',)
@@ -176,6 +177,7 @@ class LevelAdmin(MeetDependentAdmin):
         return fieldsets
 
 
+@admin.register(models.Coach)
 class CoachAdmin(MeetDependentAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag', 'is_verified')
     list_filter = (CoachMissingUsagFilter, 'team')
@@ -254,6 +256,7 @@ class GymnastNoteInlineAdmin(admin.TabularInline):
         return obj.created
 
 
+@admin.register(models.Gymnast)
 class GymnastAdmin(MeetDependentAdmin):
     list_display = ('last_name',
                     'first_name',
@@ -356,113 +359,6 @@ class GymnastAdmin(MeetDependentAdmin):
                 'objects': queryset,
                 'form': form})
     set_shirt_action.short_description = u'Update shirt size'
-
-    def verify_with_usag(self, modeladmin, request, queryset):
-        credentials = {
-            'user': settings.USAG_USER,
-            'pass': settings.USAG_PASS
-        }
-
-        members = []
-        for member in queryset:
-            if member.usag:
-                members.append(member.usag)
-            else:
-                member.notes = 'missing usag id'
-                member.is_flagged = True
-                member.save()
-
-        usag_max = settings.USAG_MAX_VERIFY
-        chunks = [members[x:x + usag_max] for x in range(0, len(members), usag_max)]
-
-        verified_count = 0
-        failed_count = 0
-
-        with requests.Session() as s:
-            login = s.post(settings.USAG_LOGIN_URL, credentials)
-
-            if login.status_code == 200:
-                for chunk in chunks:
-
-                    member_data = settings.USAG_VERIFY_DATA.copy()
-                    member_data['memNumbers'] = ','.join(chunk)
-
-                    r = s.post(settings.UASG_VERIFY_URL, member_data)
-                    s.headers.update({'Accept': 'application/json, text/javascript, */*;'})
-
-                    try:
-                        rows = r.json()['aaData']
-                        print('rows {}'.format(rows))
-
-                        for row in rows:
-                            division = level_division = ''
-                            (usag_id, last_name, first_name, dob, member_type, level, club_id, club, club_status, status) = row
-
-                            # WARNING! this bit is fragile and subject to enfuckage
-                            # handles jd level
-                            if len(level) == 2:
-                                pass
-                            else:
-                                # handles the old way of USAG levels, MLEVEL10
-                                try:
-                                    level = int(level[6:])
-                                except Exception:
-                                    # handles the new way of USAG levels with divisions M7D1
-                                    try:
-                                        division = level[-2:]
-                                        level = level[:-2]
-                                        level = level[1:]
-                                        level_division = '{}{}'.format(level, division)
-                                    except Exception:
-                                        level = None
-
-                            dob = parser.parse(dob).date()
-
-                            try:
-                                gymnast = models.Gymnast.objects.get(usag=usag_id)
-                                notes = ""
-                                valid = True
-                                # print('*** {} and {} and {}'.format(str(gymnast.level.group), "".join(gymnast.level.name.split()).lower(), '{}{}'.format(level, division.lower()) ))
-
-                                if last_name.lower() != gymnast.last_name.lower():
-                                    valid = False
-                                    notes += "Last name does not match USAG last name (USAG: {})\n".format(last_name)
-
-                                if dob != gymnast.dob:
-                                    valid = False
-                                    notes += "Date of birth does not match USAG date of birth (USAG: {})\n".format(dob)
-
-                                if str(level).lower() != str(gymnast.level.group).lower():
-                                    valid = False
-                                    notes += "Level does not match USAG level (USAG: {})\n".format(level)
-
-                                if level_division and level_division.lower() != "".join(gymnast.level.name.split()).lower():
-                                    valid = False
-                                    notes += "Compulsory division does not match USAG level (USAG: {})\n".format(level_division)
-
-                                if status.lower() != 'active':
-                                    valid = False
-                                    notes += "USAG member is not active (USAG: {})\n".format(status)
-
-                                gymnast.notes = notes
-                                gymnast.is_verified = valid
-                                gymnast.is_flagged = not valid
-                                gymnast.save()
-
-                                if (valid):
-                                    verified_count += 1
-                                else:
-                                    failed_count += 1
-
-                            except Exception:
-                                failed_count += 1
-
-                    except Exception:
-                        messages.error(request, 'Could not parse data from USAG verification service!')
-                messages.success(request, 'Verified {} gymnasts, flagged {} gymnasts for review'.format(verified_count, failed_count))
-            else:
-                messages.error(request, 'Could not connect with USAG verification service. Check credentials.')
-    verify_with_usag.short_description = "Verify selected gymnasts with USAG"
 
     def update_age(self, modeladmin, request, queryset):
         ''' competition age is based on gymnast age as of 5/31/yyyy '''
@@ -594,13 +490,12 @@ class GymnastAdmin(MeetDependentAdmin):
     clear_event.short_description = "Set starting event to empty"
 
     def get_actions(self, request):
-        actions = [make_event_action(q) for q in Event.objects.all()] #competition.Event
+        actions = [make_event_action(q) for q in Event.objects.all()]  # competition.Event
         actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events')))
         actions.insert(0, ('set_shirt_action', (self.set_shirt_action, 'set_shirt_action', 'Update shirt size')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', 'Set athlete id')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', 'Set age division')))
         actions.insert(0, ('update_age', (self.update_age, 'update_age', 'Set competition age')))
-        actions.insert(0, ('verify_with_usag', (self.verify_with_usag, 'verify_with_usag', 'Verify USAG info')))
         actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to (None)')))
         return OrderedDict(actions)
 
@@ -696,6 +591,7 @@ class PaymentsInlineAdmin(admin.TabularInline):
     inline_classes = ('grp-collapse grp-closed',)
 
 
+@admin.register(models.Team)
 class TeamAdmin(MeetDependentAdmin):
     list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'show_paid_in_full', 'city', 'state')
     list_filter = ('qualified', 'team_awards')
@@ -823,6 +719,7 @@ class TeamAdmin(MeetDependentAdmin):
     total_payments.short_description = "Total Payments"
 
 
+@admin.register(LogEntry)
 class LogAdmin(admin.ModelAdmin):
     """Create an admin view of the history/log table"""
     list_display = ('action_time', 'user', 'content_type', 'change_message', 'is_addition', 'is_change', 'is_deletion')
@@ -860,9 +757,4 @@ class PricingAdmin(MeetDependentAdmin):
         return fieldsets
 
 
-admin.site.register(LogEntry, LogAdmin)
-admin.site.register(models.Gymnast, GymnastAdmin)
-admin.site.register(models.Level, LevelAdmin)
-admin.site.register(models.Coach, CoachAdmin)
-admin.site.register(models.Team, TeamAdmin)
 admin.site.register(models.ShirtSize)
