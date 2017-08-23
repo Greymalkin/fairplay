@@ -45,7 +45,8 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
         request.session['meet'] = {
             'id': meet.id,
             'name': meet.name,
-            'short_name': meet.short_name
+            'short_name': meet.short_name,
+            'enable_ranking': meet.enable_ranking,
         }
         return Response({"status": "active meet: {}".format(request.session['meet'])}, status=status.HTTP_200_OK)
 
@@ -63,4 +64,11 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
             request.session['meet'] = {}
             return Response({"status": "no change to enable ranking"}, status=status.HTTP_200_OK)
 
+        if meet.is_current_meet:
+            request.session['meet'] = {
+                'id': meet.id,
+                'name': meet.name,
+                'short_name': meet.short_name,
+                'enable_ranking': meet.enable_ranking,
+            }
         return Response({"status": "enable ranking flag changed to {}".format(meet.enable_ranking)}, status=status.HTTP_200_OK)

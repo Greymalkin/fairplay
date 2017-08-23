@@ -2,9 +2,9 @@ from .base import *
 
 DEBUG = True
 
-INSTALLED_APPS += (
+INSTALLED_APPS += [
     'django_extensions',
-)
+]
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases

@@ -158,23 +158,6 @@ class MeetAdmin(admin.ModelAdmin):
 # Base form that all admins with a FK to meet inherit from
 # Enforces ties to the currently active meet when creating new instances
 
-# Filters
-
-class MeetFilter(SimpleListFilter):
-    title = ('meet')
-    parameter_name = 'meet'
-
-    def lookups(self, request, model_admin):
-        qs = models.Meet.objects.all().order_by('short_name')
-        return [(s.id, s.short_name) for s in qs]
-
-    def queryset(self, requests, queryset):
-        value = self.value()
-        if value:
-            queryset = queryset.filter(meet=value)
-        return queryset
-
-
 # Add lnked raw id field functionality
 
 class VerboseForeignKeyRawIdWidget(ForeignKeyRawIdWidget):
@@ -228,7 +211,6 @@ class MeetDependentAdmin(admin.ModelAdmin):
     """ meet field must be the first field in the first fieldset.
         The admin will need to dynamically make meet editable or read only, so needs to know where to find the field consistently. """
     fieldsets = ((None, {'fields': ('meet', ), 'description': ''}), )
-    list_filter = [MeetFilter]
     current_meet = models.Meet.objects.filter(is_current_meet=True)
 
     def get_fieldsets(self, request, obj=None):
@@ -315,7 +297,7 @@ class MeetDependentAdmin(admin.ModelAdmin):
                             default_filters.append(filter)
                     if default_filters:
                         return HttpResponseRedirect("{}?{}".format(url, "&".join(default_filters)))
-            except:
+            except Exception:
                 pass
         return super(MeetDependentAdmin, self).changelist_view(request, *args, **kwargs)
 

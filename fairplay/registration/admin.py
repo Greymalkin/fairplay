@@ -329,7 +329,6 @@ class GymnastAdmin(MeetDependentAdmin):
         return mark_safe(u'<a href="{}">{}</a>'.format(url, obj.team.team))
     link_team.short_description = "Team"
 
-
     def show_age_division(self, obj):
         return obj.division
     show_age_division.short_description = "Age Div."
@@ -695,7 +694,6 @@ class PaymentsInlineAdmin(admin.TabularInline):
     fields = ['amount', 'paid', 'detail']
     classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-closed',)
-
 
 
 class TeamAdmin(MeetDependentAdmin):
