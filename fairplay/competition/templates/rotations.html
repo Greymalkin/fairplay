@@ -41,9 +41,9 @@
      </ul>
 
      <ul>       
-       {% if session.warmup = "Traditional" %}
+       {% if session.warmup == "Traditional" %}
         <li>Open Warm-Up: {{ session.session_start|date:"f a" }}  | </li>      
-        <li>Timed Warm-Up: {{ session.timed_warmup_start }}{% if session.warmup = "Traditional" %}, 
+        <li>Timed Warm-Up: {{ session.timed_warmup_start }}{% if session.warmup == "Traditional" %}, 
               10 minutes  per event 
           {% endif %}
         </li>
@@ -78,7 +78,7 @@
     <p>&nbsp;</p>
   </div>
 
-    {% if session.warmup = "Traditional" %} 
+    {% if session.warmup == "Traditional" %} 
     <div id="main">
         <h2>Warm-up Rotation</h2>
 
@@ -123,7 +123,7 @@
       </li>
     </ul>
 
-    {% if session.warmup = "Traditional" %}
+    {% if session.warmup == "Traditional" %}
      <ul>       
       <li>Open Warm-Up: {{ session.session_start }}  | </li>      
       <li>Timed Warm-Up: {{ session.timed_warmup_start }} </li>      
@@ -141,7 +141,7 @@
           <div class="team_group">{{team.team.team}} </div>
           {% for event in team.starting_events %}
 
-            {% if session.warmup = "Traditional" %} 
+            {% if session.warmup == "Traditional" %} 
               <div class="warm {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
                 
                 {{ event.starting_event.warmup_event_starthere }} <span class="divisions">(Warm-up)</span>
@@ -156,7 +156,7 @@
               <!-- hide the warmup if this is not a traditional session -->
               <div class="start {% if team.starting_events.count > 1 and forloop.counter > 1%}team_2ndrow{% endif %}">
                 {{ event.starting_event }} 
-                {% if session.warmup = "Traditional" %} <span class="divisions">(Competition)</span> {% endif %}
+                {% if session.warmup == "Traditional" %} <span class="divisions">(Competition)</span> {% endif %}
 
               </div>
 

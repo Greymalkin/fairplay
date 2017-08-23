@@ -22,7 +22,7 @@
   <p>coaches by team and level, not session specific</p>
   {% for level in all_levels %}
     <h3> 
-      Level {{ level.group }} {% endif%}: 
+      Level {{ level.group }}: 
       {% level_coaches_count level %} coaches
     </h3>
     {% for team in level|level_coaches %}

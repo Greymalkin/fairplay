@@ -19,7 +19,7 @@ from django.utils.safestring import mark_safe
 from django.shortcuts import render
 from django.utils.translation import ugettext_lazy as _
 
-from meet.admin import MeetDependentAdmin, MeetFilter
+from meet.admin import MeetDependentAdmin
 
 from competition.models import Event, GymnastEvent, Division, Session, update_rankings
 from . import models
@@ -178,7 +178,7 @@ class LevelAdmin(MeetDependentAdmin):
 
 class CoachAdmin(MeetDependentAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag', 'is_verified')
-    list_filter = (MeetFilter, CoachMissingUsagFilter, 'team')
+    list_filter = (CoachMissingUsagFilter, 'team')
     search_fields = ('last_name', 'first_name', 'usag')
     actions = ['export_as_csv']
     # raw_id_fields = ('team',)
