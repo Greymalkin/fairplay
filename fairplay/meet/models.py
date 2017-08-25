@@ -10,9 +10,7 @@ class Meet(models.Model):
     enable_ranking = models.BooleanField(
         'Ranking',
         default=False,
-        help_text='''When turned on, scores saved to the cms will cause ranks to adjust.
-            Must be turned on while the meet is running.
-            When turned off, admin will load more quickly.''')
+        help_text='''scoring is live, gymnast and team ranks are adjusting as new scores come in.''')
     event_award_percentage = models.FloatField(default=0.45)
     all_around_award_percentage = models.FloatField(default=0.5)
     all_last_place_ties_in_awards = models.BooleanField(
