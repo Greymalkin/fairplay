@@ -58,7 +58,7 @@ class StartingEventFilter(admin.SimpleListFilter):
     parameter_name = 'starting_event'
 
     def lookups(self, request, model_admin):
-        lookups = [(s.id, s.name) for s in Event.objects.all()]  # competition.Event
+        lookups = [(s.id, s.name) for s in Event.objects.filter(active=True)]  # competition.Event
         lookups.append(('', '(None)'))
         return lookups
 
@@ -328,7 +328,7 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def link_team(self, obj):
         url = reverse('admin:%s_%s_change' % (
-            obj._meta.app_label,  'team'), args=[obj.team.id] )
+            obj._meta.app_label, 'team'), args=[obj.team.id])
         return mark_safe(u'<a href="{}">{}</a>'.format(url, obj.team.team))
     link_team.short_description = "Team"
 
@@ -338,7 +338,9 @@ class GymnastAdmin(MeetDependentAdmin):
     show_age_division.admin_order_field = 'division'
 
     def session(self, gymnast):
-        return Session.objects.get(divisions=gymnast.division).name
+        if gymnast.division:
+            return Session.objects.get(divisions=gymnast.division).name
+        return '-'
     session.admin_order_field = 'division__session__name'
 
     def set_shirt_action(self, modeladmin, request, queryset):
@@ -443,6 +445,8 @@ class GymnastAdmin(MeetDependentAdmin):
                         max_id = 3 * 1000
                     elif a.level.level == 10:
                         max_id = 1000
+                    elif a.level.level > 10:
+                        max_id = (int(a.level.level) + 5) * 100
                     else:
                         max_id = (int(a.level.level) * 1000)
             else:
@@ -463,7 +467,7 @@ class GymnastAdmin(MeetDependentAdmin):
     set_athlete_id.short_description = "Set athlete id"
 
     def create_events(self, modeladmin, req, qset):
-        events = Event.objects.all()  # competition.Event
+        events = Event.objects.filter(active=True)  # competition.Event
 
         post_save.disconnect(
             None,
@@ -472,7 +476,8 @@ class GymnastAdmin(MeetDependentAdmin):
 
         for gymnast in qset:
             print('creating events for {}'.format(gymnast))
-            for event in events:
+            # filter for events only in this gymnast's discipline
+            for event in events.filter(is_mag=gymnast.is_mag, is_wag=gymnast.is_wag):
                 ae, created = GymnastEvent.objects.get_or_create(event=event, gymnast=gymnast, meet=gymnast.meet)
                 if gymnast.is_scratched:
                     ae.score = 0
@@ -490,7 +495,7 @@ class GymnastAdmin(MeetDependentAdmin):
     clear_event.short_description = "Set starting event to empty"
 
     def get_actions(self, request):
-        actions = [make_event_action(q) for q in Event.objects.all()]  # competition.Event
+        actions = [make_event_action(q) for q in Event.objects.filter(active=True)]  # competition.Event
         actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events')))
         actions.insert(0, ('set_shirt_action', (self.set_shirt_action, 'set_shirt_action', 'Update shirt size')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', 'Set athlete id')))
@@ -758,3 +763,4 @@ class PricingAdmin(MeetDependentAdmin):
 
 
 admin.site.register(models.ShirtSize)
+admin.site.register(models.Discipline)

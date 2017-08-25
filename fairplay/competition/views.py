@@ -14,9 +14,7 @@ from rest_framework import viewsets
 from ledsign.bigdot import BigDotUDP
 from meet import models as meetconfig
 from registration.models import Team, Coach, Level
-from . import models
-from . import serializers
-from . import ranking
+from . import models, serializers, ranking
 
 
 @csrf_exempt
@@ -48,7 +46,7 @@ def led_sign(request):
 @csrf_exempt
 def download_roster(request):
     gymnasts = models.Gymnast.objects.all().order_by('division', 'athlete_id').exclude(is_scratched=True, athlete_id=None)
-    events = models.Event.objects.all()  # competition.Event
+    events = models.Event.objects.filter(active=True)  # competition.Event
 
     response = HttpResponse(content_type='text/csv')
     timestamp = datetime.now().strftime('%Y-%m-%d-%H-%M')
@@ -65,7 +63,7 @@ def download_roster(request):
               'compno',
               'startevent', ]
 
-    header += [e.initials for e in events]
+    header += [e.initials for e in events]  # competition.Event
     writer.writerow(header)
 
     for gymnast in gymnasts:
@@ -78,7 +76,7 @@ def download_roster(request):
             gymnast.athlete_id,
             '' if not gymnast.starting_event else gymnast.starting_event.initials]
 
-        for event in events:
+        for event in events:  # competition.Event
             try:
                 row.append(models.GymnastEvent.objects.get(gymnast=gymnast,
                                                            event=event).score)
@@ -228,20 +226,20 @@ class SessionCeremonyDivisionView(TemplateView):
         session = models.Session.objects.get(id=self.kwargs['id'])
 
         # start populating the context
+        events = models.Event.objects.filter(active=True)  # competition.Event
         context['session'] = session
         context['divisions'] = []
-        context['events'] = models.Event.objects.all()
+        context['events'] = events
         context['rankings'] = {}
 
         for division in session.divisions.all().order_by('level', 'min_age'):
             leaderboards = []
 
             # division per event leaderboard
-            for event in models.Event.objects.all():  # competition.Event
+            for event in events:  # competition.Event
                 event_leaderboard = []
                 gymnast_events = models.GymnastEvent.objects.filter(event=event, gymnast__division=division).order_by("rank")
                 total_count = len(gymnast_events)
-                # award_count = math.ceil(total_count * MEET.event_award_percentage)
                 award_count = division.event_award_count
                 if total_count == 2:
                     award_count = 1
@@ -269,8 +267,12 @@ class SessionCeremonyDivisionView(TemplateView):
             total_count = len(gymnasts)
             award_count = division.all_around_award_count
 
+            # special case of two athletes
             if total_count == 2:
                 award_count = 1
+
+            # push out award count on tie at last place
+            # TODO
 
             for a in gymnasts[:award_count]:
                 if a.overall_score is not None and a.overall_score != 0:
@@ -305,7 +307,7 @@ class SessionCeremonyDivisionView(TemplateView):
 
             tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
             teams = []
-            # for t in tars[:math.ceil(tars.count() * team_award.award_percentage)]:
+
             for t in tars[:team_award.award_count]:
                 teams.append({'name': t.team.team, 'score': t.score, 'rank': t.rank})
 
@@ -326,7 +328,7 @@ class SessionCeremonyEventView(TemplateView):
         # start populating the context
         context['session'] = session
         context['events'] = []
-        events = models.Event.objects.all()  # competition.Event
+        events = models.Event.objects.filter(active=True)  # competition.Event
 
         for event in events:
             leaderboards = []
@@ -336,6 +338,7 @@ class SessionCeremonyEventView(TemplateView):
                 gymnast_events = models.GymnastEvent.objects.filter(event=event, gymnast__division=division, gymnast__is_scratched=False).order_by("rank")
                 total_count = len(gymnast_events)
                 award_count = division.event_award_count
+
                 # special case of two athletes
                 if total_count == 2:
                     award_count = 1
@@ -376,7 +379,6 @@ class SessionCeremonyEventView(TemplateView):
             aa_leaderboard = []
             gymnasts = models.Gymnast.objects.filter(division=division, is_scratched=False, overall_score__isnull=False).order_by("rank")
             total_count = len(gymnasts)
-
             award_count = division.all_around_award_count
 
             # special case of two athletes
@@ -437,11 +439,9 @@ class SessionIndividualView(TemplateView):
         context = super(SessionIndividualView, self).get_context_data(**kwargs)
         context['meet'] = meetconfig.Meet.objects.get(is_current_meet=True)
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
-
-        # calculate_session_ranking(context['session'])
-
-        context['events'] = models.Event.objects.all()  # competition.Event
+        context['events'] = models.Event.objects.filter(active=True)  # competition.Event
         context['divisions'] = []
+
         for division in context['session'].divisions.all().order_by('level', 'min_age'):
             gymnasts = []
             # should scratched gymnasts be on this report, or hidden?
@@ -473,7 +473,7 @@ class SessionTeamView(TemplateView):
                 session_levels.append(division.level.group)
 
         team_awards = []
-        events = models.Event.objects.all() #competition.Event
+        events = models.Event.objects.filter(active=True)  # competition.Event
         context['events'] = events
         context['width'] = 200 + 60 * len(events)
         for team_award in models.TeamAward.objects.filter(levels__group__in=session_levels).distinct():
@@ -573,7 +573,7 @@ class SessionRotationView(TemplateView):
         context['events'] = []
         context['warmup'] = []
         context['teams'] = []
-        for event in models.Event.objects.all(): #competition.Event
+        for event in models.Event.objects.filter(active=True):  # competition.Event
             event_info = {}
             event_info['event'] = event
             event_info['warmup'] = []
@@ -629,7 +629,7 @@ class SessionAnnouncerView(TemplateView):
         context['session'] = models.Session.objects.get(id=self.kwargs['id'])
         context['events'] = []
 
-        for event in models.Event.objects.all(): #competition.Event
+        for event in models.Event.objects.filter(active=True):  # competition.Event
             event_info = {}
             event_info['event'] = event
             event_info['rotation'] = []
@@ -687,33 +687,32 @@ class CoachSignInView(TemplateView):
 
 
 # API Viewsets
-# TODO: remove meet__is_current_meet = True
 class LEDShowViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.LEDShow.objects.all()
     serializer_class = serializers.LEDShowSerializer
 
 
 class EventViewSet(viewsets.ReadOnlyModelViewSet):  # competition.Event
-    queryset = models.Event.objects.filter(meet__is_current_meet=True)
+    queryset = models.Event.objects.filter(active=True)
     serializer_class = serializers.EventSerializer
 
 
 class TeamViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Team.objects.filter(meet__is_current_meet=True)
+    queryset = Team.objects.all()
     serializer_class = serializers.TeamSerializer
 
 
 class AthleteViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Gymnast.objects.filter(meet__is_current_meet=True)
+    queryset = models.Gymnast.objects.all()
     serializer_class = serializers.GymnastSerializer
     lookup_field = 'athlete_id'
 
 
 class GymnastEventViewSet(viewsets.ModelViewSet):
-    queryset = models.GymnastEvent.objects.filter(event__meet__is_current_meet=True)
+    queryset = models.GymnastEvent.objects.all()
     serializer_class = serializers.GymnastEventSerializer
 
 
 class SessionViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = models.Session.objects.filter(meet__is_current_meet=True)
+    queryset = models.Session.objects.all()
     serializer_class = serializers.SessionSerializer

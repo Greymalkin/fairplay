@@ -24,13 +24,23 @@ class LEDSign(models.Model):
 
 
 class Event(models.Model):
-    meet = models.ForeignKey(Meet, related_name='events')
+    # TODO Foreign Key to registration.Discipline
+    # TODO turn is_mag and is_wag fields into properties based on Discipline
     order = models.PositiveSmallIntegerField()
     name = models.CharField(max_length=255, help_text="Event name")
     initials = models.CharField(max_length=2, help_text="Event initials")
     sign = models.ForeignKey(LEDSign, blank=True, null=True)
-
-    objects = MeetManager()
+    active = models.BooleanField(
+        default=True,
+        help_text="Event is included as part of this meet")
+    is_mag = models.BooleanField(
+        "MAG",
+        default=True,
+        help_text="Men's Artistic Gymnastics Event")
+    is_wag = models.BooleanField(
+        "WAG",
+        default=True,
+        help_text="Women's Artistic Gymnastics Event")
 
     class Meta():
         ordering = ['order', ]
@@ -38,24 +48,26 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+    # TODO figuring out the rotation using these methods will break if a meet has both wag & mag events
+
     @property
     def warmup_event_starthere(self):
-        """ Traditional Format. If this is where you start your warmup, where will your first event rotation start? """
+        """ Traditional Format. If this is where you start your warmup, where will your first event rotation be? """
         warmup = None
         try:
-            warmup = Event.objects.filter(meet=self.meet, order__gt=self.order)[0]
+            warmup = Event.objects.filter(active=True, order__gt=self.order)[0]  # competition.Event
         except Exception:
-            warmup = Event.objects.filter(meet=self.meet).order_by('order')[0]
+            warmup = Event.objects.filter(active=True).order_by('order')[0]  # competition.Event
         return warmup
 
     @property
     def warmup_event_endhere(self):
-        """ Traditional Format. Where do you start your warmup if you need to end warmup at THIS, first event rotation? """
+        """ Traditional Format. Where do you start your warmup if you need to end warmup at THIS, your first event rotation? """
         warmup = None
         try:
-            warmup = Event.objects.filter(meet=self.meet, order__lt=self.order).order_by('-order')[0]
+            warmup = Event.objects.filter(active=True, order__lt=self.order).order_by('-order')[0]    # competition.Event
         except Exception:
-            warmup = Event.objects.filter(meet=self.meet).order_by('-order')[0]
+            warmup = Event.objects.filter(active=True).order_by('-order')[0]    # competition.Event
         return warmup
 
 
@@ -83,6 +95,7 @@ class ScoreRankEvent(models.Model):
 
 
 class Division(models.Model):
+    # TODO Foreign Key to registration.Discipline
     meet = models.ForeignKey(Meet, related_name='divisions')
     level = models.ForeignKey(Level, related_name='divisions')
     name = models.CharField(max_length=50)

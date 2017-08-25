@@ -138,6 +138,7 @@ class Coach(Person):
 
 
 class Gymnast(Person):
+    # TODO Foreign Key to registration.Discipline
     MAG = 'mag'
     WAG = 'wag'
     DISCIPLINE_CHOICES = ((MAG, 'Mens Artistic'), (WAG, 'Womens Artistic'))
@@ -150,6 +151,7 @@ class Gymnast(Person):
         null=True, blank=False,
         default=settings.GYMNAST_COST)
     dob = models.DateField(blank=True, null=True)
+    # TODO: AGE... is differently calculated for mag than for wag.
     age = models.PositiveSmallIntegerField(
         'Age',
         blank=True, null=True,
@@ -196,6 +198,7 @@ class Gymnast(Person):
 
     @property
     def competition_age(self):
+        # TODO: AGE... is differently calculated for mag than for wag.
         if self.dob:
             if self.meet.date.month > 8:
                 year = self.meet.date.year + 1
@@ -219,6 +222,14 @@ class Gymnast(Person):
                 tie_break += int(int(gymnast_event.score * 10) * math.pow(10, p))
             p += 3
         return tie_break
+
+    @property
+    def is_mag(self):
+        return self.discipline == 'mag'
+
+    @property
+    def is_wag(self):
+        return self.discipline == 'wag'
 
 
 class Level(models.Model):
@@ -331,7 +342,20 @@ class Payments(models.Model):
         verbose_name_plural = 'Payments'
         ordering = ['paid']
 
+
+class Discipline(models.Model):
+    name = models.CharField(max_length=100)
+    abbr = models.CharField(max_length=10)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.abbr
+
+
 # Receivers
+
 
 @receiver(m2m_changed, sender=Team.team_awards.through)
 def level_costs(sender, instance, **kwargs):

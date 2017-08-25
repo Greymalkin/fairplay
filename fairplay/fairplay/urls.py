@@ -8,7 +8,7 @@ import competition.views
 import registration.views
 import meet.views
 
-admin.site.site_header = settings.GRAPPELLI_ADMIN_TITLE = '{} Gymnastics Scoreboard'.format('Fairplay')
+admin.site.site_header = settings.GRAPPELLI_ADMIN_TITLE = 'Fairplay Gymnastics Scoreboard'
 
 router = DefaultRouter()
 router.register(r'meet', meet.views.MeetViewSet)

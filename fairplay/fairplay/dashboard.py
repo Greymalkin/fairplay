@@ -9,12 +9,11 @@ To activate your index dashboard add the following to your settings.py::
 from django.utils.translation import ugettext_lazy as _
 
 from grappelli.dashboard import modules, Dashboard
-from grappelli.dashboard.utils import get_admin_site_name
+# from grappelli.dashboard.utils import get_admin_site_name
 
-from meet.views import get_current_meet_count, get_current_meet_id, get_current_meet_name
+from meet.views import get_current_meet_count
 from registration.models import Gymnast
 from competition.models import LEDShow, Session, Event
-from meet.models import Meet
 
 
 roster_html = """
@@ -36,38 +35,13 @@ roster_html += """
 <script src="/static/js/dashboard.js"></script>
 """
 
-# meet_name = get_current_meet_name()
-
-# meets_html = """
-# <div style="margin-left:10px; margin-right:10px; margin-bottom:10px;">
-# <label for="active-meet-select" class="grp-listing-small">{}</label>
-# <select id="active-meet-select">
-# <option value="">---</option>
-# """.format(meet_name)
-
-# for meet in Meet.objects.all().order_by('short_name'):
-#     try:
-#         if get_current_meet_id()[0] == meet.id:
-#             meets_html += '<option selected value="{}">{}</option>'.format(meet.id, meet.name)
-#         else:
-#             meets_html += '<option value="{}">{}</option>'.format(meet.id, meet.name)
-#     except Exception:
-#         meets_html += '<option value="{}">{}</option>'.format(meet.id, meet.name)
-
-# meets_html += """
-# </select>
-# <input id="active-meet-button" type="button" value="Set Active Meet" class="grp-button grp-default" style="width:100%;margin-top: 10px;"/>
-# </div>"""
-# meets_html += """
-# <script src="/static/js/meet.js"></script>"""
-
-# roster_html += meets_html
-
 
 class CustomIndexDashboard(Dashboard):
+    # title = 'Meet Registration & Competition Scorekeeping'
 
     def init_with_context(self, context):
-        # site_name = get_admin_site_name(context)
+        # site_name = 'Meet Registration & Competition Scorekeeping'
+        # self.title = 'Meet Registration & Competition Scorekeeping'
 
         self.children.append(modules.ModelList(
             _('Meet'),
@@ -76,7 +50,7 @@ class CustomIndexDashboard(Dashboard):
             models=(
                 'meet.models.Meet',
                 'competition.models.Session',
-                ),
+            ),
         ))
 
         self.children.append(modules.ModelList(
@@ -85,14 +59,15 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             css_classes=('grp-closed',),
             models=(
-                'competition.models.Event',  # competition.Event
+                'registration.models.Discipline',
+                'competition.models.Event',
                 'registration.models.Level',
                 'competition.models.Division',
                 'competition.models.TeamAward',
                 'registration.models.ShirtSize',
                 'competition.models.LEDShow',
                 'competition.models.LEDSign',
-                ),
+            ),
         ))
 
         self.children.append(modules.ModelList(
@@ -103,7 +78,7 @@ class CustomIndexDashboard(Dashboard):
                 'registration.models.Team',
                 'registration.models.Coach',
                 'registration.models.Gymnast',
-                ),
+            ),
         ))
 
         self.children.append(modules.ModelList(
@@ -116,7 +91,7 @@ class CustomIndexDashboard(Dashboard):
                 'competition.models.GymnastEvent',
                 'competition.models.TeamAwardRank',
                 'competition.models.TeamAwardRankEvent',
-                ),
+            ),
         ))
 
         self.children.append(modules.ModelList(
@@ -130,12 +105,6 @@ class CustomIndexDashboard(Dashboard):
         ))
 
         if get_current_meet_count() == 1:
-            # self.children.append(modules.LinkList(
-            #     _('Active Meet'),
-            #     column=2,
-            #     children=[],
-            #     post_content=meets_html
-            # ))
 
             self.children.append(modules.LinkList(
                 _('Tools'),
@@ -180,12 +149,12 @@ class CustomIndexDashboard(Dashboard):
                 'title': 'Meet Breakdown',
                 'url': '/breakdown/',
                 'external': False,
-                }),
+            }),
             links.append({
                 'title': 'Team Awards Breakdown',
                 'url': '/order/awards/',
                 'external': False,
-                }),
+            }),
 
             self.children.append(modules.LinkList(
                 _('Registration Metrics'),
@@ -203,57 +172,58 @@ class CustomIndexDashboard(Dashboard):
                     'title': 'Awards Ceremony (By event)',
                     'url': '/results/ceremony/event/{}'.format(session.id),
                     'external': False,
-                    })
+                })
                 # links.append({
                 #     'title': 'Awards Ceremony (By division)',
                 #     'url': '/results/ceremony/division/{}'.format(session.id),
                 #     'external': False,
-                #     })
+                # })
                 links.append({
                     'title': 'Individual Results',
                     'url': '/results/individual/{}'.format(session.id),
                     'external': False,
-                    })
+                })
                 links.append({
                     'title': 'Team Results',
                     'url': '/results/team/{}'.format(session.id),
                     'external': False,
-                    })
+                })
                 links.append({
                     'title': 'Warm-Up & Competition Rotations',
                     'url': '/rotations/{}'.format(session.id),
                     'external': False,
-                    })
+                })
                 links.append({
                     'title': 'Announcer Script: Teams at Meet Start ',
                     'url': '/announcer/{}'.format(session.id),
                     'external': False,
-                    })
+                })
                 links.append({
                     'title': 'Program Book: Scoresheet',
                     'url': '/scoresheet/{}'.format(session.id),
                     'external': False,
-                    })
+                })
                 links.append({
                     'title': 'Coaches Hospitality',
                     'url': '/coaches/hospitality/{}'.format(session.id),
                     'external': False,
-                    })
+                })
                 links.append({
                     'title': 'Individual Teams Rosters',
                     'url': '/team/roster/{}'.format(session.id),
                     'external': False,
-                    })
+                })
                 links.append({
                     'title': 'All Teams Roster & Gymnast Sign In',
                     'url': '/allteams/roster/{}'.format(session.id),
                     'external': False,
-                    })
+                })
 
             # Table of Starting Events, with links to Competition.Gymnast admin
-                header = ""
-                counts = ""
-                for event in Event.objects.all():
+                header = counts = ""
+                # TODO if meet has mag and wag, the combined events will blow out the borders
+                #      possibly two separate queries / display rows ... one specifically for mag, one for wag
+                for event in Event.objects.filter(active=True):  # competition.Event
                     count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                     header += '<th>{}</th>'.format(event.initials)
                     link = '/admin/registration/gymnast/?meet={}&session={}&starting_event={}'.format(session.meet.id, session.id, event.id)

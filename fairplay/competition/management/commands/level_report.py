@@ -21,7 +21,7 @@ class Command(BaseCommand):
             writer.writerow(())
 
             divisions = models.Division.objects.filter(level=level, meet=current_meet)
-            events = models.Event.objects.filter(meet=current_meet) #competition.Event
+            events = models.Event.objects.filter(active=True)  # competition.Event
             row = ['', '', '']
             for event in events:
                 row.append(event.initials.upper())
@@ -40,7 +40,7 @@ class Command(BaseCommand):
                             row = [gymnast.athlete_id, gymnast.last_name, gymnast.first_name, ]
                             print(row)
 
-                            for event in events:
+                            for event in events.filter(is_mag=gymnast.is_mag, is_wag=gymnast.is_wag):
                                 ae = models.GymnastEvent.objects.get(gymnast=gymnast, event=event)
                                 row.append(ae.score)
                                 row.append(ae.rank)

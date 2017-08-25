@@ -140,7 +140,7 @@ class StartingEventFilter(admin.SimpleListFilter):
     parameter_name = 'starting_event'
 
     def lookups(self, request, model_admin):
-        lookups = [(s.id, s.name) for s in models.Event.objects.all()]  # competition.Event
+        lookups = [(s.id, s.name) for s in models.Event.objects.filter(active=True)]  # competition.Event
         lookups.append(('', '(None)'))
         return lookups
 
@@ -183,16 +183,19 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(GymnastAdmin, self).get_fieldsets(request, obj)
-        fieldsets += ((None, {'fields': ('discipline', 'athlete_id', 'usag', 'last_name', 'first_name', 'team', ), }),
-                     ('Meet', {'fields': ('is_scratched',
-                                          'age',
-                                          'division',
-                                          'level',
-                                          'starting_event',
-                                          'overall_score',
-                                          'rank',
-                                          'place',
-                                          'tie_break', ), }), )
+        fieldsets += (
+            (None, {'fields': ('discipline', 'athlete_id', 'usag', 'last_name', 'first_name', 'team', ), }),
+            ('Meet',
+                {'fields':
+                    ('is_scratched',
+                     'age',
+                     'division',
+                     'level',
+                     'starting_event',
+                     'overall_score',
+                     'rank',
+                     'place',
+                     'tie_break', ), }), )
         return fieldsets
 
     def get_readonly_fields(self, request, obj=None):
@@ -207,7 +210,9 @@ class GymnastAdmin(MeetDependentAdmin):
             return []
 
     def session(self, gymnast):
-        return models.Session.objects.get(divisions=gymnast.division).name
+        if gymnast.division:
+            return models.Session.objects.get(divisions=gymnast.division).name
+        return '-'
     session.admin_order_field = 'division__session__name'
 
     def get_queryset(self, request):
@@ -356,18 +361,8 @@ class DivisionAdmin(MeetDependentAdmin):
 
 
 @admin.register(models.Event)
-class EventAdmin(MeetDependentAdmin):
-    # TODO: competition.Event... Remove Meet Dependency?
-    list_display = ('name', 'initials', 'order',)
-
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = super(EventAdmin, self).get_fieldsets(request, obj)
-        # If there's no active meet, hide fields until active meet has been set
-        if request.session.get('meet', ''):
-            fieldsets += ((None, {
-                'fields': ('name', 'initials', 'sign', 'order'),
-                'description': ''}), )
-        return fieldsets
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('name', 'initials', 'order', 'is_mag', 'is_wag', 'active')
 
 
 @admin.register(models.Session)
