@@ -71,6 +71,14 @@ class CustomIndexDashboard(Dashboard):
         ))
 
         self.children.append(modules.ModelList(
+            _('Upload USAG Reservation'),
+            collapsible=True,
+            column=1,
+            template='grappelli/dashboard/modules/uploader.html',
+            models=('registration.models.ImportUsagReservation',)
+        ))
+
+        self.children.append(modules.ModelList(
             _('Registration'),
             column=1,
             collapsible=False,
@@ -255,3 +263,4 @@ class CustomIndexDashboard(Dashboard):
                 ],
             ),
         )
+

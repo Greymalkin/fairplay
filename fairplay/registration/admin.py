@@ -762,5 +762,13 @@ class PricingAdmin(MeetDependentAdmin):
         return fieldsets
 
 
+@admin.register(models.ImportUsagReservation)
+class ImportUsagReservationAdmin(admin.ModelAdmin):
+    pass
+
+    def has_add_permission(self, request):
+        return False
+
+
 admin.site.register(models.ShirtSize)
 admin.site.register(models.Discipline)

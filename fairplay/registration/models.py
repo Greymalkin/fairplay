@@ -19,8 +19,8 @@ class Team(models.Model):
     state = models.CharField('State', max_length=100, blank=True, null=True)
     postal_code = models.CharField('Postal Code', max_length=100, blank=True, null=True)
     phone = models.CharField('Phone', max_length=100, blank=True, null=True)
-    first_name = models.CharField('First Name', max_length=100)
-    last_name = models.CharField('Last Name', max_length=100)
+    first_name = models.CharField('First Name', max_length=100, null=True)
+    last_name = models.CharField('Last Name', max_length=100, null=True)
     email = models.CharField('Email', max_length=225, blank=True, null=True)
     usag = models.CharField('USAG Club #', max_length=225, blank=True, null=True)
     per_team_award_cost = models.PositiveSmallIntegerField(
@@ -352,6 +352,18 @@ class Discipline(models.Model):
 
     def __str__(self):
         return self.abbr
+
+
+class ImportUsagReservation(models.Model):
+    file = models.FileField(
+        "File",
+        max_length=200,
+        blank=True, null=True,
+        help_text="Upload a USAG reservation")
+
+    class Meta:
+        verbose_name_plural = ""
+
 
 
 # Receivers

@@ -1,10 +1,16 @@
 import operator
+import csv
+import tempfile
+import os
 
+from django.conf import settings
 from django.db.models import Count
 from django.db.models import Prefetch
 from django.views.generic import TemplateView
 
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.parsers import FormParser, MultiPartParser
 from competition.models import TeamAward
 from . import models, serializers
 
@@ -47,3 +53,41 @@ class OrderingAwardsView(TemplateView):
 class TeamViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Team.objects.all()
     serializer_class = serializers.TeamSerializer
+
+
+class ImportUsagReservationViewSet(viewsets.ModelViewSet):
+    queryset = models.ImportUsagReservation.objects.all()
+    serializer_class = serializers.UploadUsagSerializer
+    parser_classes = (FormParser, MultiPartParser,)
+    allowed_methods = ('POST', 'PUT')
+
+    def create(self, request):
+        print('In API to import usag reservations')
+        # pull the uploaded file object from the request
+        file_obj = request.data['file'].read()
+
+        # move uploaded zip file into media root, filebrowser
+        destination_file_path = os.path.join(settings.MEDIA_ROOT, "{}".format('usag_reservation.csv'))
+        print('!!!!!!!!!!! this is where we go', destination_file_path)
+        destination = open(destination_file_path, 'wb+')
+        destination.write(file_obj)
+        destination.close()
+
+        # try:
+        #     if not file_obj.name.lower().endswith('.csv'):
+        #         return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a csv file."})
+        # except Exception:
+        #     return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a valid csv file."})
+
+        with open(destination_file_path, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            header = ''
+
+            for i, row in enumerate(reader):
+                print(i, row)
+
+                if i == 0:
+                    header = row
+                    next(reader)
+
+        return Response({"status": status.HTTP_201_CREATED, "message": "USAG reservations imported."})

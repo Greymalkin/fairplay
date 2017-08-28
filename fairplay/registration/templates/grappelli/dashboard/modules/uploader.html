@@ -1,0 +1,66 @@
+{% extends "grappelli/dashboard/module.html" %}
+{% load i18n %}
+{% load static %}
+{% block module_content %}
+
+<!-- Form should submit via JS to an API on the touch.CreateSlidesFromFolders model.
+    The API will upload the file into Filebrowser, upack the zip file contents into
+    Filebrowser folders and then create the Slideshow models.
+ -->
+<!--     <div class="grp-row">You have died of dysentery.</div>  -->
+<form method="post" enctype="multipart/form-data" id="upload-slides">{% csrf_token %}
+    <div class="grp-row">
+        <input type="file" name="file" id="upload-slides-from-folders">
+            <ul class="grp-actions">
+                <input type="submit" value="Upload" class="submit">
+            </ul>
+    </div>
+<form>
+
+
+<div class="spinner"></div>
+<style>
+/* Start by setting display:none to make this hidden.
+   Then we position it in relation to the viewport window
+   with position:fixed. Width, height, top and left speak
+   for themselves. Background we set to 80% white with
+   our animation centered, and no-repeating */
+.spinner {
+    display:    none;
+    position:   fixed;
+    z-index:    1000;
+    top:        0;
+    left:       0;
+    height:     100%;
+    width:      100%;
+    background: rgba( 255, 255, 255, .8 ) 
+                url('{% static "img/spinner.gif" %}') 
+                50% 50% 
+                no-repeat;
+}
+</style>
+
+<script>
+(function($){
+    $( '#upload-slides' )
+      .submit( function( e ) {
+        $.ajax({
+            url: '/api/usag/import/',
+            type: 'POST',
+            data: new FormData( this ),
+            processData: false,
+            contentType: false,
+            beforeSend: function(){$('.spinner').show();},
+          } 
+        ).done(function(data) {
+            $('.spinner').hide()
+            alert(data.message);
+            window.location = '/admin/';
+          }
+        );
+      e.preventDefault();
+    } );
+})(grp.jQuery);
+</script>
+
+{% endblock %}
