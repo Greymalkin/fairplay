@@ -66,18 +66,19 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
         # pull the uploaded file object from the request
         file_obj = request.data['file'].read()
 
+        print(request.data['file'].name.lower())
+        try:
+            if not request.data['file'].name.lower().endswith('.csv'):
+                return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a csv file."})
+        except Exception:
+            return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a valid csv file."})
+
         # move uploaded zip file into media root, filebrowser
         destination_file_path = os.path.join(settings.MEDIA_ROOT, "{}".format('usag_reservation.csv'))
         print('!!!!!!!!!!! this is where we go', destination_file_path)
         destination = open(destination_file_path, 'wb+')
         destination.write(file_obj)
         destination.close()
-
-        # try:
-        #     if not file_obj.name.lower().endswith('.csv'):
-        #         return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a csv file."})
-        # except Exception:
-        #     return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a valid csv file."})
 
         with open(destination_file_path, 'r') as csvfile:
             reader = csv.reader(csvfile)
