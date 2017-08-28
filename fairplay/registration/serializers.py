@@ -18,16 +18,20 @@ class GymnastSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class CoachSerializer(serializers.ModelSerializer):
-    pass
+class UploadUsagCoachSerializer(serializers.ModelSerializer):
+    usag_team = serializers.Field(source='team.usag')
+    gym = serializers.Field(source='team.gym')
+    team = serializers.Field(source='team.team')
+    city = serializers.Field(source='team.city')
+    state = serializers.Field(source='team.state')
 
     class Meta:
         model = models.Coach
         fields = '__all__'
 
 
-class UploadUsagSerializer(serializers.ModelSerializer):
-    usag_team = serializers.Field(source='team.uag')
+class UploadUsagGymnastSerializer(serializers.ModelSerializer):
+    usag_team = serializers.Field(source='team.usag')
     gym = serializers.Field(source='team.gym')
     team = serializers.Field(source='team.team')
     city = serializers.Field(source='team.city')

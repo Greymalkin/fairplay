@@ -57,29 +57,32 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ImportUsagReservationViewSet(viewsets.ModelViewSet):
     queryset = models.ImportUsagReservation.objects.all()
-    serializer_class = serializers.UploadUsagSerializer
+    serializer_class = serializers.UploadUsagGymnastSerializer
     parser_classes = (FormParser, MultiPartParser,)
     allowed_methods = ('POST', 'PUT')
 
     def create(self, request):
         print('In API to import usag reservations')
+
         # pull the uploaded file object from the request
         file_obj = request.data['file'].read()
-
         print(request.data['file'].name.lower())
+
+        # test for .csv
         try:
             if not request.data['file'].name.lower().endswith('.csv'):
                 return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a csv file."})
         except Exception:
             return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a valid csv file."})
 
-        # move uploaded zip file into media root, filebrowser
+        # move uploaded file
         destination_file_path = os.path.join(settings.MEDIA_ROOT, "{}".format('usag_reservation.csv'))
         print('!!!!!!!!!!! this is where we go', destination_file_path)
         destination = open(destination_file_path, 'wb+')
         destination.write(file_obj)
         destination.close()
 
+        # read csv
         with open(destination_file_path, 'r') as csvfile:
             reader = csv.reader(csvfile)
             header = ''
@@ -89,6 +92,22 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
 
                 if i == 0:
                     header = row
+                    print('testing for gymnast: {}'.format(self.test_gymnast(header)))
+                    print('testing for coach: {}'.format(self.test_coach(header)))
                     next(reader)
 
         return Response({"status": status.HTTP_201_CREATED, "message": "USAG reservations imported."})
+
+    def test_gymnast(self, header):
+        return False
+
+    def test_coach(self, header):
+        return False
+
+    def parse_gymnast(self, row):
+        serializer = serializers.UploadUsagGymnastSerializer
+        return {}
+
+    def parse_coach(self, row):
+        serializer = serializers.UploadUsagCoachSerializer
+        return {}
