@@ -7,7 +7,7 @@ from dateutil import parser
 from django.conf import settings
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.models import LogEntry
-from django.db.models import Count, Max
+from django.db.models import Count, Max, Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
@@ -392,33 +392,20 @@ class GymnastAdmin(MeetDependentAdmin):
         ''' Admin action meant to be performed once on all athletes at once.
             However, it can be performed multiple times without harm, and also on only a few athletes.
         '''
-        divisions_by_level = {}
-        rows_updated = queryset.count()
-
-        # Build dictionary of all divisions
-        divisions = Division.objects.all()
-        for d in divisions:
-            if d.level not in divisions_by_level:
-                divisions_by_level[d.level] = {}
-            if d.min_age not in divisions_by_level[d.level]:
-                for age in range(d.min_age, d.max_age + 1):
-                    divisions_by_level[d.level][age] = d
-
-        # Calc comptition age and retrieve correct division for age + level combination
         for gymnast in queryset:
-            if gymnast.dob:
+            if gymnast.age and gymnast.level:
                 try:
-                    gymnast.division = divisions_by_level[gymnast.level][gymnast.competition_age]
+                    d = Division.objects.filter(level=gymnast.level).filter(Q(min_age__lte=gymnast.age) & Q(max_age__gte=gymnast.age)).first()
+                    gymnast.division = d
                     gymnast.save()
+
                 except Exception:
-                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(gymnast, gymnast.competition_age, gymnast.level))
+                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(gymnast, gymnast.age, gymnast.level))
 
-        if rows_updated == 1:
-            message_bit = '1 age division was'
-        else:
-            message_bit = '{} age divisions were'.format(rows_updated)
+            else:
+                messages.error(request, 'Age or level missing for gymnast {}'.format(gymnast))
 
-        messages.success(request, '{} updated'.format(message_bit))
+        messages.success(request, 'Gymnast age divisions updated.')
     sort_into_divisions.short_description = "Set age division"
 
     def set_athlete_id(self, modeladmin, request, queryset):

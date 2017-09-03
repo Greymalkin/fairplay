@@ -76,7 +76,6 @@ class MeetAdmin(admin.ModelAdmin):
     def copy_meet(self, request, queryset):
         current_meet = queryset[0]
         levels = Level.objects.filter(meet=current_meet)
-        events = Event.objects.filter(meet=current_meet)
         awards = TeamAward.objects.filter(meet=current_meet)
         teams = Team.objects.filter(meet=current_meet)
         divisions = Division.objects.filter(meet=current_meet)
@@ -96,16 +95,6 @@ class MeetAdmin(admin.ModelAdmin):
             old_obj.meet = new_meet
             pre_save.disconnect(receiver=None, sender=Level, dispatch_uid='save_current_meet_level')
             old_obj.save()
-
-        for event in events:
-            old_obj = copy(event)
-            old_obj.id = None
-            old_obj.meet = new_meet
-            pre_save.disconnect(receiver=None, sender=Event, dispatch_uid='save_current_meet_event')
-            post_save.disconnect(receiver=None, sender=GymnastEvent, dispatch_uid='update_rankings')
-            post_save.disconnect(receiver=None, sender=Event, dispatch_uid='populate_event')
-            old_obj.save()
-            # post_save.connect(receiver=None, sender=GymnastEvent, dispatch_uid='update_rankings')
 
         for team in teams:
             old_obj = copy(team)
@@ -135,6 +124,7 @@ class MeetAdmin(admin.ModelAdmin):
         for division in divisions:
             old_obj = copy(division)
             old_obj.id = None
+            old_obj.level = Level.objects.get(meet=new_meet, name=division.level.name)
             old_obj.meet = new_meet
             old_obj.event_award_count = 0
             old_obj.all_around_award_count = 0

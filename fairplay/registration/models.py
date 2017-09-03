@@ -365,10 +365,6 @@ class ImportUsagReservation(models.Model):
         verbose_name_plural = ""
 
 
-
-# Receivers
-
-
 @receiver(m2m_changed, sender=Team.team_awards.through)
 def level_costs(sender, instance, **kwargs):
     instance.team_award_cost = instance.calc_team_award_cost()
