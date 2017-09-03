@@ -63,9 +63,7 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UploadUsagGymnastSerializer
     parser_classes = (FormParser, MultiPartParser,)
     allowed_methods = ('POST', 'PUT')
-    meet = Meet.objects.filter(is_current_meet=True)
-    if meet:
-        meet = meet[0]
+    meet = Meet.objects.filter(is_current_meet=True).first()
 
     def create(self, request):
         if not request.session.get('meet'):

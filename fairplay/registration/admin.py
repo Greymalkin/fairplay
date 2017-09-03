@@ -685,7 +685,6 @@ class TeamAdmin(MeetDependentAdmin):
     # TODO... needs to be updated now that notes is a child model
     def export_with_notes(self, request, queryset):
         """ Generic csv export admin action. """
-        opts = self.model._meta
         response = HttpResponse(content_type='text/csv')
         team_name = queryset[0].team
         response['Content-Disposition'] = 'attachment; filename={}_bwi_roster.csv'.format(team_name)
@@ -700,14 +699,25 @@ class TeamAdmin(MeetDependentAdmin):
                        'is_scratched',
                        'level',
                        'notes', ]
+
         # Write a first row with header information
         writer.writerow(field_names)
+
         # Write data rows
         for obj in queryset:
             gymnasts = models.Gymnast.objects.filter(team=obj).order_by('is_scratched', 'level', 'last_name')
             for gymnast in gymnasts:
                 field_values = [getattr(gymnast, field) for field in field_names]
                 writer.writerow(field_values)
+
+            # Write total cost data
+            writer.writerow('')
+            writer.writerow(['Payment Details',
+                             '', '', '', '', '', '', '', '', '',
+                             'Gymnast Cost: ${}'.format(obj.calc_gymnast_cost()),
+                             'Level Awards Cost: ${}'.format(obj.calc_team_award_cost()),
+                             'Total Cost: ${}'.format(obj.calc_total_cost()),
+                             'Total Paid: ${}'.format(obj.calc_amount_paid)])
         return response
     export_with_notes.short_description = "Export with notes, as csv file"
 
