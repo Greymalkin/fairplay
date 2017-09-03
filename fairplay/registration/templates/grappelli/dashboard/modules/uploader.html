@@ -50,11 +50,11 @@
             data: new FormData( this ),
             processData: false,
             contentType: false,
-            beforeSend: function(){$('.spinner').show();},
+            // beforeSend: function(){$('.spinner').show();},
           } 
         ).done(function(data) {
-            $('.spinner').hide()
-            alert(data.message);
+            // $('.spinner').hide();
+            // alert(data.message);
             window.location = '/admin/';
           }
         );

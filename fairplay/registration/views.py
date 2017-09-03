@@ -2,8 +2,10 @@ import operator
 import csv
 import tempfile
 import os
+import datetime
 
 from django.conf import settings
+from django.contrib import messages
 from django.db.models import Count
 from django.db.models import Prefetch
 from django.views.generic import TemplateView
@@ -12,6 +14,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.parsers import FormParser, MultiPartParser
 from competition.models import TeamAward
+from meet.models import Meet
 from . import models, serializers
 
 
@@ -60,24 +63,30 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UploadUsagGymnastSerializer
     parser_classes = (FormParser, MultiPartParser,)
     allowed_methods = ('POST', 'PUT')
+    meet = Meet.objects.filter(is_current_meet=True)
+    if meet:
+        meet = meet[0]
 
     def create(self, request):
-        print('In API to import usag reservations')
+        if not request.session.get('meet'):
+            messages.add_message(request, messages.WARNING, 'Please set the current meet before uploading USAG reservations.')
+            return Response(status=status.HTTP_200_OK)
 
-        # pull the uploaded file object from the request
-        file_obj = request.data['file'].read()
-        print(request.data['file'].name.lower())
-
-        # test for .csv
         try:
+            # pull the uploaded file object from the request
+            file_obj = request.data['file'].read()
+            print(request.data['file'].name.lower())
+
+            # test for .csv
             if not request.data['file'].name.lower().endswith('.csv'):
-                return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a csv file."})
+                messages.add_message(request, messages.ERROR, 'Not a USAG reservation file: Not a csv file.')
+                return Response({"message": "Not a csv file."}, status=status.HTTP_200_OK)
         except Exception:
-            return Response({"status": status.HTTP_400_BAD_REQUEST, "message": "Not a valid csv file."})
+            messages.add_message(request, messages.ERROR, 'Not a USAG reservation file: Not a valid csv file.')
+            return Response({"message": "Not a valid csv file."}, status=status.HTTP_200_OK)
 
         # move uploaded file
         destination_file_path = os.path.join(settings.MEDIA_ROOT, "{}".format('usag_reservation.csv'))
-        print('!!!!!!!!!!! this is where we go', destination_file_path)
         destination = open(destination_file_path, 'wb+')
         destination.write(file_obj)
         destination.close()
@@ -86,28 +95,144 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
         with open(destination_file_path, 'r') as csvfile:
             reader = csv.reader(csvfile)
             header = ''
+            parse_type = ''
 
             for i, row in enumerate(reader):
-                print(i, row)
-
+                # print(i, row)
+                # read the header row and determine if this is an athlete or coach export
                 if i == 0:
                     header = row
                     print('testing for gymnast: {}'.format(self.test_gymnast(header)))
                     print('testing for coach: {}'.format(self.test_coach(header)))
-                    next(reader)
 
-        return Response({"status": status.HTTP_201_CREATED, "message": "USAG reservations imported."})
+                    if self.test_gymnast(header):
+                        parse_type = 'gymnast'
+
+                    elif self.test_coach(header):
+                        parse_type = 'coach'
+
+                    elif self.test_club(header):
+                        parse_type = 'club'
+
+                    else:
+                        messages.add_message(request, messages.ERROR, 'Not a USAG reservation file')
+                        return Response({"message": "Not a USAG reservation file"}, status=status.HTTP_200_OK)
+
+                else:
+                    team = self.parse_team(row, parse_type)
+
+                    if parse_type == 'gymnast':
+                        self.parse_gymnast(row, team)
+
+                    if parse_type == 'coach':
+                        self.parse_coach(row, team)
+
+            messages.add_message(request, messages.SUCCESS, '{} USAG {} reservations imported.'.format(i, parse_type))
+            os.remove(destination_file_path)
+            return Response({"message": "USAG reservations imported."}, status=status.HTTP_201_CREATED)
 
     def test_gymnast(self, header):
+        if len(header) == 19:
+            if header[0].lower() == 'athleteid' and header[18].lower() == 'agegroup':
+                return True
         return False
 
     def test_coach(self, header):
+        if len(header) == 10:
+            if header[0].lower() == 'memberid' and header[9].lower() == 'clubstate':
+                return True
         return False
 
-    def parse_gymnast(self, row):
-        serializer = serializers.UploadUsagGymnastSerializer
-        return {}
+    def test_club(self, header):
+        if len(header) == 18:
+            if header[0].lower() == 'clubid' and header[17].lower() == 'coaches':
+                return True
+        return False
 
-    def parse_coach(self, row):
-        serializer = serializers.UploadUsagCoachSerializer
-        return {}
+    def parse_level(self, level):
+        test = level.split(' ')
+
+        try:
+            name = group = level = int(test[1])
+        except Exception:
+            if 'junior development' in level.lower():
+                level = 11
+                name = group = 'jd'
+            else:
+                level = 0
+                name = group = '?'
+
+        if len(test) == 4 and test[2].lower() == 'division':
+            name = '{} d{}'.format(name, test[3])
+
+        level, created = models.Level.objects.get_or_create(
+            meet=self.meet, level=level, group=group, name=name)
+        return level
+
+    def parse_gymnast(self, row, team):
+        # determine discipline, from sex?  col9
+        # parse level, add to db if needed  col17
+
+        data = {
+            "first_name": row[1],
+            "last_name": row[2],
+            "dob": datetime.datetime.strptime(row[15], "%m/%d/%y").date(),
+            "age": row[16],
+            "level": self.parse_level(row[17]),
+            "is_us_citizen": True if row[14].lower() == 'yes' else False,
+            "discipline": 'mag' if row[9].lower() == 'm' else 'wag',  # won't work for tramp, acro, rhythmic... how do I figure that out in future?
+        }
+        gymnast, created = models.Gymnast.objects.update_or_create(
+            meet=self.meet, team=team, usag=row[0], defaults=data)
+        return gymnast
+
+    def parse_coach(self, row, team):
+        data = {
+            "first_name": row[1],
+            "last_name": row[2],
+        }
+
+        coach, created = models.Coach.objects.update_or_create(
+            meet=self.meet, team=team, usag=row[0], defaults=data)
+        print('   coach', coach)
+        return coach
+
+    def parse_team(self, row, parse_type):
+        if parse_type == 'coach':
+            usag = row[5]
+            data = {
+                "gym": row[6],
+                "team": row[7],
+                "city": row[8],
+                "state": row[9],
+                # "email": row[3],
+                # "first_name": row[1],
+                # "last_name": row[2],
+            }
+
+        if parse_type == 'gymnast':
+            usag = row[4]
+            data = {
+                "gym": row[5],
+                "team": row[6],
+                "city": row[7],
+                "state": row[8],
+            }
+
+        if parse_type == 'club':
+            usag = row[0]
+            name = row[13].split(" ")
+            data = {
+                "gym": row[1],
+                "team": row[2],
+                "city": row[3],
+                "state": row[4],
+                "email": row[15],
+                "phone": row[14],
+                "first_name": "" if len(name) == 1 else name[0],
+                "last_name": row[13].replace(name[0], '').strip()
+            }
+
+        team, created = models.Team.objects.update_or_create(
+            meet=self.meet, usag=usag, defaults=data)
+        return team

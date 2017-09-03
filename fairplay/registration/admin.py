@@ -140,23 +140,20 @@ class GymnastMissingDobFilter(SimpleListFilter):
             return queryset.filter(dob__isnull=True)
 
 
-class CoachMissingUsagFilter(SimpleListFilter):
-    title = ('Missing USAG#')
-    parameter_name = 'no_usag'
+# class CoachMissingUsagFilter(SimpleListFilter):
+#     title = ('Missing USAG#')
+#     parameter_name = 'no_usag'
 
-    def lookups(self, request, model_admin):
-        return (('none', ('Missing USAG#s')),)
+#     def lookups(self, request, model_admin):
+#         return (('none', ('Missing USAG#s')),)
 
-    def queryset(self, request, queryset):
-        if self.value() == 'none':
-            return (queryset.filter(usag='')
-                    | queryset.filter(usag__isnull=True)
-                    | queryset.filter(usag_expire_date='')
-                    | queryset.filter(usag_expire_date__isnull=True)
-                    | queryset.filter(safety_expire_date='')
-                    | queryset.filter(safety_expire_date=True)
-                    | queryset.filter(background_expire_date='')
-                    | queryset.filter(background_expire_date=True))
+#     def queryset(self, request, queryset):
+#         if self.value() == 'none':
+#             return (queryset.filter(usag__isnull=True)
+#                     | queryset.filter(usag__isnull=True)
+#                     | queryset.filter(usag_expire_date__isnull=True)
+#                     | queryset.filter(safety_expire_date=True)
+#                     | queryset.filter(background_expire_date=True))
 
 
 # Admins
@@ -180,7 +177,7 @@ class LevelAdmin(MeetDependentAdmin):
 @admin.register(models.Coach)
 class CoachAdmin(MeetDependentAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag', 'is_verified')
-    list_filter = (CoachMissingUsagFilter, 'team')
+    list_filter = ['team']  # CoachMissingUsagFilter,
     search_fields = ('last_name', 'first_name', 'usag')
     actions = ['export_as_csv']
     # raw_id_fields = ('team',)
@@ -202,7 +199,7 @@ class CoachAdmin(MeetDependentAdmin):
         if obj.usag_expire_date and obj.safety_expire_date and obj.background_expire_date:
             missing = True
         return missing
-    has_usag.short_description = "USAG?"
+    has_usag.short_description = "Safety/Exp/Bkgnd"
     has_usag.boolean = True
 
     def export_as_csv(self, request, queryset):
@@ -500,7 +497,7 @@ class GymnastAdmin(MeetDependentAdmin):
         actions.insert(0, ('set_shirt_action', (self.set_shirt_action, 'set_shirt_action', 'Update shirt size')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', 'Set athlete id')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', 'Set age division')))
-        actions.insert(0, ('update_age', (self.update_age, 'update_age', 'Set competition age')))
+        # actions.insert(0, ('update_age', (self.update_age, 'update_age', 'Set competition age')))
         actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to (None)')))
         return OrderedDict(actions)
 
@@ -769,6 +766,8 @@ class ImportUsagReservationAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
 
+    def has_change_permission(self, request, obj=None):
+        return False
 
 admin.site.register(models.ShirtSize)
 admin.site.register(models.Discipline)
