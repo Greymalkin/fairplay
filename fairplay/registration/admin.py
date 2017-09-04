@@ -363,13 +363,17 @@ class GymnastAdmin(MeetDependentAdmin):
         ''' competition age is based on gymnast age as of 5/31/yyyy '''
         rows_updated = 0
         for gymnast in queryset:
-            if gymnast.dob is not None:
-                gymnast.age = gymnast.competition_age
-                gymnast.save()
-                rows_updated += 1
+            print(gymnast.meet.date)
+            if not gymnast.meet.date:
+                messages.warning(request, 'Set a date in the Meet admin for when the {} meet will occur.'.format(request.session['meet']['short_name']))
             else:
-                gymnast.age = None
-                gymnast.save()
+                if gymnast.dob is not None:
+                    gymnast.age = gymnast.competition_age
+                    gymnast.save()
+                    rows_updated += 1
+                else:
+                    gymnast.age = None
+                    gymnast.save()
 
         if rows_updated == 1:
             message_bit = '1 gymnast\'s competition age was'
@@ -484,7 +488,7 @@ class GymnastAdmin(MeetDependentAdmin):
         actions.insert(0, ('set_shirt_action', (self.set_shirt_action, 'set_shirt_action', 'Update shirt size')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', 'Set athlete id')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', 'Set age division')))
-        # actions.insert(0, ('update_age', (self.update_age, 'update_age', 'Set competition age')))
+        actions.insert(0, ('update_age', (self.update_age, 'update_age', 'Set competition age')))
         actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to (None)')))
         return OrderedDict(actions)
 

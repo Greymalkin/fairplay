@@ -1,10 +1,11 @@
 (function($) {
 
     function init() {
-        $('.setMeet').on('click', function(){
+        $('.setMeet').on('click', function(e){
             apiCall('/api/meet/' + $(this).data('meet') +'/set').done(function(data){
-                location.reload(true);
-            })
+                location.replace('/admin/');
+            });
+            e.preventDefault();
         });
         $('.setRanking').on('click', function(){
             apiCall('/api/meet/' + $(this).data('meet') +'/toggle_ranking').done(function(data){

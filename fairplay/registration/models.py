@@ -199,7 +199,7 @@ class Gymnast(Person):
     @property
     def competition_age(self):
         # TODO: AGE... is differently calculated for mag than for wag.
-        if self.dob:
+        if self.dob and self.meet.date:
             if self.meet.date.month > 8:
                 year = self.meet.date.year + 1
             else:
