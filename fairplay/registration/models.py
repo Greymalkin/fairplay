@@ -9,6 +9,11 @@ from django.dispatch import receiver
 from meet.models import Meet, MeetManager
 
 
+class TeamManager(MeetManager):
+    def get_by_natural_key(self, meet, gym, team):
+        return self.get(meet__name=meet, gym=gym, team=team)
+
+
 class Team(models.Model):
     meet = models.ForeignKey(Meet, related_name='teams')
     gym = models.CharField(max_length=100, help_text="ex. Fairland Boys Gymnastics")
@@ -40,7 +45,7 @@ class Team(models.Model):
     notes = models.TextField(blank=True, null=True)
     qualified = models.BooleanField(default=True, help_text="Qualifies for team awards")
 
-    objects = MeetManager()
+    objects = TeamManager()
 
     class Meta:
         verbose_name = 'Team'
@@ -50,10 +55,15 @@ class Team(models.Model):
     def __str__(self):
         return '{0}'.format(self.gym)
 
+    def natural_key(self):
+            return (self.meet.name, self.gym, self.team)
+
     def contact_name(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
     def calc_total_cost(self):
+        # Note: if team awards costs don't seem to be updating after having changed the price
+        # make a change to the team award field in the admin and save
         return self.gymnast_cost + self.team_award_cost
 
     def calc_gymnast_cost(self):
@@ -123,6 +133,11 @@ class Person(models.Model):
         return ("id__iexact", "first_name__icontains", "last_name__icontains")
 
 
+class CoachManager(MeetManager):
+    def get_by_natural_key(self, meet, team, last_name, first_name):
+        return self.get(meet__name=meet, team__gym=team, last_name=last_name, first_name=first_name)
+
+
 class Coach(Person):
     meet = models.ForeignKey(Meet, related_name='coaches')
     team = models.ForeignKey(Team, related_name="coaches")
@@ -130,11 +145,25 @@ class Coach(Person):
     safety_expire_date = models.DateField('Safety Expires', blank=True, null=True)
     background_expire_date = models.DateField('Background Expires', blank=True, null=True)
 
-    objects = MeetManager()
+    objects = CoachManager()
 
     class Meta:
         verbose_name_plural = 'Coaches'
         verbose_name = 'Coach'
+
+    def natural_key(self):
+        return (self.meet.name, self.team.gym, self.last_name, self.first_name)
+
+
+class GymnastManager(MeetManager):
+    def get_by_natural_key(self, meet, team, last_name, first_name, discipline, usag):
+        return self.get(
+            meet__name=meet,
+            team__gym=team,
+            last_name=last_name,
+            first_name=first_name,
+            discipline=discipline,
+            usag=usag)
 
 
 class Gymnast(Person):
@@ -157,18 +186,20 @@ class Gymnast(Person):
         blank=True, null=True,
         help_text='Competitive Age (as of {}/{})'.format(settings.COMPETITION_MONTH, settings.COMPETITION_DATE))
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
-    shirt = models.ForeignKey('ShirtSize', blank=True, null=True, related_name="gymnasts")
-    level = models.ForeignKey('Level', blank=True, null=True, related_name="gymnasts")
+    shirt = models.ForeignKey('ShirtSize', blank=True, null=True, related_name="gymnasts", on_delete=models.SET_NULL)
+    level = models.ForeignKey('Level', blank=True, null=True, related_name="gymnasts", on_delete=models.SET_NULL)
     is_scratched = models.BooleanField('Scratched?', default=False)
     division = models.ForeignKey(
         'competition.Division',
         related_name='gymnasts',
         blank=True, null=True,
-        verbose_name="Age division")
+        verbose_name="Age division",
+        on_delete=models.SET_NULL)
     starting_event = models.ForeignKey(
         'competition.Event',
         null=True, blank=True,
-        related_name="starting_gymnasts")
+        related_name="starting_gymnasts",
+        on_delete=models.SET_NULL)
     overall_score = models.FloatField(null=True, blank=True)
     tie_break = models.BigIntegerField(null=True, blank=True)
     rank = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -178,7 +209,7 @@ class Gymnast(Person):
         verbose_name='Athlete ID',
         help_text='For use during competition')
 
-    objects = MeetManager()
+    objects = GymnastManager()
 
     class Meta:
         verbose_name_plural = 'Gymnasts'
@@ -195,6 +226,9 @@ class Gymnast(Person):
         except Exception:
             level = self.level
         return "{3}{1}, {0} ({2}) {4}".format(self.first_name, self.last_name, level, flagged, usag)
+
+    def natural_key(self):
+        return (self.meet.name, self.team.gym, self.last_name, self.first_name, self.discipline, self.usag)
 
     @property
     def competition_age(self):
@@ -232,6 +266,13 @@ class Gymnast(Person):
         return self.discipline == 'wag'
 
 
+# TODO: might need to add discipline for future flexibility
+class LevelManager(MeetManager):
+    def get_by_natural_key(self, meet, name):
+        return self.get(meet__name=meet, name=name)
+
+
+# TODO: might need to add discipline for future flexibility
 class Level(models.Model):
     meet = models.ForeignKey(Meet, related_name='levels')
     name = models.CharField(max_length=20)
@@ -239,7 +280,7 @@ class Level(models.Model):
     level = models.PositiveSmallIntegerField()
     order = models.PositiveSmallIntegerField(default=0)
 
-    objects = MeetManager()
+    objects = LevelManager()
 
     class Meta:
         verbose_name = 'Level'
@@ -248,6 +289,9 @@ class Level(models.Model):
 
     def __str__(self):
         return self.name
+
+    def natural_key(self):
+        return (self.meet.name, self.name)
 
     def num_gymnasts_across_divisions(self):
         num_gymnasts = Gymnast.objects.filter(is_scratched=False, level__group=self.group).count()
@@ -277,9 +321,16 @@ class Level(models.Model):
         return count
 
 
+class ShirtSizeManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
 class ShirtSize(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     order = models.PositiveSmallIntegerField(default=0)
+
+    objects = ShirtSizeManager()
 
     class Meta:
         verbose_name = 'Shirt Size'
@@ -289,13 +340,14 @@ class ShirtSize(models.Model):
     def __str__(self):
         return self.name
 
+    def natural_key(self):
+        return (self.name, )
+
 
 class Notes(models.Model):
     author = models.CharField(max_length=50, blank=False, null=False)
     note = models.CharField(max_length=255, blank=False, null=False)
     created = models.DateTimeField(auto_now_add=True)
-
-    objects = MeetManager()
 
     class Meta:
         ordering = ['-created']
@@ -305,13 +357,33 @@ class Notes(models.Model):
         return '{} {}'.format(self.author, datetime.strftime(self.created, '%Y-%m-%d'))
 
 
+class TeamNotesManager(MeetManager):
+    def get_by_natural_key(self, meet, team, author, created):
+        return self.get(meet__name=meet, team__gym=team, author=author, created=created)
+
+
 class TeamNotes(Notes):
     meet = models.ForeignKey(Meet, related_name='team_notes')
     team = models.ForeignKey(Team, related_name='team_notes')
+    objects = TeamNotesManager()
 
     class Meta:
         verbose_name = 'Team Note'
         verbose_name_plural = 'Team Notes'
+
+    def natural_key(self):
+        return (self.meet.name, self.team.gym, self.author, self.created)
+
+
+class GymnastNotesManager(MeetManager):
+    def get_by_natural_key(self, meet, last_name, first_name, usag, author, created):
+        return self.get(
+            meet__name=meet,
+            gymnast__last_name=last_name,
+            gymnast__first_name=first_name,
+            gymnast__usag=usag,
+            author=author,
+            created=created)
 
 
 class GymnastNotes(Notes):
@@ -321,6 +393,20 @@ class GymnastNotes(Notes):
     class Meta:
         verbose_name = 'Gymnast Note'
         verbose_name_plural = 'Gymnast Notes'
+
+    def natural_key(self):
+        return (
+            self.meet.name,
+            self.gymnast.last_name,
+            self.gymnast.first_name,
+            self.gymnast.usag,
+            self.author,
+            self.created)
+
+
+class PaymentsManager(MeetManager):
+    def get_by_natural_key(self, meet, team, amount, paid, updated):
+        return self.get(meet__name=meet, team__gym=team, amount=amount, paid=paid, updated=updated)
 
 
 class Payments(models.Model):
@@ -337,22 +423,39 @@ class Payments(models.Model):
         blank=True, null=True)
     updated = models.DateTimeField(auto_now=True)
 
+    objects = PaymentsManager()
+
     class Meta:
         verbose_name = 'Payment'
         verbose_name_plural = 'Payments'
         ordering = ['paid']
 
+    def natural_key(self):
+        return (self.meet.name, self.team.gym, self.amount, self.paid, self.updated)
+
+
+class DisciplineManager(models.Manager):
+    def get_by_natural_key(self, name, abbr):
+        return self.get(name=name, abbr=abbr)
+
 
 class Discipline(models.Model):
     name = models.CharField(max_length=100)
     abbr = models.CharField(max_length=10)
+    objects = DisciplineManager()
 
     class Meta:
         ordering = ['name']
+        unique_together = (('name', 'abbr'),)
 
     def __str__(self):
         return self.abbr
 
+    def natural_key(self):
+        return (self.name, self.abbr)
+
+
+# Helper Model, used so we can easily import USAG csv files from the dashboard
 
 class ImportUsagReservation(models.Model):
     file = models.FileField(
@@ -364,6 +467,8 @@ class ImportUsagReservation(models.Model):
     class Meta:
         verbose_name_plural = ""
 
+
+# Signals and Receivers
 
 @receiver(m2m_changed, sender=Team.team_awards.through)
 def level_costs(sender, instance, **kwargs):

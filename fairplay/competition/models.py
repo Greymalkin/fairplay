@@ -10,26 +10,20 @@ from registration.models import Gymnast as MasterGymnast
 from . import ranking
 
 
-class LEDSign(models.Model):
-    meet = models.ForeignKey(Meet, related_name='signs')
-    name = models.CharField(max_length=255)
-    device = models.PositiveSmallIntegerField()
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = "LED sign"
-        verbose_name_plural = "LED signs"
+class EventManager(models.Manager):
+    def get_by_natural_key(self, name, initials, is_mag, is_wag):
+        return self.get(name=name, initials=initials, is_mag=is_mag, is_wag=is_wag)
 
 
 class Event(models.Model):
+    objects = EventManager()
+
     # TODO Foreign Key to registration.Discipline
     # TODO turn is_mag and is_wag fields into properties based on Discipline
     order = models.PositiveSmallIntegerField()
     name = models.CharField(max_length=255, help_text="Event name")
     initials = models.CharField(max_length=2, help_text="Event initials")
-    sign = models.ForeignKey(LEDSign, blank=True, null=True)
+    sign = models.ForeignKey("LEDSign", blank=True, null=True, on_delete=models.SET_NULL)
     active = models.BooleanField(
         default=True,
         help_text="Event is included as part of this meet")
@@ -47,6 +41,9 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
+
+    def natural_key(self):
+            return (self.name, self.initials, self.is_mag, self.is_wag)
 
     # TODO figuring out the rotation using these methods will break if a meet has both wag & mag events
 
@@ -94,10 +91,16 @@ class ScoreRankEvent(models.Model):
         return self.gymnast.__str__()
 
 
+class DivisionManager(MeetManager):
+    def get_by_natural_key(self, meet, level, name):
+        return self.get(meet__name=meet, level__name=level, name=name)
+
+
 class Division(models.Model):
     # TODO Foreign Key to registration.Discipline
+    objects = DivisionManager()
     meet = models.ForeignKey(Meet, related_name='divisions')
-    level = models.ForeignKey(Level, related_name='divisions')
+    level = models.ForeignKey(Level, related_name='divisions', blank=False, null=True)
     name = models.CharField(max_length=50)
     short_name = models.CharField(max_length=10, help_text='For printing in report columns.')
     min_age = models.PositiveSmallIntegerField(default=6)
@@ -110,8 +113,6 @@ class Division(models.Model):
         default=3,
         help_text="Number of places all around awards will go out to")
 
-    objects = MeetManager()
-
     class Meta():
         ordering = ['level', 'min_age', ]
         verbose_name = 'Age Division'
@@ -123,6 +124,9 @@ class Division(models.Model):
             age = '{}-{}'.format(self.min_age, self.max_age)
         level = self.level.name.upper() if self.level.level == 999 else 'Level {}'.format(self.level)
         return "{} ({} years)".format(level, age)
+
+    def natural_key(self):
+            return (self.meet.name, self.level.name, self.name)
 
     def title(self):
         level = self.level.name.upper() if self.level.level == 999 else 'Level {}'.format(self.level.level)
@@ -149,10 +153,22 @@ def total_meet_medals():
     return medals['total_medals']
 
 
+class SessionManager(MeetManager):
+    def get_by_natural_key(self, meet, name):
+        return self.get(meet__name=meet, name=name)
+
+
 class Session(models.Model):
     meet = models.ForeignKey(Meet, related_name='sessions')
-    name = models.CharField(max_length=255, help_text="Session name")
-    divisions = models.ManyToManyField(Division, related_name='session', blank=True)
+    name = models.CharField(max_length=255, help_text="Session 1, Session 2, etc.")
+    divisions = models.ManyToManyField(
+        Division,
+        related_name='session',
+        blank=True,
+        help_text="""
+        Select from the list on the left which age divisions will compete in this session.
+        All gymnasts in the selected age division will be automatically assigned to this session.
+        Age divisions may not be split across multiple sessions.""")
     TRADITIONAL = 'Traditional'
     COMPETE = 'Warm-up/Compete'
     WARMUP = ((TRADITIONAL, TRADITIONAL), (COMPETE, COMPETE))
@@ -162,15 +178,18 @@ class Session(models.Model):
     competition_start = models.TimeField('Competition Start Time', blank=True, null=True)
     presentation_start = models.TimeField('Presentation of Teams Start Time', blank=True, null=True)
 
-    objects = MeetManager()
-
-    def __str__(self):
-        return self.name
+    objects = SessionManager()
 
     class Meta():
         ordering = ['name', ]
         verbose_name = "Session"
         verbose_name_plural = "Sessions"
+
+    def __str__(self):
+        return self.name
+
+    def natural_key(self):
+            return (self.meet.name, self.name)
 
     def num_gymnasts(self):
         try:
@@ -201,14 +220,19 @@ class Session(models.Model):
         return self.divisions.values_list('name', flat=True)
 
 
+class TeamAwardManager(MeetManager):
+    def get_by_natural_key(self, meet, name):
+        return self.get(meet__name=meet, name=name)
+
+
 class TeamAward(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_awards')
     name = models.CharField(max_length=255)
-    levels = models.ManyToManyField(Level, related_name='team_awards')
+    levels = models.ManyToManyField(Level, related_name='team_awards', blank=False)
     award_count = models.PositiveSmallIntegerField(default=0, help_text='Number of places team awards will go out to')
     order = models.PositiveSmallIntegerField(default=0)
 
-    objects = MeetManager()
+    objects = TeamAwardManager()
 
     class Meta:
         verbose_name = "Team Award"
@@ -217,6 +241,9 @@ class TeamAward(models.Model):
 
     def __str__(self):
         return self.name
+
+    def natural_key(self):
+            return (self.meet.name, self.name)
 
     def registered_teams(self):
         ''' Used to create a report. Which team, that has paid to register for team awards,
@@ -231,6 +258,11 @@ class TeamAward(models.Model):
             return Team.objects.filter(id=0).annotate(num_gymnasts=Count('id'))
 
 
+class TeamAwardRankManager(MeetManager):
+    def get_by_natural_key(self, meet, team, team_award):
+        return self.get(meet__name=meet, team__gym=team, team_award__name=team_award)
+
+
 class TeamAwardRank(models.Model):
     meet = models.ForeignKey(Meet, related_name='team_ranks')
     team = models.ForeignKey(Team, related_name='team_ranks')
@@ -238,14 +270,22 @@ class TeamAwardRank(models.Model):
     rank = models.PositiveSmallIntegerField(null=True)
     score = models.FloatField(null=True)
 
-    objects = MeetManager()
+    objects = TeamAwardRankManager()
 
     def __str__(self):
         return "{} - {}".format(self.team_award, self.team)
 
+    def natural_key(self):
+            return (self.meet.name, self.team.gym, self.team_award.name)
+
     class Meta:
         verbose_name = 'Team Awards > Rank > Score'
         verbose_name_plural = 'Team Awards > Rank > Score'
+
+
+class TeamAwardRankEventManager(MeetManager):
+    def get_by_natural_key(self, meet, team_award, event, gymnast_event):
+        return self.get(meet=meet, team_award=team_award, event=event, gymnast_event=gymnast_event)
 
 
 class TeamAwardRankEvent(models.Model):
@@ -255,14 +295,29 @@ class TeamAwardRankEvent(models.Model):
     gymnast_event = models.ForeignKey('GymnastEvent', related_name='team_event_rankings')
     rank = models.PositiveSmallIntegerField(null=True)
 
-    objects = MeetManager()
+    objects = TeamAwardRankEventManager()
 
     def __str__(self):
         return "{} - {} - {} - {} ({})".format(self.team_award_rank.team_award, self.team_award_rank.team, self.event, self.gymnast_event.gymnast, self.rank)
 
+    def natural_key(self):
+            return (self.meet, self.team_award, self.event, self.gymnast_event)
+
     class Meta:
         verbose_name = 'Team Awards > Rank > Event > Gymnast'
         verbose_name_plural = 'Team Awards > Rank > Event > Gymnast'
+
+
+class GymnastEventManager(MeetManager):
+    def get_by_natural_key(self, meet, gymnast_last_name, gymnast_first_name, gymnast_usag, event, event_mag, event_wag):
+        return self.get(
+            meet__name=meet,
+            gymnast__last_name=gymnast_last_name,
+            gymnast__first_name=gymnast_first_name,
+            gymnast__usag=gymnast_usag,
+            event__name=event,
+            event__is_mag=event_mag,
+            event__is_wag=event_wag)
 
 
 class GymnastEvent(models.Model):
@@ -273,7 +328,7 @@ class GymnastEvent(models.Model):
     rank = models.PositiveSmallIntegerField(null=True)
     place = models.PositiveSmallIntegerField(null=True)
 
-    objects = MeetManager()
+    objects = GymnastEventManager()
 
     class Meta():
         verbose_name = 'Gymnast Event'
@@ -286,6 +341,18 @@ class GymnastEvent(models.Model):
             self.gymnast,
             self.event,
             self.score)
+
+    def natural_key(self):
+        return (
+            self.meet.name,
+            self.gymnast.last_name,
+            self.gymnast.first_name,
+            self.gymnast.usag,
+            self.event.name,
+            self.event.is_mag,
+            self.event.is_wag)
+
+# Proxy models from Registration, used to create competition specific admins and behavior
 
 
 class CompetitionGymnastManager(MeetManager):
@@ -423,11 +490,44 @@ class Team(Team):
         proxy = True
 
 
-class LEDShow(models.Model):
+# Models for managing the signs that display scores at the meet
+
+class LEDSignManager(models.Manager):
+    def get_by_natural_key(self, name, device):
+        return self.get(name=name, device=device)
+
+
+class LEDSign(models.Model):
     name = models.CharField(max_length=255)
+    device = models.PositiveSmallIntegerField()
+    objects = LEDSignManager()
 
     def __str__(self):
         return self.name
+
+    def natural_key(self):
+            return (self.name, self.device)
+
+    class Meta:
+        verbose_name = "LED sign"
+        verbose_name_plural = "LED signs"
+        unique_together = (('name', 'device'),)
+
+
+class LEDShowManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
+class LEDShow(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    objects = LEDShowManager()
+
+    def __str__(self):
+        return self.name
+
+    def natural_key(self):
+            return (self.name, )
 
     class Meta:
         verbose_name = "LED show"
@@ -442,6 +542,8 @@ class LEDShowMessage(models.Model):
     def __str__(self):
         return str(self.id)
 
+
+# Signals and Receivers
 
 def populate_athlete(instance, created, raw, **kwargs):
     # Ignore fixtures and saves for existing courses.

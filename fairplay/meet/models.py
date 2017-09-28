@@ -1,6 +1,11 @@
 from django.db import models
 
 
+class MeetNaturalKeyManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=name)
+
+
 class Meet(models.Model):
     name = models.CharField(max_length=200, blank=False, null=False)
     short_name = models.CharField(max_length=100, blank=False, null=False)
@@ -18,6 +23,8 @@ class Meet(models.Model):
         help_text="push out award count on tie at last place")
     notes = models.TextField(null=True, blank=True)
 
+    objects = MeetNaturalKeyManager()
+
     class Meta:
         verbose_name = 'Meet'
         verbose_name_plural = 'Meets'
@@ -25,6 +32,9 @@ class Meet(models.Model):
 
     def __str__(self):
         return '{}'.format(self.short_name)
+
+    def natural_key(self):
+            return (self.name, )
 
 
 # Restrict display of items in the admin by those belonging to the current Meet

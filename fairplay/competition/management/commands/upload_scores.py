@@ -170,7 +170,7 @@ class Command(BaseCommand):
             for file_path in file_paths:
                 try:
                     sftp.remove(os.path.join(settings.ONLINE_SCORES_PATH, file_path))
-                except:
+                except Exception:
                     pass
                 sftp.rename(
                     os.path.join(settings.ONLINE_SCORES_PATH, file_path + ".incoming"),
@@ -180,5 +180,5 @@ class Command(BaseCommand):
             transport.close()
 
             logger.info('Uploaded new scores for {}'.format(', '.join(self.session_names)))
-        except:
+        except Exception:
             logger.error('Problem uploading scores for {}'.format(', '.join(self.session_names)))
