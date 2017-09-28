@@ -1,5 +1,8 @@
 import sys
 import io
+import os
+import zipfile
+import tempfile
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -7,8 +10,10 @@ from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 
 from django.shortcuts import redirect
+from django.conf import settings
 from django.contrib import messages
 from django.core.management import call_command
+from django.http import FileResponse
 
 from . import models, serializers
 
@@ -34,11 +39,44 @@ def run_task(request, task):
     return redirect('/admin')
 
 
+def export_current_meet(request):
+    """ Generate fixtures of all data associated with the current active meet.
+        Zip into archive, download to user.
+    """
+    # TODO this takes a while.  Would be best as a background process
+    call_command('export_current_meet')
+
+    messages.add_message(request, messages.INFO, 'Current meet exported')
+
+    current_meetdir = os.path.dirname(settings.BASE_DIR)
+    current_meetdir = os.path.join(current_meetdir, 'fixtures/current_meet')
+    temp = tempfile.TemporaryFile()
+    newZip = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
+
+    directory = os.fsencode(current_meetdir)
+
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        if '.DS_Store' not in filename:
+            newZip.write(os.path.join(current_meetdir, filename), filename)
+
+    newZip.close()
+    temp.seek(0)
+
+    # Stream the file back in chunks
+    response = FileResponse(temp)
+    response['Content-Disposition'] = 'attachment; filename=current_meet_archive.zip'
+
+    return response
+
+
 def get_current_meet_count():
+    """ Used to control display/hide behavior of aspects of the dashboard """
     return models.Meet.objects.filter(is_current_meet=True).count()
 
 
 def no_meets_at_all():
+    """ Used to control display/hide behavior of aspects of the dashboard """
     return False if models.Meet.objects.all().count() > 0 else True
 
 

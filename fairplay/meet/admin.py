@@ -1,9 +1,6 @@
-import datetime
 from copy import deepcopy, copy
-from django.db.models.signals import pre_save, post_save
-from django.conf import settings
+from django.db.models.signals import pre_save
 from django.contrib import admin, messages
-from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.sites import site
 from django.contrib.admin.widgets import ManyToManyRawIdWidget, ForeignKeyRawIdWidget
 from django.core.exceptions import ObjectDoesNotExist
@@ -13,7 +10,7 @@ from django.utils.html import escape
 
 from . import models
 from registration.models import Level, Team
-from competition.models import Event, TeamAward, GymnastEvent, Division, Session
+from competition.models import TeamAward, Division, Session
 
 
 @admin.register(models.Meet)

@@ -55,4 +55,5 @@ urlpatterns += [
     url(r'^breakdown/$', registration.views.MeetBreakdownView.as_view()),
     url(r'^order/awards/$', registration.views.OrderingAwardsView.as_view()),
     url(r'^task/(?P<task>[-\w]+)/$', meet.views.run_task, name='run-task'),
+    url(r'^export/meet/$', meet.views.export_current_meet, name='export_current_meet'),
 ]

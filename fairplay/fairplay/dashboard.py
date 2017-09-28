@@ -169,9 +169,14 @@ class CustomIndexDashboard(Dashboard):
                 'url': '/coaches/hospitality/',
                 'external': False,
             }),
+            links.append({
+                'title': 'Export This Meet (Curent Active Only)',
+                'url': reverse('export_current_meet'),
+                'external': False
+            })
 
             self.children.append(modules.LinkList(
-                _('Registration Metrics'),
+                _('Registration Tools'),
                 column=2,
                 children=links,
                 # post_content=athlete_info,
