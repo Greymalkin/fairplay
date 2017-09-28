@@ -40,7 +40,7 @@ urlpatterns += [
     url(r'^coaches/signin/$', competition.views.CoachSignInView.as_view()),
     url(r'^results/ceremony/division/(?P<id>\d+)/$', competition.views.SessionCeremonyDivisionView.as_view()),
     url(r'^results/ceremony/event/(?P<id>\d+)/$', competition.views.SessionCeremonyEventView.as_view()),
-    url(r'^coaches/hospitality/(?P<id>\d+)/$', competition.views.SessionCoachHospitalityView.as_view()),
+    url(r'^coaches/hospitality/$', competition.views.CoachHospitalityView.as_view()),
     url(r'^results/individual/(?P<id>\d+)/$', competition.views.SessionIndividualView.as_view()),
     url(r'^results/team/(?P<id>\d+)/$', competition.views.SessionTeamView.as_view()),
     url(r'^scoresheet/(?P<id>\d+)/$', competition.views.SessionScoresheetView.as_view()),

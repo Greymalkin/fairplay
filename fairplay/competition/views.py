@@ -662,12 +662,12 @@ class SessionAnnouncerView(TemplateView):
         return qs.count()
 
 
-class SessionCoachHospitalityView(TemplateView):
+class CoachHospitalityView(TemplateView):
     template_name = 'coach_hospitality.html'
 
     def get_context_data(self, **kwargs):
-        context = super(SessionCoachHospitalityView, self).get_context_data(**kwargs)
-        context['session'] = models.Session.objects.get(id=self.kwargs['id'])
+        context = super(CoachHospitalityView, self).get_context_data(**kwargs)
+        # context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
         levels = Level.objects.all().order_by('group').distinct('group')
         levels_sorted = sorted(levels, key=operator.attrgetter('order'))

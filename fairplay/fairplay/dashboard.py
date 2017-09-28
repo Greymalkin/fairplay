@@ -163,6 +163,11 @@ class CustomIndexDashboard(Dashboard):
                 'url': '/order/awards/',
                 'external': False,
             }),
+            links.append({
+                'title': 'Coaches Hospitality',
+                'url': '/coaches/hospitality/',
+                'external': False,
+            }),
 
             self.children.append(modules.LinkList(
                 _('Registration Metrics'),
@@ -209,11 +214,6 @@ class CustomIndexDashboard(Dashboard):
                 links.append({
                     'title': 'Program Book: Scoresheet',
                     'url': '/scoresheet/{}'.format(session.id),
-                    'external': False,
-                })
-                links.append({
-                    'title': 'Coaches Hospitality',
-                    'url': '/coaches/hospitality/{}'.format(session.id),
                     'external': False,
                 })
                 links.append({
