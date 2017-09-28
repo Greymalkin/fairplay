@@ -1,0 +1,141 @@
+[
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "name": "Level 5",
+        "award_count": 3,
+        "order": 1,
+        "levels": [
+            [
+                "Baltimore Washington Invitational 2016",
+                "5 d1"
+            ],
+            [
+                "Baltimore Washington Invitational 2016",
+                "5 d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "name": "Level 6",
+        "award_count": 3,
+        "order": 2,
+        "levels": [
+            [
+                "Baltimore Washington Invitational 2016",
+                "6 d1"
+            ],
+            [
+                "Baltimore Washington Invitational 2016",
+                "6 d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "name": "Level 7",
+        "award_count": 2,
+        "order": 3,
+        "levels": [
+            [
+                "Baltimore Washington Invitational 2016",
+                "7 d1"
+            ],
+            [
+                "Baltimore Washington Invitational 2016",
+                "7 d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "name": "Level 8",
+        "award_count": 1,
+        "order": 4,
+        "levels": [
+            [
+                "Baltimore Washington Invitational 2016",
+                "8"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "name": "Level 9/10",
+        "award_count": 2,
+        "order": 5,
+        "levels": [
+            [
+                "Baltimore Washington Invitational 2016",
+                "9"
+            ],
+            [
+                "Baltimore Washington Invitational 2016",
+                "10"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "name": "Level 4",
+        "award_count": 4,
+        "order": 0,
+        "levels": [
+            [
+                "Baltimore Washington Invitational 2016",
+                "4 d1"
+            ],
+            [
+                "Baltimore Washington Invitational 2016",
+                "4 d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "name": "JD",
+        "award_count": 0,
+        "order": 6,
+        "levels": [
+            [
+                "Baltimore Washington Invitational 2016",
+                "jd"
+            ]
+        ]
+    }
+}
+]

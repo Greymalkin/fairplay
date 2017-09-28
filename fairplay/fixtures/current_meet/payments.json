@@ -1,0 +1,70 @@
+[
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "All Pro",
+            "All Pro"
+        ],
+        "amount": "90.00",
+        "paid": "2016-08-01",
+        "detail": "Check #123",
+        "updated": "2017-08-22T02:17:02.994Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "All Pro",
+            "All Pro"
+        ],
+        "amount": "90.00",
+        "paid": "2016-08-03",
+        "detail": "Check #234",
+        "updated": "2017-08-22T02:19:03.189Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "All Pro",
+            "All Pro"
+        ],
+        "amount": "-10.00",
+        "paid": "2016-08-03",
+        "detail": "refund",
+        "updated": "2017-08-22T02:19:38.680Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "All Pro",
+            "All Pro"
+        ],
+        "amount": "40.00",
+        "paid": "2016-08-13",
+        "detail": "Confirmation #4989bb",
+        "updated": "2017-08-22T02:21:55.579Z"
+    }
+}
+]

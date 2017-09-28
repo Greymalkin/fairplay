@@ -1,0 +1,398 @@
+[
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "4 d1"
+        ],
+        "name": "6-8 d1",
+        "short_name": "6-8",
+        "min_age": 5,
+        "max_age": 8,
+        "event_award_count": 9,
+        "all_around_award_count": 11
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "4 d1"
+        ],
+        "name": "9 & up d1",
+        "short_name": "9 & up",
+        "min_age": 9,
+        "max_age": 19,
+        "event_award_count": 7,
+        "all_around_award_count": 9
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "5 d1"
+        ],
+        "name": "7-9 d1",
+        "short_name": "7-9",
+        "min_age": 7,
+        "max_age": 9,
+        "event_award_count": 6,
+        "all_around_award_count": 7
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "5 d1"
+        ],
+        "name": "10 & up d1",
+        "short_name": "10 & up",
+        "min_age": 10,
+        "max_age": 19,
+        "event_award_count": 8,
+        "all_around_award_count": 9
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "6 d1"
+        ],
+        "name": "9-11 d1",
+        "short_name": "9-11",
+        "min_age": 8,
+        "max_age": 11,
+        "event_award_count": 9,
+        "all_around_award_count": 10
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "6 d1"
+        ],
+        "name": "12 & up d1",
+        "short_name": "12 & up",
+        "min_age": 12,
+        "max_age": 19,
+        "event_award_count": 5,
+        "all_around_award_count": 6
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "7 d1"
+        ],
+        "name": "10-11 d1",
+        "short_name": "10-11",
+        "min_age": 10,
+        "max_age": 11,
+        "event_award_count": 4,
+        "all_around_award_count": 5
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "7 d1"
+        ],
+        "name": "12 & up d1",
+        "short_name": "12 & up",
+        "min_age": 12,
+        "max_age": 19,
+        "event_award_count": 2,
+        "all_around_award_count": 3
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "8"
+        ],
+        "name": "11-12",
+        "short_name": "11-12",
+        "min_age": 11,
+        "max_age": 12,
+        "event_award_count": 4,
+        "all_around_award_count": 5
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "8"
+        ],
+        "name": "13-14",
+        "short_name": "13-14",
+        "min_age": 13,
+        "max_age": 14,
+        "event_award_count": 2,
+        "all_around_award_count": 2
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "9"
+        ],
+        "name": "13",
+        "short_name": "13",
+        "min_age": 13,
+        "max_age": 13,
+        "event_award_count": 4,
+        "all_around_award_count": 4
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "9"
+        ],
+        "name": "14 & up",
+        "short_name": "14 & up",
+        "min_age": 14,
+        "max_age": 16,
+        "event_award_count": 5,
+        "all_around_award_count": 6
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "10"
+        ],
+        "name": "15-16",
+        "short_name": "15-16",
+        "min_age": 15,
+        "max_age": 16,
+        "event_award_count": 7,
+        "all_around_award_count": 8
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "jd"
+        ],
+        "name": "12-14",
+        "short_name": "12-14",
+        "min_age": 12,
+        "max_age": 14,
+        "event_award_count": 1,
+        "all_around_award_count": 2
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "jd"
+        ],
+        "name": "15 & up",
+        "short_name": "15 & up",
+        "min_age": 15,
+        "max_age": 19,
+        "event_award_count": 4,
+        "all_around_award_count": 4
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "4 d2"
+        ],
+        "name": "6-8 d2",
+        "short_name": "6-8",
+        "min_age": 5,
+        "max_age": 8,
+        "event_award_count": 4,
+        "all_around_award_count": 5
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "5 d2"
+        ],
+        "name": "7-10 d2",
+        "short_name": "7-10",
+        "min_age": 7,
+        "max_age": 10,
+        "event_award_count": 3,
+        "all_around_award_count": 4
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "5 d2"
+        ],
+        "name": "11 & up d2",
+        "short_name": "11 & up",
+        "min_age": 11,
+        "max_age": 19,
+        "event_award_count": 3,
+        "all_around_award_count": 3
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "6 d2"
+        ],
+        "name": "10 & up d2",
+        "short_name": "10 & up",
+        "min_age": 8,
+        "max_age": 13,
+        "event_award_count": 3,
+        "all_around_award_count": 3
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "7 d2"
+        ],
+        "name": "10 & up d2",
+        "short_name": "10 & up",
+        "min_age": 10,
+        "max_age": 19,
+        "event_award_count": 5,
+        "all_around_award_count": 6
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "4 d2"
+        ],
+        "name": "9 & up d2",
+        "short_name": "9 & up",
+        "min_age": 9,
+        "max_age": 19,
+        "event_award_count": 6,
+        "all_around_award_count": 7
+    }
+},
+{
+    "model": "competition.division",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "level": [
+            "Baltimore Washington Invitational 2016",
+            "10"
+        ],
+        "name": "17 & up",
+        "short_name": "17 & up",
+        "min_age": 17,
+        "max_age": 19,
+        "event_award_count": 6,
+        "all_around_award_count": 7
+    }
+}
+]

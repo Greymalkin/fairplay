@@ -1,0 +1,914 @@
+[
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Fairfax Gymnastics Academy",
+            "Fairfax"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 7"
+        ],
+        "rank": null,
+        "score": null
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Fairland",
+            "Fairland"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 7"
+        ],
+        "rank": null,
+        "score": null
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Gymstrada",
+            "Gymstrada"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 7"
+        ],
+        "rank": 3,
+        "score": 144.1
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Paragon Boys Team",
+            "Paragon"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 7"
+        ],
+        "rank": 1,
+        "score": 156.2
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Preston Gymnastics Academy",
+            "Preston"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 7"
+        ],
+        "rank": 5,
+        "score": 136.1
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Rebounders",
+            "Rebounders"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 7"
+        ],
+        "rank": null,
+        "score": null
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Sportsplex",
+            "Sportsplex"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 7"
+        ],
+        "rank": 2,
+        "score": 146.4
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Thames Valley Academy of Gymnastics",
+            "Thames Valley"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 7"
+        ],
+        "rank": 4,
+        "score": 138.6
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Fairland",
+            "Fairland"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 8"
+        ],
+        "rank": 2,
+        "score": 196.6
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Gymstrada",
+            "Gymstrada"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 8"
+        ],
+        "rank": 1,
+        "score": 202.5
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Indigo Gymnastics",
+            "Indigo"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 8"
+        ],
+        "rank": 4,
+        "score": 169.8
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Thames Valley Academy of Gymnastics",
+            "Thames Valley"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 8"
+        ],
+        "rank": 3,
+        "score": 192.2
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Paragon Boys Team",
+            "Paragon"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "JD"
+        ],
+        "rank": 1,
+        "score": 175.3
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Fairland",
+            "Fairland"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 9/10"
+        ],
+        "rank": 3,
+        "score": 221.3
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Gymstrada",
+            "Gymstrada"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 9/10"
+        ],
+        "rank": 1,
+        "score": 228.7
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Indigo Gymnastics",
+            "Indigo"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 9/10"
+        ],
+        "rank": 5,
+        "score": 205.9
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Paragon Boys Team",
+            "Paragon"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 9/10"
+        ],
+        "rank": 2,
+        "score": 223.6
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Preston Gymnastics Academy",
+            "Preston"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 9/10"
+        ],
+        "rank": 4,
+        "score": 215.0
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Rebounders",
+            "Rebounders"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 9/10"
+        ],
+        "rank": 7,
+        "score": 198.9
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Thames Valley Academy of Gymnastics",
+            "Thames Valley"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 9/10"
+        ],
+        "rank": 6,
+        "score": 200.0
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Apollo Gymnastics",
+            "Apollo"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 1,
+        "score": 182.2
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Beach Bounders",
+            "Beach Bounders"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 7,
+        "score": 163.3
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Columbia Gymnastics",
+            "Columbia"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 9,
+        "score": 159.2
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Docksiders Gymnastics",
+            "Docksiders"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 4,
+        "score": 167.0
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Excalibur Gymnastics",
+            "Excalibur"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 6,
+        "score": 164.6
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Fairfax Gymnastics Academy",
+            "Fairfax"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 2,
+        "score": 174.2
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Fairland",
+            "Fairland"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 3,
+        "score": 171.6
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Gym America",
+            "Gym America"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 11,
+        "score": 155.9
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Gymstrada",
+            "Gymstrada"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 10,
+        "score": 158.4
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Paragon Boys Team",
+            "Paragon"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 5,
+        "score": 164.8
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Rebounders",
+            "Rebounders"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 4"
+        ],
+        "rank": 8,
+        "score": 162.9
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Apollo Gymnastics",
+            "Apollo"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 5"
+        ],
+        "rank": 1,
+        "score": 183.1
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Docksiders Gymnastics",
+            "Docksiders"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 5"
+        ],
+        "rank": 7,
+        "score": 157.8
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Fairfax Gymnastics Academy",
+            "Fairfax"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 5"
+        ],
+        "rank": 5,
+        "score": 167.6
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Fairland",
+            "Fairland"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 5"
+        ],
+        "rank": 4,
+        "score": 168.3
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Gymstrada",
+            "Gymstrada"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 5"
+        ],
+        "rank": 8,
+        "score": 137.2
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Paragon Boys Team",
+            "Paragon"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 5"
+        ],
+        "rank": 6,
+        "score": 165.7
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Rebounders",
+            "Rebounders"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 5"
+        ],
+        "rank": 3,
+        "score": 171.8
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "United  Gymnastix",
+            "United Gymnastix"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 5"
+        ],
+        "rank": 2,
+        "score": 178.0
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Apollo Gymnastics",
+            "Apollo"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 6"
+        ],
+        "rank": 1,
+        "score": 170.0
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Columbia Gymnastics",
+            "Columbia"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 6"
+        ],
+        "rank": 9,
+        "score": 143.7
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Docksiders Gymnastics",
+            "Docksiders"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 6"
+        ],
+        "rank": 3,
+        "score": 161.5
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Excalibur Gymnastics",
+            "Excalibur"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 6"
+        ],
+        "rank": 4,
+        "score": 155.0
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Fairland",
+            "Fairland"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 6"
+        ],
+        "rank": 8,
+        "score": 149.7
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Gymstrada",
+            "Gymstrada"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 6"
+        ],
+        "rank": 6,
+        "score": 153.6
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Paragon Boys Team",
+            "Paragon"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 6"
+        ],
+        "rank": 5,
+        "score": 153.6
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Preston Gymnastics Academy",
+            "Preston"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 6"
+        ],
+        "rank": 7,
+        "score": 149.8
+    }
+},
+{
+    "model": "competition.teamawardrank",
+    "fields": {
+        "meet": [
+            "Baltimore Washington Invitational 2016"
+        ],
+        "team": [
+            "Baltimore Washington Invitational 2016",
+            "Sportsplex",
+            "Sportsplex"
+        ],
+        "team_award": [
+            "Baltimore Washington Invitational 2016",
+            "Level 6"
+        ],
+        "rank": 2,
+        "score": 166.4
+    }
+}
+]
