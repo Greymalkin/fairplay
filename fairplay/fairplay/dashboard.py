@@ -7,11 +7,11 @@ To activate your index dashboard add the following to your settings.py::
 """
 
 from django.utils.translation import ugettext_lazy as _
-
+from django.urls import reverse
 from grappelli.dashboard import modules, Dashboard
 # from grappelli.dashboard.utils import get_admin_site_name
 
-from meet.views import get_current_meet_count
+from meet.views import get_current_meet_count, no_meets_at_all
 from registration.models import Gymnast
 from competition.models import LEDShow, Session, Event
 
@@ -70,13 +70,14 @@ class CustomIndexDashboard(Dashboard):
             ),
         ))
 
-        self.children.append(modules.ModelList(
-            _('Upload USAG Reservation'),
-            collapsible=True,
-            column=1,
-            template='grappelli/dashboard/modules/uploader.html',
-            models=('registration.models.ImportUsagReservation',)
-        ))
+        if not no_meets_at_all():
+            self.children.append(modules.ModelList(
+                _('Upload USAG Reservation'),
+                collapsible=True,
+                column=1,
+                template='grappelli/dashboard/modules/uploader.html',
+                models=('registration.models.ImportUsagReservation',)
+            ))
 
         self.children.append(modules.ModelList(
             _('Registration'),
@@ -186,11 +187,11 @@ class CustomIndexDashboard(Dashboard):
                     'url': '/results/ceremony/event/{}'.format(session.id),
                     'external': False,
                 })
-                # links.append({
-                #     'title': 'Awards Ceremony (By division)',
-                #     'url': '/results/ceremony/division/{}'.format(session.id),
-                #     'external': False,
-                # })
+                links.append({
+                    'title': 'Awards Ceremony (By division)',
+                    'url': '/results/ceremony/division/{}'.format(session.id),
+                    'external': False,
+                })
                 links.append({
                     'title': 'Individual Results',
                     'url': '/results/individual/{}'.format(session.id),
@@ -245,22 +246,38 @@ class CustomIndexDashboard(Dashboard):
                     post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
                 ))
 
-        # append a recent actions module
-        self.children.append(
-            modules.Group(
-                _('Logging'),
-                column=2,
-                collapsible=True,
-                exclude=('django.contrib.*',),
-                children=[
-                    modules.ModelList(
-                        column=1,
-                        collapsible=False,
-                        models=(
-                            'django.contrib.admin.models.LogEntry',
-                        ),
-                    ),
-                ],
-            ),
-        )
+        # install an example meet if this database is completely empty
 
+        if no_meets_at_all():
+            links = []
+            links.append({
+                'title': 'Run Initial Setup (One-Time Only)',
+                'url': reverse('run-task', kwargs={'task': 'task-a'}),
+                'external': False,
+            }),
+
+            self.children.append(modules.LinkList(
+                _('Install an Example Meet'),
+                column=2,
+                children=links,
+                css_classes=('grp-open',),
+            ))
+
+        # append a recent actions module
+        # self.children.append(
+        #     modules.Group(
+        #         _('Logging'),
+        #         column=2,
+        #         collapsible=True,
+        #         exclude=('django.contrib.*',),
+        #         children=[
+        #             modules.ModelList(
+        #                 column=1,
+        #                 collapsible=False,
+        #                 models=(
+        #                     'django.contrib.admin.models.LogEntry',
+        #                 ),
+        #             ),
+        #         ],
+        #     ),
+        # )

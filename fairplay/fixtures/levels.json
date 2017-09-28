@@ -1,0 +1,134 @@
+[
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "4 d1",
+            "group": "4",
+            "level": 4,
+            "order": 1
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "4 d2",
+            "group": "4",
+            "level": 4,
+            "order": 2
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "5 d1",
+            "group": "5",
+            "level": 5,
+            "order": 3
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "5 d2",
+            "group": "5",
+            "level": 5,
+            "order": 4
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "6 d1",
+            "group": "6",
+            "level": 6,
+            "order": 5
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "6 d2",
+            "group": "6",
+            "level": 6,
+            "order": 6
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "7 d1",
+            "group": "7",
+            "level": 7,
+            "order": 7
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "7 d2",
+            "group": "7",
+            "level": 7,
+            "order": 8
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "jd",
+            "group": "jd",
+            "level": 11,
+            "order": 9
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "8",
+            "group": "8",
+            "level": 8,
+            "order": 10
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "9",
+            "group": "9",
+            "level": 9,
+            "order": 11
+        }
+    },
+    {
+        "model": "registration.level",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "10",
+            "group": "10",
+            "level": 10,
+            "order": 12
+        }
+    }
+]

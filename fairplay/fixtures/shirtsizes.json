@@ -1,0 +1,82 @@
+[
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "YXSM",
+        "order": 0
+    }
+},
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "YS",
+        "order": 1
+    }
+},
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "YM",
+        "order": 2
+    }
+},
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "YL",
+        "order": 3
+    }
+},
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "YXL",
+        "order": 4
+    }
+},
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "AXSM",
+        "order": 5
+    }
+},
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "AS",
+        "order": 6
+    }
+},
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "AM",
+        "order": 7
+    }
+},
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "AL",
+        "order": 8
+    }
+},
+{
+    "model": "registration.shirtsize",
+    "pk": null,
+    "fields": {
+        "name": "AXL",
+        "order": 9
+    }
+}
+]

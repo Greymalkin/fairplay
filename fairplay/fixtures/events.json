@@ -1,0 +1,158 @@
+[
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 1,
+        "name": "Floor",
+        "initials": "fx",
+        "sign": null,
+        "active": true,
+        "is_mag": true,
+        "is_wag": false
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 3,
+        "name": "Rings",
+        "initials": "sr",
+        "sign": null,
+        "active": true,
+        "is_mag": true,
+        "is_wag": false
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 2,
+        "name": "Pommel Horse",
+        "initials": "ph",
+        "sign": null,
+        "active": true,
+        "is_mag": true,
+        "is_wag": false
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 4,
+        "name": "Vault",
+        "initials": "vt",
+        "sign": null,
+        "active": true,
+        "is_mag": true,
+        "is_wag": false
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 5,
+        "name": "Parallel Bars",
+        "initials": "pb",
+        "sign": null,
+        "active": true,
+        "is_mag": true,
+        "is_wag": false
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 6,
+        "name": "High Bar",
+        "initials": "hb",
+        "sign": null,
+        "active": true,
+        "is_mag": true,
+        "is_wag": false
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 10,
+        "name": "Floor",
+        "initials": "fx",
+        "sign": null,
+        "active": false,
+        "is_mag": false,
+        "is_wag": true
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 9,
+        "name": "Uneven Bars",
+        "initials": "ub",
+        "sign": null,
+        "active": false,
+        "is_mag": false,
+        "is_wag": true
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 8,
+        "name": "Balance Beam",
+        "initials": "bb",
+        "sign": null,
+        "active": false,
+        "is_mag": false,
+        "is_wag": true
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 7,
+        "name": "Vault",
+        "initials": "vt",
+        "sign": null,
+        "active": false,
+        "is_mag": false,
+        "is_wag": true
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 11,
+        "name": "Double Mini Tramp",
+        "initials": "dm",
+        "sign": null,
+        "active": false,
+        "is_mag": false,
+        "is_wag": false
+    }
+},
+{
+    "model": "competition.event",
+    "pk": null,
+    "fields": {
+        "order": 12,
+        "name": "Trampoline",
+        "initials": "tt",
+        "sign": null,
+        "active": false,
+        "is_mag": false,
+        "is_wag": false
+    }
+}
+]

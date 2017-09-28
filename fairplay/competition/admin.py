@@ -393,7 +393,7 @@ class ScoreRankEventAdmin(MeetDependentAdmin):
 
 
 @admin.register(models.LEDSign)
-class LEDSignAdmin(MeetDependentAdmin):
+class LEDSignAdmin(admin.ModelAdmin):
     list_display = ('name', 'device', 'connect')
 
     def connect(self, obj):
@@ -402,15 +402,6 @@ class LEDSignAdmin(MeetDependentAdmin):
 
     class Media:
         js = ("{}js/ledsign.js".format(settings.STATIC_URL),)
-
-    def get_fieldsets(self, request, obj=None):
-        fieldsets = super(LEDSignAdmin, self).get_fieldsets(request, obj)
-        # If there's no active meet, hide fields until active meet has been set
-        if request.session.get('meet', ''):
-            fieldsets += ((None, {
-                'fields': ('name', 'device'),
-                'description': ''}), )
-        return fieldsets
 
 
 class LEDShowMessageInline(admin.TabularInline):

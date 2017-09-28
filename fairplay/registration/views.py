@@ -63,11 +63,17 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UploadUsagGymnastSerializer
     parser_classes = (FormParser, MultiPartParser,)
     allowed_methods = ('POST', 'PUT')
-    meet = Meet.objects.filter(is_current_meet=True).first()
+
+    def __init__(self, *args, **kwargs):
+        try:
+            self.meet = Meet.objects.filter(is_current_meet=True).first()
+        except Exception:
+            self.meet = None
+        return super(ImportUsagReservationViewSet, self).__init__(*args, **kwargs)
 
     def create(self, request):
-        if not request.session.get('meet'):
-            messages.add_message(request, messages.WARNING, 'Please set the current meet before uploading USAG reservations.')
+        if not request.session.get('meet') or not self.meet:
+            messages.add_message(request, messages.WARNING, 'Open the Meet admin and choose the active meet before uploading USAG reservations.')
             return Response(status=status.HTTP_200_OK)
 
         try:
@@ -132,6 +138,7 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
     def test_gymnast(self, header):
         if len(header) == 19:
             if header[0].lower() == 'athleteid' and header[18].lower() == 'agegroup':
+                models.Gymnast.objects.all().update(is_verified=False)
                 return True
         return False
 
@@ -172,6 +179,7 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
         # parse level, add to db if needed  col17
 
         data = {
+            "is_verified": True,
             "first_name": row[1],
             "last_name": row[2],
             "dob": datetime.datetime.strptime(row[15], "%m/%d/%y").date(),

@@ -1,0 +1,79 @@
+[
+    {
+        "model": "competition.teamaward",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "Level 4",
+            "award_count": 0,
+            "order": 0,
+            "levels": []
+        }
+    },
+    {
+        "model": "competition.teamaward",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "Level 5",
+            "award_count": 0,
+            "order": 1,
+            "levels": []
+        }
+    },
+    {
+        "model": "competition.teamaward",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "Level 6",
+            "award_count": 0,
+            "order": 2,
+            "levels": []
+        }
+    },
+    {
+        "model": "competition.teamaward",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "Level 7",
+            "award_count": 0,
+            "order": 3,
+            "levels": []
+        }
+    },
+    {
+        "model": "competition.teamaward",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "Level 8",
+            "award_count": 0,
+            "order": 4,
+            "levels": []
+        }
+    },
+    {
+        "model": "competition.teamaward",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "Level 9/10",
+            "award_count": 0,
+            "order": 5,
+            "levels": []
+        }
+    },
+    {
+        "model": "competition.teamaward",
+        "pk": null,
+        "fields": {
+            "meet": 1,
+            "name": "Level JD",
+            "award_count": 0,
+            "order": 6,
+            "levels": []
+        }
+    }
+]

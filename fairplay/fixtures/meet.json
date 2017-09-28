@@ -1,18 +1,18 @@
 [
-{
-  "fields": {
-    "name": "2015 Baltimore-Washington Men's Invitational",
-    "max_sessions_per_day": 3,
-    "short_name": "2015 BWI",
-    "flow_thresh_max": 15,
-    "flow_thresh_min": 10,
-    "date": "2015-12-12",
-    "all_around_award_percentage": 0.5,
-    "host": "Fairland",
-    "event_award_percentage": 0.5,
-    "is_current_meet": true
-  },
-  "model": "meet.meet",
-  "pk": 1
-}
+    {
+        "model": "meet.meet",
+        "pk": 1,
+        "fields": {
+            "name": "New MEET!",
+            "short_name": "New MEET!",
+            "host": "You",
+            "date": "2017-09-01",
+            "is_current_meet": true,
+            "enable_ranking": false,
+            "event_award_percentage": 0.33,
+            "all_around_award_percentage": 0.4,
+            "all_last_place_ties_in_awards": false,
+            "notes": "This is a meet set up automatically, to show you how the system works. You will need to set this meet 'active' in order to add clubs, gymnasts, sessions, and complete all the other functions of running a meet. You may repurpose this example meet as your own, or create a new one."
+        }
+    }
 ]

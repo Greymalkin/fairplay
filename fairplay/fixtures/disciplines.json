@@ -1,0 +1,18 @@
+[
+{
+    "model": "registration.discipline",
+    "pk": null,
+    "fields": {
+        "name": "Men's Artistic",
+        "abbr": "mag"
+    }
+},
+{
+    "model": "registration.discipline",
+    "pk": null,
+    "fields": {
+        "name": "Women's Artistic",
+        "abbr": "wag"
+    }
+}
+]

@@ -3,7 +3,6 @@ import csv
 import datetime
 
 from collections import OrderedDict
-from dateutil import parser
 from django.conf import settings
 from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.models import LogEntry
@@ -12,7 +11,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
-from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
@@ -300,7 +298,7 @@ class GymnastAdmin(MeetDependentAdmin):
                     ('dob', 'age',),
                     'level',
                     'shirt',
-                    ('is_verified', 'is_us_citizen', 'is_scratched', 'is_flagged',), ), }),
+                    ('is_us_citizen', 'is_verified', 'is_scratched', 'is_flagged',), ), }),
                     # ('Checks', {'classes': ('grp-collapse grp-closed',), 'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
                 ('Meet', {'classes': (
                     'grp-collapse grp-closed',),
@@ -508,21 +506,6 @@ class GymnastInline(admin.StackedInline):
     model = models.Gymnast
     ordering = ('is_scratched', 'level', 'last_name', 'first_name')
     readonly_fields = ('age', 'edit', 'show_notes')
-    # fields = ('edit', 
-    #           'first_name',
-    #           'last_name',
-    #           'per_gymnast_cost',
-    #           'discipline',
-    #           'usag',
-    #           'dob',
-    #           'age',
-    #           'is_us_citizen',
-    #           'shirt',
-    #           'level',
-    #           'is_scratched',
-    #           'is_flagged',
-    #           'is_verified',
-    #           'show_notes')
     fieldsets = (
         (None, {'fields': (
             'per_gymnast_cost',
@@ -531,11 +514,10 @@ class GymnastInline(admin.StackedInline):
             ('dob', 'age',),
             'level',
             'shirt',
-            ('is_verified', 'is_us_citizen', 'is_scratched', 'is_flagged',),
+            ('is_us_citizen', 'is_verified', 'is_scratched', 'is_flagged',),
             'show_notes',
             'edit', ), }),
-        )
-
+    )
     classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-closed',)
     extra = 0
@@ -548,7 +530,7 @@ class GymnastInline(admin.StackedInline):
         if not obj.id:
             return ''
         url = reverse('admin:%s_%s_change' % (
-            obj._meta.app_label,  obj._meta.model_name), args=[obj.id] )
+            obj._meta.app_label, obj._meta.model_name), args=[obj.id])
         return mark_safe(u'<a href="{u}">Add Notes</a>'.format(u=url))
     edit.short_description = ''
 
@@ -769,6 +751,7 @@ class ImportUsagReservationAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
 
 admin.site.register(models.ShirtSize)
 admin.site.register(models.Discipline)

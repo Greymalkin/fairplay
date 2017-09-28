@@ -69,8 +69,9 @@ class MeetAdmin(admin.ModelAdmin):
         # protects from the appearance of having lost data, when you haven't, you just aren't
         # allowed to see it until the meet is set to be active.
         current_meet = models.Meet.objects.filter(is_current_meet=True)
-        if current_meet.count() != 1 or current_meet[0].id != obj.id:
-            return []
+        if obj:
+            if current_meet.count() != 1 or current_meet[0].id != obj.id:
+                return []
         return super(MeetAdmin, self).get_formsets_with_inlines(request, obj)
 
     def copy_meet(self, request, queryset):

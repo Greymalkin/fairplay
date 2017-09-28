@@ -1,50 +1,50 @@
 [
 {
-  "model": "competition.ledsign",
-  "pk": 1,
-  "fields": {
-    "sign_id": 1,
-    "device": "abc"
-  }
+    "model": "competition.ledsign",
+    "pk": null,
+    "fields": {
+        "name": "High Bar",
+        "device": 6
+    }
 },
 {
-  "model": "competition.ledsign",
-  "pk": 2,
-  "fields": {
-    "sign_id": 2,
-    "device": "def"
-  }
+    "model": "competition.ledsign",
+    "pk": null,
+    "fields": {
+        "name": "Parallel Bars",
+        "device": 5
+    }
 },
 {
-  "model": "competition.ledsign",
-  "pk": 3,
-  "fields": {
-    "sign_id": 3,
-    "device": "efg"
-  }
+    "model": "competition.ledsign",
+    "pk": null,
+    "fields": {
+        "name": "Vault",
+        "device": 4
+    }
 },
 {
-  "model": "competition.ledsign",
-  "pk": 4,
-  "fields": {
-    "sign_id": 4,
-    "device": "ghi"
-  }
+    "model": "competition.ledsign",
+    "pk": null,
+    "fields": {
+        "name": "Rings",
+        "device": 3
+    }
 },
 {
-  "model": "competition.ledsign",
-  "pk": 5,
-  "fields": {
-    "sign_id": 5,
-    "device": "ijk"
-  }
+    "model": "competition.ledsign",
+    "pk": null,
+    "fields": {
+        "name": "Pommel Horse",
+        "device": 2
+    }
 },
 {
-  "model": "competition.ledsign",
-  "pk": 6,
-  "fields": {
-    "sign_id": 6,
-    "device": "lmn"
-  }
+    "model": "competition.ledsign",
+    "pk": null,
+    "fields": {
+        "name": "Floor",
+        "device": 1
+    }
 }
 ]

@@ -1,0 +1,23 @@
+[
+{
+    "model": "competition.ledshow",
+    "pk": null,
+    "fields": {
+        "name": "ID Events"
+    }
+},
+{
+    "model": "competition.ledshow",
+    "pk": null,
+    "fields": {
+        "name": "Clear Signs"
+    }
+},
+{
+    "model": "competition.ledshow",
+    "pk": null,
+    "fields": {
+        "name": "Pre-Session"
+    }
+}
+]

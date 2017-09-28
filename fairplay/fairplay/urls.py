@@ -54,4 +54,5 @@ urlpatterns += [
     url(r'^team/roster/(?P<id>\d+)/$', competition.views.SessionTeamRosterView.as_view()),
     url(r'^breakdown/$', registration.views.MeetBreakdownView.as_view()),
     url(r'^order/awards/$', registration.views.OrderingAwardsView.as_view()),
+    url(r'^task/(?P<task>[-\w]+)/$', meet.views.run_task, name='run-task'),
 ]
