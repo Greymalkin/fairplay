@@ -35,6 +35,14 @@
         $("#led-show-select").val("");
     });
 
+    $('a[href$="/export/meet/"]').click(function(e) {
+        if (!confirm('Exporting the active meet will take several minutes. Are you sure?\
+            \nIf so, click OK and be patient.\n\
+            \nThe archive will download to your system automatically once the process is complete.')){
+            e.preventDefault();
+        }
+    });
+
 })(grp.jQuery)
 
 

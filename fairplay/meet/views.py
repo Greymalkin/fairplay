@@ -44,10 +44,13 @@ def run_task(request, task):
 def export_current_meet(request):
     """ Generate fixtures of all data associated with the current active meet.
         Zip into archive, download to user.
+        This takes a while
     """
-    # TODO this takes a while.  Would be best as a background process
     dirname = os.path.dirname(settings.BASE_DIR)
-    os.mkdir(os.path.join(dirname, 'fixtures/current_meet'))
+    try:
+        os.mkdir(os.path.join(dirname, 'fixtures/current_meet'))
+    except Exception:
+        pass
     call_command('export_current_meet')
 
     messages.add_message(request, messages.INFO, 'Current meet exported')

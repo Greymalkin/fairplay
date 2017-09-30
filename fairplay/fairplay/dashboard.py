@@ -36,13 +36,10 @@ roster_html += """
 """
 
 
+
 class CustomIndexDashboard(Dashboard):
-    # title = 'Meet Registration & Competition Scorekeeping'
 
     def init_with_context(self, context):
-        # site_name = 'Meet Registration & Competition Scorekeeping'
-        # self.title = 'Meet Registration & Competition Scorekeeping'
-
         self.children.append(modules.ModelList(
             _('Meet'),
             column=1,
@@ -173,34 +170,22 @@ class CustomIndexDashboard(Dashboard):
                 post_content=roster_html
             ))
 
-            links = []
-            links.append({
-                'title': 'Meet Breakdown',
-                'url': '/breakdown/',
-                'external': False,
-            }),
-            links.append({
-                'title': 'Team Awards Breakdown',
-                'url': '/order/awards/',
-                'external': False,
-            }),
-            links.append({
-                'title': 'Coaches Hospitality',
-                'url': '/coaches/hospitality/',
-                'external': False,
-            }),
-            links.append({
-                'title': 'Export Fairplay (Active Meet Only)',
-                'url': reverse('export_current_meet'),
-                'external': False
-            })
-
             self.children.append(modules.LinkList(
                 _('Registration Tools'),
                 column=2,
-                children=links,
-                # post_content=athlete_info,
+                layout='inline',
                 css_classes=('grp-open',),
+                children=(
+                    ['Meet Breakdown', '/breakdown/'],
+                    ['Team Awards Breakdown', '/order/awards/'],
+                    ['Coaches Hospitality', '/coaches/hospitality/'],
+                    {
+                        'title': 'Export Fairplay (Active Meet Only)',
+                        'url': reverse('export_current_meet'),
+                        'external': False,
+                    },
+                ),
+                post_content='<script src="/static/js/dashboard.js"></script>'
             ))
 
         # For every Session, links for printables
@@ -276,13 +261,13 @@ class CustomIndexDashboard(Dashboard):
         if no_meets_at_all():
             links = []
             links.append({
-                'title': 'Run Initial Setup (One-Time Only)',
+                'title': 'Men\'s Meet (One-Time Only)',
                 'url': reverse('run-task', kwargs={'task': 'task-a'}),
                 'external': False,
             }),
 
             self.children.append(modules.LinkList(
-                _('Install an Example Meet'),
+                _('Fairplay Starter Setups'),
                 column=2,
                 children=links,
                 css_classes=('grp-open',),
