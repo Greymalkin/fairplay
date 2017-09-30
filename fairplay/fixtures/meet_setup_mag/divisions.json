@@ -1,10 +1,14 @@
 [
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "4 d1"
+            ],
             "name": "6 & up d1",
             "short_name": "6 & up",
             "min_age": 5,
@@ -15,10 +19,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "4 d2"
+            ],
             "name": "6 & up d2",
             "short_name": "6 & up",
             "min_age": 5,
@@ -29,10 +37,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "5 d1"
+            ],
             "name": "7 & up d1",
             "short_name": "7 & up",
             "min_age": 7,
@@ -43,10 +55,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "5 d2"
+            ],
             "name": "7 & up d2",
             "short_name": "7 & up",
             "min_age": 7,
@@ -57,10 +73,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "6 d1"
+            ],
             "name": "8 & up d1",
             "short_name": "8 & up",
             "min_age": 8,
@@ -71,10 +91,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "6 d2"
+            ],
             "name": "8 & up d2",
             "short_name": "8 & up",
             "min_age": 8,
@@ -85,10 +109,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "7 d1"
+            ],
             "name": "10 & up d1",
             "short_name": "10 & up",
             "min_age": 10,
@@ -99,10 +127,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "7 d2"
+            ],
             "name": "10 & up d2",
             "short_name": "10 & up",
             "min_age": 10,
@@ -113,10 +145,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "8"
+            ],
             "name": "11 & up",
             "short_name": "11 & up",
             "min_age": 11,
@@ -127,10 +163,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "jd"
+            ],
             "name": "11 & up",
             "short_name": "11 & up",
             "min_age": 11,
@@ -141,10 +181,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "9"
+            ],
             "name": "13 & up",
             "short_name": "13 & up",
             "min_age": 13,
@@ -155,10 +199,14 @@
     },
     {
         "model": "competition.division",
-        "pk": null,
         "fields": {
-            "meet": 1,
-            "level": null,
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "10"
+            ],
             "name": "15 & up",
             "short_name": "15 & up",
             "min_age": 15,

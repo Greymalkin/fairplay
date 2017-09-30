@@ -1,79 +1,141 @@
 [
     {
         "model": "competition.teamaward",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "Level 4",
             "award_count": 0,
             "order": 0,
-            "levels": []
+            "levels": [
+                [
+                    "New MEET!",
+                    "4 d1"
+                ],
+                [
+                    "New MEET!",
+                    "4 d2"
+                ]
+            ]
         }
     },
     {
         "model": "competition.teamaward",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "Level 5",
             "award_count": 0,
             "order": 1,
-            "levels": []
+            "levels": [
+                [
+                    "New MEET!",
+                    "5 d1"
+                ],
+                [
+                    "New MEET!",
+                    "5 d2"
+                ]
+            ]
         }
     },
     {
         "model": "competition.teamaward",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "Level 6",
             "award_count": 0,
             "order": 2,
-            "levels": []
+            "levels": [
+                [
+                    "New MEET!",
+                    "6 d1"
+                ],
+                [
+                    "New MEET!",
+                    "6 d2"
+                ]
+            ]
         }
     },
     {
         "model": "competition.teamaward",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "Level 7",
             "award_count": 0,
             "order": 3,
-            "levels": []
+            "levels": [
+                [
+                    "New MEET!",
+                    "7 d1"
+                ],
+                [
+                    "New MEET!",
+                    "7 d2"
+                ]
+            ]
         }
     },
     {
         "model": "competition.teamaward",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "Level 8",
             "award_count": 0,
             "order": 4,
-            "levels": []
+            "levels": [
+                [
+                    "New MEET!",
+                    "8"
+                ]
+            ]
         }
     },
     {
         "model": "competition.teamaward",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "Level 9/10",
             "award_count": 0,
             "order": 5,
-            "levels": []
+            "levels": [
+                [
+                    "New MEET!",
+                    "9"
+                ],
+                [
+                    "New MEET!",
+                    "10"
+                ]
+            ]
         }
     },
     {
         "model": "competition.teamaward",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "Level JD",
             "award_count": 0,
             "order": 6,
-            "levels": []
+            "levels": [
+                [
+                    "New MEET!",
+                    "jd"
+                ]
+            ]
         }
     }
 ]

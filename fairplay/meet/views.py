@@ -3,6 +3,7 @@ import io
 import os
 import zipfile
 import tempfile
+import shutil
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -45,12 +46,13 @@ def export_current_meet(request):
         Zip into archive, download to user.
     """
     # TODO this takes a while.  Would be best as a background process
+    dirname = os.path.dirname(settings.BASE_DIR)
+    os.mkdir(os.path.join(dirname, 'fixtures/current_meet'))
     call_command('export_current_meet')
 
     messages.add_message(request, messages.INFO, 'Current meet exported')
 
-    current_meetdir = os.path.dirname(settings.BASE_DIR)
-    current_meetdir = os.path.join(current_meetdir, 'fixtures/current_meet')
+    current_meetdir = os.path.join(dirname, 'fixtures/current_meet')
     temp = tempfile.TemporaryFile()
     newZip = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
 
@@ -165,6 +167,7 @@ class ImportFairplayViewSet(viewsets.ModelViewSet):
         # move uploaded file
         dirname = os.path.dirname(settings.BASE_DIR)
         destination_file_path = os.path.join(dirname, "fixtures/current_meet_archive.zip")
+        os.mkdir(os.path.join(dirname, 'fixtures/current_meet'))
         destination = open(destination_file_path, 'wb+')
         destination.write(file_obj)
         destination.close()
@@ -182,7 +185,9 @@ class ImportFairplayViewSet(viewsets.ModelViewSet):
         # run load data on unpacked fixtures
         call_command('import_current_meet')
 
-        messages.add_message(request, messages.SUCCESS, 'Fairplay meet imported from backup archive.')
+        # clean up
         os.remove(destination_file_path)
+        shutil.rmtree(os.path.join(dirname, 'fixtures/current_meet'))
 
+        messages.add_message(request, messages.SUCCESS, 'Fairplay meet imported from backup archive.')
         return Response({"message": "Fairplay meet imported from backup archive."}, status=status.HTTP_201_CREATED)

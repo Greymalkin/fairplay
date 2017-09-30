@@ -1,9 +1,10 @@
 [
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "4 d1",
             "group": "4",
             "level": 4,
@@ -12,9 +13,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "4 d2",
             "group": "4",
             "level": 4,
@@ -23,9 +25,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "5 d1",
             "group": "5",
             "level": 5,
@@ -34,9 +37,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "5 d2",
             "group": "5",
             "level": 5,
@@ -45,9 +49,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "6 d1",
             "group": "6",
             "level": 6,
@@ -56,9 +61,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "6 d2",
             "group": "6",
             "level": 6,
@@ -67,9 +73,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "7 d1",
             "group": "7",
             "level": 7,
@@ -78,9 +85,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "7 d2",
             "group": "7",
             "level": 7,
@@ -89,9 +97,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "jd",
             "group": "jd",
             "level": 11,
@@ -100,9 +109,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "8",
             "group": "8",
             "level": 8,
@@ -111,9 +121,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "9",
             "group": "9",
             "level": 9,
@@ -122,9 +133,10 @@
     },
     {
         "model": "registration.level",
-        "pk": null,
         "fields": {
-            "meet": 1,
+            "meet": [
+                "New MEET!"
+            ],
             "name": "10",
             "group": "10",
             "level": 10,

@@ -173,7 +173,6 @@
 
 <!-- CONTENT -->
 {% block content %}
-<h3>PATTI</h3>
     <div class="grp-module">
         <div class="grp-row">
             <div class="l-2cr-fluid {% if cl.has_filters and cl.search_fields %}l-d-12{% else %}{% if cl.has_filters or cl.search_fields %}l-d-6{% endif %}{% endif %}">
@@ -262,10 +261,12 @@
         {% endif %}
     </form>
 
-<div style="width: 400px;">
-    <h3> Import Fairplay (from Export)</h3>
+<!-- Customization: Form for uploading a Fairplay backup archive-->
+<hr/>
+<div style="width: 400px;" class="grp-pagination">
+    <h3 style="padding-top: 25px;"> Import Fairplay (from Export)</h3>
     <form method="post" enctype="multipart/form-data" id="upload-fairplay">{% csrf_token %}
-    <div class="grp-row">
+    <div class="grp-row" style="padding-top: 15px;">
         <input type="file" name="file" id="upload-fairplay-from-export">
             <ul class="grp-actions">
                 <input type="submit" value="Upload" class="submit">

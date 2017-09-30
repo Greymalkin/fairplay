@@ -1,7 +1,6 @@
 [
     {
         "model": "meet.meet",
-        "pk": 1,
         "fields": {
             "name": "New MEET!",
             "short_name": "New MEET!",

@@ -1,7 +1,6 @@
 [
 {
     "model": "competition.ledsign",
-    "pk": null,
     "fields": {
         "name": "High Bar",
         "device": 6
@@ -9,7 +8,6 @@
 },
 {
     "model": "competition.ledsign",
-    "pk": null,
     "fields": {
         "name": "Parallel Bars",
         "device": 5
@@ -17,7 +15,6 @@
 },
 {
     "model": "competition.ledsign",
-    "pk": null,
     "fields": {
         "name": "Vault",
         "device": 4
@@ -25,7 +22,6 @@
 },
 {
     "model": "competition.ledsign",
-    "pk": null,
     "fields": {
         "name": "Rings",
         "device": 3
@@ -33,7 +29,6 @@
 },
 {
     "model": "competition.ledsign",
-    "pk": null,
     "fields": {
         "name": "Pommel Horse",
         "device": 2
@@ -41,7 +36,6 @@
 },
 {
     "model": "competition.ledsign",
-    "pk": null,
     "fields": {
         "name": "Floor",
         "device": 1
