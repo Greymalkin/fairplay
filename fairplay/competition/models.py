@@ -43,7 +43,7 @@ class Event(models.Model):
         return self.name
 
     def natural_key(self):
-            return (self.name, self.initials, self.is_mag, self.is_wag)
+        return (self.name, self.initials, self.is_mag, self.is_wag)
 
     # TODO figuring out the rotation using these methods will break if a meet has both wag & mag events
 
@@ -68,6 +68,17 @@ class Event(models.Model):
         return warmup
 
 
+class ScoreRankEventManager(models.Manager):
+    def get_by_natural_key(self, meet, team, last_name, first_name, discipline, usag):
+        return self.get(
+            meet__name=meet,
+            team__gym=team,
+            last_name=last_name,
+            first_name=first_name,
+            discipline=discipline,
+            usag=usag)
+
+
 class ScoreRankEvent(models.Model):
     ''' Pivoted version of the scores stored as rows in the GymnastEvent model.
         Populated via Signal on GymnastEvent '''
@@ -89,6 +100,9 @@ class ScoreRankEvent(models.Model):
 
     def __str__(self):
         return self.gymnast.__str__()
+
+    def natural_key(self):
+        return (self.meet.name, self.team.gym, self.last_name, self.first_name, self.discipline, self.usag)
 
 
 class DivisionManager(MeetManager):

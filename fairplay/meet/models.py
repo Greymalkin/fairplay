@@ -49,3 +49,16 @@ class MeetManager(models.Manager):
         except Exception:
             pass
         return qs
+
+
+# Helper Model, used so we can easily import Fairplay meet data using exported fixtures in an archive
+
+class ImportFairplayMeetArchive(models.Model):
+    file = models.FileField(
+        "File",
+        max_length=200,
+        blank=True, null=True,
+        help_text="Import a Fairplay meet from an archive of exported backup files")
+
+    class Meta:
+        verbose_name_plural = ""

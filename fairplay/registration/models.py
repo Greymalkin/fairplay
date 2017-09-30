@@ -389,6 +389,7 @@ class GymnastNotesManager(MeetManager):
 class GymnastNotes(Notes):
     meet = models.ForeignKey(Meet, related_name='gymnast_notes')
     gymnast = models.ForeignKey(Gymnast, related_name='gymnast_notes')
+    objects = GymnastNotesManager()
 
     class Meta:
         verbose_name = 'Gymnast Note'

@@ -113,6 +113,26 @@ class CustomIndexDashboard(Dashboard):
             ),
         ))
 
+        # Two forms are not working on the same page. Leaving this until I can figure out why.
+        # self.children.append(modules.Group(
+        #     title="Upload Files & Import Data",
+        #     column=1,
+        #     collapsible=True,
+        #     css_classes=('grp-closed',),
+        #     children=[
+        #         modules.AppList(
+        #             title='USAG Reservations / FAIRPLAY Meet',
+        #             template='grappelli/dashboard/modules/uploader.html',
+        #             models=('registration.models.ImportUsagReservation',)
+        #         ),
+        #         modules.AppList(
+        #             title='FAIRPLAY Meet (From Export)',
+        #             template='grappelli/dashboard/modules/fairplay_uploader.html',
+        #             models=('meet.models.ImportFairplayMeetArchive',)
+        #         )
+        #     ]
+        # ))
+
         if get_current_meet_count() == 1:
 
             self.children.append(modules.LinkList(
@@ -170,7 +190,7 @@ class CustomIndexDashboard(Dashboard):
                 'external': False,
             }),
             links.append({
-                'title': 'Export This Meet (Curent Active Only)',
+                'title': 'Export Fairplay (Active Meet Only)',
                 'url': reverse('export_current_meet'),
                 'external': False
             })

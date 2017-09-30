@@ -8,6 +8,7 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import FormParser, MultiPartParser
 
 from django.shortcuts import redirect
 from django.conf import settings
@@ -131,3 +132,57 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
                 'enable_ranking': meet.enable_ranking,
             }
         return Response({"status": "enable ranking flag changed to {}".format(meet.enable_ranking)}, status=status.HTTP_200_OK)
+
+
+class ImportFairplayViewSet(viewsets.ModelViewSet):
+    queryset = models.ImportFairplayMeetArchive.objects.all()
+    serializer_class = serializers.MeetSerializer
+    parser_classes = (FormParser, MultiPartParser,)
+    allowed_methods = ('POST', 'PUT')
+
+    # def __init__(self, *args, **kwargs):
+    #     try:
+    #         self.meet = Meet.objects.filter(is_current_meet=True).first()
+    #     except Exception:
+    #         self.meet = None
+    #     return super(ImportFairplayMeetViewSet, self).__init__(*args, **kwargs)
+
+    def create(self, request):
+        print('*** in the import fairplay thingy')
+        try:
+            # pull the uploaded file object from the request
+            file_obj = request.data['file'].read()
+            print(request.data['file'].name.lower())
+
+            # test for .zip
+            if not request.data['file'].name.lower().endswith('.zip'):
+                messages.add_message(request, messages.ERROR, 'Please upload a zip file.')
+                return Response({"message": "Not a csv file."}, status=status.HTTP_200_OK)
+        except Exception:
+            messages.add_message(request, messages.ERROR, 'Not a Fairplay meet archive: Not a valid zip file.')
+            return Response({"message": "Not a valid zip file."}, status=status.HTTP_200_OK)
+
+        # move uploaded file
+        dirname = os.path.dirname(settings.BASE_DIR)
+        destination_file_path = os.path.join(dirname, "fixtures/current_meet_archive.zip")
+        destination = open(destination_file_path, 'wb+')
+        destination.write(file_obj)
+        destination.close()
+
+        # Unzip archive
+        with zipfile.ZipFile(destination_file_path) as myzip:
+            for name in myzip.namelist():
+                # quick test... TODO make more rigorous?
+                if name.endswith('.json'):
+                    print(name)
+                    outfile = open(os.path.join(dirname, 'fixtures/current_meet/{}'.format(name)), 'wb')
+                    outfile.write(myzip.read(name))
+                    outfile.close()
+
+        # run load data on unpacked fixtures
+        call_command('import_current_meet')
+
+        messages.add_message(request, messages.SUCCESS, 'Fairplay meet imported from backup archive.')
+        os.remove(destination_file_path)
+
+        return Response({"message": "Fairplay meet imported from backup archive."}, status=status.HTTP_201_CREATED)

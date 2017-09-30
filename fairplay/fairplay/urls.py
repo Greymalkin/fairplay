@@ -19,6 +19,7 @@ router.register(r'athleteevents', competition.views.GymnastEventViewSet)
 router.register(r'sessions', competition.views.SessionViewSet)
 router.register(r'ledshows', competition.views.LEDShowViewSet)
 router.register(r'usag/import', registration.views.ImportUsagReservationViewSet)
+router.register(r'fairplay/import', meet.views.ImportFairplayViewSet)
 
 urlpatterns = []
 

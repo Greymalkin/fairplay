@@ -30,3 +30,6 @@ class Command(BaseCommand):
         call_command('dumpdata', 'registration.TeamNotes', '--format=json', '--output=fixtures/current_meet/teamnotes.json', '--indent=4', '--natural-primary', '--natural-foreign')
         call_command('dumpdata', 'registration.GymnastNotes', '--format=json', '--output=fixtures/current_meet/gymnastnotes.json', '--indent=4', '--natural-primary', '--natural-foreign')
         call_command('dumpdata', 'registration.Payments', '--format=json', '--output=fixtures/current_meet/payments.json', '--indent=4', '--natural-primary', '--natural-foreign')
+        call_command('dumpdata', 'competition.ScoreRankEvent', '--format=json', '--output=fixtures/current_meet/scores.json', '--indent=4', '--natural-primary', '--natural-foreign')
+
+        # Might need to do a csv write of the Scores here, since the one-to-one field means it isn't easy (or possible?) to import them from a fixture
