@@ -13,8 +13,7 @@ from grappelli.dashboard import modules, Dashboard
 
 from meet.views import get_current_meet_count, no_meets_at_all
 from registration.models import Gymnast
-from competition.models import LEDShow, Session, Event
-
+from competition.models import LEDShow, Session, Event, total_meet_medals
 
 roster_html = """
 <div style="margin-left:10px; margin-right:10px; margin-bottom:10px; margin-top:60px;">
@@ -178,6 +177,7 @@ class CustomIndexDashboard(Dashboard):
                 children=(
                     ['Meet Breakdown', '/breakdown/'],
                     ['Team Awards Breakdown', '/order/awards/'],
+                    ['Total Meet Medals: {}'.format(total_meet_medals()), '/'],
                     ['Coaches Hospitality', '/coaches/hospitality/'],
                     {
                         'title': 'Export Fairplay (Active Meet Only)',

@@ -278,14 +278,9 @@ class WomensArtisticGymnastAdmin(GymnastAdmin):
 
 @admin.register(models.TeamAward)
 class TeamAwardAdmin(MeetDependentAdmin):
-    list_display = ('name', 'award_count', 'order', )
+    list_display = ('name', 'award_count', 'number_qualified_teams', 'order',)
     filter_horizontal = ('levels',)
     list_editable = ('order',)
-
-    class Media:
-        css = {
-            "all": ("{}css/filter-horizontal-adjustment.css".format(settings.STATIC_URL),)
-        }
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(TeamAwardAdmin, self).get_fieldsets(request, obj)
@@ -295,6 +290,11 @@ class TeamAwardAdmin(MeetDependentAdmin):
                 'fields': ('name', 'levels', 'award_count', 'order',),
                 'description': ''}), )
         return fieldsets
+
+    def number_qualified_teams(self, obj):
+        qualified_teams = obj.qualified_teams()
+        return qualified_teams.count()
+    number_qualified_teams.short_description = '# Qualified Teams'
 
 
 @admin.register(models.TeamAwardRank)
@@ -337,7 +337,7 @@ class DivisionAdmin(MeetDependentAdmin):
     actions = ['meet_awards_percentage', ]
     list_filter = ['level']
 
-    def meet_awards_percentage(self, modeladmin, request, queryset):
+    def meet_awards_percentage(self, request, queryset):
         meet = models.Meet.objects.get(is_current_meet=True)
         for division in queryset:
             division.event_award_count = math.ceil(len(division.gymnasts.all()) * meet.event_award_percentage)

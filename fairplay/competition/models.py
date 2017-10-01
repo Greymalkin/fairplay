@@ -266,7 +266,21 @@ class TeamAward(models.Model):
             teams = Team.objects.filter(
                 team_awards=self,
                 gymnasts__is_scratched=False,
-                gymnasts__level__group__in=self.levels.all().values('group')).annotate(num_gymnasts=Count('id'))
+                gymnasts__level__group__in=self.levels.all()
+                .values('group')).annotate(num_gymnasts=Count('id'))
+            return teams
+        except Exception:
+            return Team.objects.filter(id=0).annotate(num_gymnasts=Count('id'))
+
+    def qualified_teams(self):
+        ''' Same as registered teams, except filtered for at least 3 gymnast.
+            If you registered but don't end up with three gymnast, you aren't getting a team award. '''
+        try:
+            teams = Team.objects.filter(
+                team_awards=self,
+                gymnasts__is_scratched=False,
+                gymnasts__level__group__in=self.levels.all()
+                .values('group')).annotate(num_gymnasts=Count('id')).filter(num_gymnasts__gte=3)
             return teams
         except Exception:
             return Team.objects.filter(id=0).annotate(num_gymnasts=Count('id'))
@@ -381,7 +395,7 @@ class GymnastEvent(models.Model):
 
 class CompetitionGymnastManager(MeetManager):
     def get_queryset(self):
-        qs = super(CompetitionGymnastManager, self).get_queryset().filter(is_scratched=False)
+        qs = super(CompetitionGymnastManager, self).get_queryset().filter(is_scratched=False, usag__isnull=False)
 
         try:
             current_meet = Meet.objects.get(is_current_meet=True)[0]
@@ -415,7 +429,7 @@ class Gymnast(MasterGymnast):
 
 class MensArtisticGymnastManager(MeetManager):
     def get_queryset(self):
-        qs = super(MensArtisticGymnastManager, self).get_queryset().filter(is_scratched=False, discipline='mag')
+        qs = super(MensArtisticGymnastManager, self).get_queryset().filter(is_scratched=False, discipline='mag', usag__isnull=False)
 
         try:
             current_meet = Meet.objects.get(is_current_meet=True)[0]
@@ -470,7 +484,7 @@ class MensArtisticGymnast(MasterGymnast):
 
 class WomensArtisticGymnastManager(MeetManager):
     def get_queryset(self):
-        qs = super(WomensArtisticGymnastManager, self).get_queryset().filter(is_scratched=False, discipline='wag')
+        qs = super(WomensArtisticGymnastManager, self).get_queryset().filter(is_scratched=False, discipline='wag', usag__isnull=False)
 
         try:
             current_meet = Meet.objects.get(is_current_meet=True)[0]
