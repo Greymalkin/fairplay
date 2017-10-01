@@ -6,7 +6,7 @@ from django.contrib.admin.widgets import ManyToManyRawIdWidget, ForeignKeyRawIdW
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 
 from . import models
 from registration.models import Level, Team
@@ -70,6 +70,11 @@ class MeetAdmin(admin.ModelAdmin):
             if current_meet.count() != 1 or current_meet[0].id != obj.id:
                 return []
         return super(MeetAdmin, self).get_formsets_with_inlines(request, obj)
+
+    def get_changelist(self, request, **kwargs):
+        # If there's no active meet show message
+        from .changelist import MeetAdminChangeList
+        return MeetAdminChangeList
 
     def copy_meet(self, request, queryset):
         current_meet = queryset[0]
@@ -289,8 +294,8 @@ class MeetDependentAdmin(admin.ModelAdmin):
 
     def get_changelist(self, request, **kwargs):
         # If there's no active meet, hide change list table
-        from .changelist import ChangeList
-        return ChangeList
+        from .changelist import MeetDependentChangeList
+        return MeetDependentChangeList
 
     def has_change_permission(self, request, obj=None):
         if self.current_meet.count() != 1:

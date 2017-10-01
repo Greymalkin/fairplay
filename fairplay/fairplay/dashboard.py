@@ -35,7 +35,6 @@ roster_html += """
 """
 
 
-
 class CustomIndexDashboard(Dashboard):
 
     def init_with_context(self, context):
@@ -256,22 +255,19 @@ class CustomIndexDashboard(Dashboard):
                     post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
                 ))
 
-        # install an example meet if this database is completely empty
+        links = []
+        links.append({
+            'title': 'Men\'s Meet (One-Time Only)',
+            'url': reverse('run-task', kwargs={'task': 'task-a'}),
+            'external': False,
+        }),
 
-        if no_meets_at_all():
-            links = []
-            links.append({
-                'title': 'Men\'s Meet (One-Time Only)',
-                'url': reverse('run-task', kwargs={'task': 'task-a'}),
-                'external': False,
-            }),
-
-            self.children.append(modules.LinkList(
-                _('Fairplay Starter Setups'),
-                column=2,
-                children=links,
-                css_classes=('grp-open',),
-            ))
+        self.children.append(modules.LinkList(
+            _('Fairplay Starter Setups'),
+            column=2,
+            children=links,
+            css_classes=('grp-open',),
+        ))
 
         # append a recent actions module
         # self.children.append(
