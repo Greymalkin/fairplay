@@ -213,10 +213,7 @@ class MeetDependentAdmin(admin.ModelAdmin):
         return fieldsets
 
     def get_formsets_with_inlines(self, request, obj=None):
-        # if there's a session project, but you're not editing the session project, do not display inlines.
-        # necessary because the macro phases and channels of a non-active project are filtered out by the inlines'
-        # model managers when there's a session project, giving the appearance that you've lost data.
-        # you haven't, you just aren't allowed to see it until the project is set to be active.
+        # if there's not an active meet do not display inlines.
         if obj:
             if not request.session.get('meet', {}):
                 return []
@@ -289,6 +286,11 @@ class MeetDependentAdmin(admin.ModelAdmin):
             except Exception:
                 pass
         return super(MeetDependentAdmin, self).changelist_view(request, *args, **kwargs)
+
+    def get_changelist(self, request, **kwargs):
+        # If there's no active meet, hide change list table
+        from .changelist import ChangeList
+        return ChangeList
 
     def has_change_permission(self, request, obj=None):
         if self.current_meet.count() != 1:
