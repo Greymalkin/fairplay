@@ -298,8 +298,13 @@ class TeamAwardRank(models.Model):
 
 
 class TeamAwardRankEventManager(MeetManager):
-    def get_by_natural_key(self, meet, team_award, event, gymnast_event):
-        return self.get(meet=meet, team_award=team_award, event=event, gymnast_event=gymnast_event)
+    def get_by_natural_key(self, meet, team_award, team, event, usag):
+        return self.get(
+            meet__name=meet,
+            team_award_rank__team_award__name=team_award,
+            team_award_rank__team__gym=team,
+            event=event,
+            gymnast_event__gymnast__usag=usag)
 
 
 class TeamAwardRankEvent(models.Model):
@@ -315,7 +320,12 @@ class TeamAwardRankEvent(models.Model):
         return "{} - {} - {} - {} ({})".format(self.team_award_rank.team_award, self.team_award_rank.team, self.event, self.gymnast_event.gymnast, self.rank)
 
     def natural_key(self):
-            return (self.meet, self.team_award, self.event, self.gymnast_event)
+            return (
+                self.meet.name,
+                self.team_award_rank.team_award.name,
+                self.team_award_rank.team.gym,
+                self.event,
+                self.gymnast_event.gymnast.usag)
 
     class Meta:
         verbose_name = 'Team Awards > Rank > Event > Gymnast'

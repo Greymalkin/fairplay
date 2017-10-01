@@ -46,7 +46,7 @@ class Command(BaseCommand):
         # if there is no meet in the database at all, set up an example one
         check = meet.models.Meet.objects.all().count()
         if not check:
-            print('... loading example meet')
+            print('... loading mag meet')
             call_command('loaddata', 'fixtures/meet_setup_mag/meet.json')
 
             print('... loading levels')
@@ -57,73 +57,6 @@ class Command(BaseCommand):
 
             print('... loading team awards')
             call_command('loaddata', 'fixtures/meet_setup_mag/awards.json')
-
-            print('... associating levels to divisions and team awards')
-            print('    Level 4')
-            award = competition.models.TeamAward.objects.get(name="Level 4")
-            level = registration.models.Level.objects.get(name='4 d1')
-            award.levels.add(level)
-            competition.models.Division.objects.filter(name="6 & up d1").update(level=level)
-
-            level = registration.models.Level.objects.get(name='4 d2')
-            award.levels.add(level)
-            competition.models.Division.objects.filter(name="6 & up d2").update(level=level)
-
-            print('    Level 5')
-            award = competition.models.TeamAward.objects.get(name="Level 5")
-            level = registration.models.Level.objects.get(name='5 d1')
-            competition.models.Division.objects.filter(name="7 & up d1").update(level=level)
-
-            level = registration.models.Level.objects.get(name='5 d2')
-            award.levels.add(level)
-            competition.models.Division.objects.filter(name="7 & up d2").update(level=level)
-
-            print('    Level 6')
-            award = competition.models.TeamAward.objects.get(name="Level 6")
-            level = registration.models.Level.objects.get(name='6 d1')
-            award.levels.add(level)
-            competition.models.Division.objects.filter(name="8 & up d1").update(level=level)
-
-            level = registration.models.Level.objects.get(name='6 d2')
-            award.levels.add(level)
-            competition.models.Division.objects.filter(name="8 & up d2").update(level=level)
-
-            print('    Level 7')
-            award = competition.models.TeamAward.objects.get(name="Level 7")
-            level = registration.models.Level.objects.get(name='7 d1')
-            award.levels.add(level)
-            competition.models.Division.objects.filter(name="10 & up d1").update(level=level)
-
-            level = registration.models.Level.objects.get(name='7 d2')
-            award.levels.add(level)
-            competition.models.Division.objects.filter(name="10 & up d2").update(level=level)
-
-            print('    Level 8')
-            award = competition.models.TeamAward.objects.get(name="Level 8")
-            level = registration.models.Level.objects.get(name='8')
-            award.levels.add(level)
-            div = competition.models.Division.objects.filter(name="11 & up")[0]
-            div.level = level
-            div.save()
-
-            print('    Level 9')
-            award = competition.models.TeamAward.objects.get(name="Level 9/10")
-            level = registration.models.Level.objects.get(name='9')
-            award.levels.add(level)
-            competition.models.Division.objects.filter(name="13 & up").update(level=level)
-
-            print('    Level 10')
-            level = registration.models.Level.objects.get(name='10')
-            award.levels.add(level)
-            competition.models.Division.objects.filter(name="15 & up").update(level=level)
-
-            print('    Level JD')
-            award = competition.models.TeamAward.objects.get(name="Level JD")
-            level = registration.models.Level.objects.get(name='jd')
-            award.levels.add(level)
-            div = competition.models.Division.objects.filter(name="11 & up")[1]
-            div.level = level
-            div.save()
 
         print('')
         print('Initial meet setup is now complete')

@@ -1,14 +1,20 @@
+# import csv
+import os
 from django.db.models.signals import post_save
+from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
-from competition.models import GymnastEvent
+from competition.models import GymnastEvent, ScoreRankEvent
+# from registration.models import Gymnast
 
 
 class Command(BaseCommand):
-    """ Initial Setup can be called from a link that appears on the dashboard
-        only when there are 0 Meets in the db """
+    """ Import fixtures created with the Export Current Meet Management Command """
 
     def handle(self, *args, **kwargs):
+        dirname = os.path.dirname(settings.BASE_DIR)
+        dirname = os.path.join(dirname, 'fixtures/current_meet')
+
         print('... importing Meet')
         call_command('loaddata', 'fixtures/current_meet/meet.json')
 
@@ -70,6 +76,43 @@ class Command(BaseCommand):
         print('... importing Payments')
         call_command('loaddata', 'fixtures/current_meet/payments.json')
 
-        # Not importing the scores... they are a one-to-one and cause the database to think you're re-creating primary key rows
-        # Don't know how to get around that yet.
-        # ... maybe could import the scores from a csv file instead?
+        print('... importing Scores')
+        call_command('loaddata', 'fixtures/current_meet/scores.json')
+
+        # scores... they are a one-to-one relation and their fixtures cause the database to think you're re-creating primary key rows
+        # ... import the scores from a csv file instead
+
+        # file = os.path.join(dirname, 'scorerankevent.csv')
+        # if os.path.isfile(file):
+        #     with open(file, 'r') as csvfile:
+        #         print('... importing Scores')
+        #         reader = csv.reader(csvfile)
+
+        #         # skip csv rows before the row containing actual data
+        #         next(reader)
+
+        #         for row in reader:
+        #             parse_usag = row[2].split()
+        #             parse_usag = parse_usag[len(parse_usag) - 1]
+        #             data = {}
+        #             if row[3]:
+        #                 data['fx'] = float(row[3])
+        #             if row[4]:
+        #                 data['ph'] = float(row[4])
+        #             if row[5]:
+        #                 data['sr'] = float(row[5])
+        #             if row[6]:
+        #                 data['vt'] = float(row[6])
+        #             if row[7]:
+        #                 data['pb'] = float(row[7])
+        #             if row[8]:
+        #                 data['hb'] = float(row[8])
+        #             if row[9]:
+        #                 data['ub'] = float(row[9])
+        #             if row[10]:
+        #                 data['bb'] = float(row[10])
+        #             print('data:', data)
+        #             if data:
+        #                 g = Gymnast.objects.get(usag=parse_usag, meet__name=row[1])
+        #                 s, created = ScoreRankEvent.objects.update_or_create(gymnast=g, meet__name=row[1], defaults=data)
+        #                 print(s)

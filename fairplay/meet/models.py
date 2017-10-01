@@ -31,10 +31,10 @@ class Meet(models.Model):
         ordering = ('-is_current_meet', 'name')
 
     def __str__(self):
-        return '{}'.format(self.short_name)
+        return '{}'.format(self.name)
 
     def natural_key(self):
-            return (self.name, )
+        return (self.name, )
 
 
 # Restrict display of items in the admin by those belonging to the current Meet

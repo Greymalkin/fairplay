@@ -53,8 +53,6 @@ def export_current_meet(request):
         pass
     call_command('export_current_meet')
 
-    messages.add_message(request, messages.INFO, 'Current meet exported')
-
     current_meetdir = os.path.join(dirname, 'fixtures/current_meet')
     temp = tempfile.TemporaryFile()
     newZip = zipfile.ZipFile(temp, 'w', zipfile.ZIP_DEFLATED)
@@ -72,7 +70,8 @@ def export_current_meet(request):
     # Stream the file back in chunks
     response = FileResponse(temp)
     response['Content-Disposition'] = 'attachment; filename=current_meet_archive.zip'
-
+    shutil.rmtree(current_meetdir)
+    # messages.add_message(request, messages.INFO, 'Current meet exported')
     return response
 
 
@@ -145,15 +144,7 @@ class ImportFairplayViewSet(viewsets.ModelViewSet):
     parser_classes = (FormParser, MultiPartParser,)
     allowed_methods = ('POST', 'PUT')
 
-    # def __init__(self, *args, **kwargs):
-    #     try:
-    #         self.meet = Meet.objects.filter(is_current_meet=True).first()
-    #     except Exception:
-    #         self.meet = None
-    #     return super(ImportFairplayMeetViewSet, self).__init__(*args, **kwargs)
-
     def create(self, request):
-        print('*** in the import fairplay thingy')
         try:
             # pull the uploaded file object from the request
             file_obj = request.data['file'].read()
@@ -170,7 +161,10 @@ class ImportFairplayViewSet(viewsets.ModelViewSet):
         # move uploaded file
         dirname = os.path.dirname(settings.BASE_DIR)
         destination_file_path = os.path.join(dirname, "fixtures/current_meet_archive.zip")
-        os.mkdir(os.path.join(dirname, 'fixtures/current_meet'))
+        try:
+            os.mkdir(os.path.join(dirname, 'fixtures/current_meet'))
+        except Exception:
+            pass
         destination = open(destination_file_path, 'wb+')
         destination.write(file_obj)
         destination.close()
@@ -179,7 +173,7 @@ class ImportFairplayViewSet(viewsets.ModelViewSet):
         with zipfile.ZipFile(destination_file_path) as myzip:
             for name in myzip.namelist():
                 # quick test... TODO make more rigorous?
-                if name.endswith('.json'):
+                if name.endswith('.json') or name.endswith('.csv'):
                     print(name)
                     outfile = open(os.path.join(dirname, 'fixtures/current_meet/{}'.format(name)), 'wb')
                     outfile.write(myzip.read(name))

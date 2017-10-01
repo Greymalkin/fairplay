@@ -1,15 +1,40 @@
-import meet
+# import csv
+import os
+from meet.models import Meet
+# from competition.models import ScoreRankEvent
 
+from django.conf import settings
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    """ Initial Setup can be called from a link that appears on the dashboard
-        only when there are 0 Meets in the db """
+    """ Export the fixtures associated with the current active meet in the db"""
 
     def handle(self, *args, **kwargs):
-        m = meet.models.Meet.objects.filter(is_current_meet=True).get()
+        dirname = os.path.dirname(settings.BASE_DIR)
+        try:
+            os.mkdir(os.path.join(dirname, 'fixtures/current_meet'))
+        except Exception:
+            pass
+
+        # write csv of the Scores, since the one-to-one relationship with Gymnast means it isn't easy (or possible?) to import them from a fixture
+        # opts = ScoreRankEvent._meta
+        # destination_file_path = os.path.join(dirname, "fixtures/current_meet/scorerankevent.csv")
+        # # Create file in the fixtures directory and write to it
+        # with open(destination_file_path, "w") as fw:
+        #     writer = csv.writer(fw)
+        #     field_names = [field.name for field in opts.fields]
+        #     # Write a first row with header information
+        #     writer.writerow(field_names)
+
+        #     # Write data rows
+        #     for obj in ScoreRankEvent.objects.all():
+        #         writer.writerow([getattr(obj, field) for field in field_names])
+
+        #     fw.close()
+
+        m = Meet.objects.filter(is_current_meet=True).get()
         call_command('dumpdata', 'meet.Meet', '--pks={}'.format(m.id), '--format=json', '--output=fixtures/current_meet/meet.json', '--indent=4', '--natural-primary', '--natural-foreign')
         call_command('dumpdata', 'registration.ShirtSize', '--format=json', '--output=fixtures/current_meet/shirtsize.json', '--indent=4', '--natural-primary', '--natural-foreign')
         call_command('dumpdata', 'registration.Discipline', '--format=json', '--output=fixtures/current_meet/discipline.json', '--indent=4', '--natural-primary', '--natural-foreign')
@@ -31,5 +56,3 @@ class Command(BaseCommand):
         call_command('dumpdata', 'registration.GymnastNotes', '--format=json', '--output=fixtures/current_meet/gymnastnotes.json', '--indent=4', '--natural-primary', '--natural-foreign')
         call_command('dumpdata', 'registration.Payments', '--format=json', '--output=fixtures/current_meet/payments.json', '--indent=4', '--natural-primary', '--natural-foreign')
         call_command('dumpdata', 'competition.ScoreRankEvent', '--format=json', '--output=fixtures/current_meet/scores.json', '--indent=4', '--natural-primary', '--natural-foreign')
-
-        # Might need to do a csv write of the Scores here, since the one-to-one field means it isn't easy (or possible?) to import them from a fixture
