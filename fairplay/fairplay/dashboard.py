@@ -257,7 +257,7 @@ class CustomIndexDashboard(Dashboard):
 
         links = []
         links.append({
-            'title': 'Men\'s Meet (One-Time Only)',
+            'title': 'Men\'s Meet',
             'url': reverse('run-task', kwargs={'task': 'task-a'}),
             'external': False,
         }),
