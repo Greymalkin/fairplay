@@ -358,8 +358,8 @@ class Notes(models.Model):
 
 
 class TeamNotesManager(MeetManager):
-    def get_by_natural_key(self, meet, team, author, created):
-        return self.get(meet__name=meet, team__gym=team, author=author, created=created)
+    def get_by_natural_key(self, meet, team, author, note):
+        return self.get(meet__name=meet, team__gym=team, author=author, note=note)
 
 
 class TeamNotes(Notes):
@@ -372,18 +372,18 @@ class TeamNotes(Notes):
         verbose_name_plural = 'Team Notes'
 
     def natural_key(self):
-        return (self.meet.name, self.team.gym, self.author, self.created)
+        return (self.meet.name, self.team.gym, self.author, self.note)
 
 
 class GymnastNotesManager(MeetManager):
-    def get_by_natural_key(self, meet, last_name, first_name, usag, author, created):
+    def get_by_natural_key(self, meet, last_name, first_name, usag, author, note):
         return self.get(
             meet__name=meet,
             gymnast__last_name=last_name,
             gymnast__first_name=first_name,
             gymnast__usag=usag,
             author=author,
-            created=created)
+            note=note)
 
 
 class GymnastNotes(Notes):
@@ -402,12 +402,12 @@ class GymnastNotes(Notes):
             self.gymnast.first_name,
             self.gymnast.usag,
             self.author,
-            self.created)
+            self.note)
 
 
 class PaymentsManager(MeetManager):
-    def get_by_natural_key(self, meet, team, amount, paid, updated):
-        return self.get(meet__name=meet, team__gym=team, amount=amount, paid=paid, updated=updated)
+    def get_by_natural_key(self, meet, team, amount, paid, detail):
+        return self.get(meet__name=meet, team__gym=team, amount=amount, paid=paid, detail=detail)
 
 
 class Payments(models.Model):
@@ -432,7 +432,7 @@ class Payments(models.Model):
         ordering = ['paid']
 
     def natural_key(self):
-        return (self.meet.name, self.team.gym, self.amount, self.paid, self.updated)
+        return (self.meet.name, self.team.gym, self.amount, self.paid, self.detail)
 
 
 class DisciplineManager(models.Manager):

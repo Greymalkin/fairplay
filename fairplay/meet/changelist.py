@@ -26,7 +26,7 @@ class MeetAdminChangeList(ChangeList):
                   '''
             messages.info(request, format_html(msg))
 
-            msg = '''You may create a new meet manually, import existing meet data from an archive, or automatically up an example meet (links on home page).
+            msg = '''You may create a new meet manually, import existing meet data from an archive, or install an Fairplay starter.
                   '''
             messages.info(request, format_html(msg))
 

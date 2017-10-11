@@ -10,7 +10,7 @@ class Meet(models.Model):
     name = models.CharField(max_length=200, blank=False, null=False)
     short_name = models.CharField(max_length=100, blank=False, null=False)
     host = models.CharField(max_length=200, default='', null=False)
-    date = models.DateField(blank=True, null=True)
+    date = models.DateField("Meet Date", blank=True, null=True)
     is_current_meet = models.BooleanField('Current Meet?', default=False)
     enable_ranking = models.BooleanField(
         'Ranking',

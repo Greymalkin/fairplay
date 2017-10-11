@@ -133,38 +133,16 @@ class CustomIndexDashboard(Dashboard):
             self.children.append(modules.LinkList(
                 _('Tools'),
                 column=2,
-                children=[
-                    {
-                        'title': _('Scoreboard Control'),
-                        'url': '/scoreboard',
-                        'external': False,
-                    },
-                    {
-                        'title': _('Download Roster'),
-                        'url': '/roster',
-                        'external': False,
-                    },
-                    {
-                        'title': 'Download Athlete Labels',
-                        'url': '/labels/athlete/',
-                        'external': False,
-                    },
-                    {
-                        'title': 'Download Team Labels',
-                        'url': '/labels/team/',
-                        'external': False,
-                    },
-                    {
-                        'title': 'Download Medal Labels',
-                        'url': '/labels/medal/',
-                        'external': False,
-                    },
-                    {
-                        'title': 'Coaches Sign In',
-                        'url': '/coaches/signin/',
-                        'external': False,
-                    },
-                ],
+                layout='inline',
+                css_classes=('grp-open',),
+                children=(
+                    ['Scoreboard Control', '/scoreboard/'],
+                    ['Download Roster', '/roster/'],
+                    ['Download Athlete Labels', '/labels/athlete/'],
+                    ['Download Medal Labels', '/labels/team/'],
+                    ['Download Medal Labels', '/labels/medal/'],
+                    ['Coaches Sign In', '/coaches/signin/'],
+                ),
                 post_content=roster_html
             ))
 
@@ -255,35 +233,11 @@ class CustomIndexDashboard(Dashboard):
                     post_content='<table class="starting_event"><tr>{}</tr><tr>{}</tr></table>'.format(header, counts),
                 ))
 
-        links = []
-        links.append({
-            'title': 'Men\'s Meet',
-            'url': reverse('run-task', kwargs={'task': 'task-a'}),
-            'external': False,
-        }),
-
         self.children.append(modules.LinkList(
-            _('Fairplay Starter Setups'),
+            _('Fairplay Starters'),
             column=2,
-            children=links,
+            children=(
+                ['Men\'s Meet', reverse('run-task', kwargs={'task': 'task-a'})],
+            ),
             css_classes=('grp-open',),
         ))
-
-        # append a recent actions module
-        # self.children.append(
-        #     modules.Group(
-        #         _('Logging'),
-        #         column=2,
-        #         collapsible=True,
-        #         exclude=('django.contrib.*',),
-        #         children=[
-        #             modules.ModelList(
-        #                 column=1,
-        #                 collapsible=False,
-        #                 models=(
-        #                     'django.contrib.admin.models.LogEntry',
-        #                 ),
-        #             ),
-        #         ],
-        #     ),
-        # )
