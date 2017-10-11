@@ -12,7 +12,7 @@
             "name": "6 & up d1",
             "short_name": "6 & up",
             "min_age": 5,
-            "max_age": 19,
+            "max_age": 18,
             "event_award_count": 0,
             "all_around_award_count": 0
         }
@@ -30,7 +30,7 @@
             "name": "6 & up d2",
             "short_name": "6 & up",
             "min_age": 5,
-            "max_age": 19,
+            "max_age": 18,
             "event_award_count": 0,
             "all_around_award_count": 0
         }
@@ -48,7 +48,7 @@
             "name": "7 & up d1",
             "short_name": "7 & up",
             "min_age": 7,
-            "max_age": 19,
+            "max_age": 18,
             "event_award_count": 0,
             "all_around_award_count": 0
         }
@@ -66,7 +66,7 @@
             "name": "7 & up d2",
             "short_name": "7 & up",
             "min_age": 7,
-            "max_age": 19,
+            "max_age": 18,
             "event_award_count": 0,
             "all_around_award_count": 0
         }
@@ -84,7 +84,7 @@
             "name": "8 & up d1",
             "short_name": "8 & up",
             "min_age": 8,
-            "max_age": 19,
+            "max_age": 18,
             "event_award_count": 0,
             "all_around_award_count": 0
         }
@@ -102,7 +102,7 @@
             "name": "8 & up d2",
             "short_name": "8 & up",
             "min_age": 8,
-            "max_age": 19,
+            "max_age": 18,
             "event_award_count": 0,
             "all_around_award_count": 0
         }
@@ -120,7 +120,7 @@
             "name": "10 & up d1",
             "short_name": "10 & up",
             "min_age": 10,
-            "max_age": 19,
+            "max_age": 18,
             "event_award_count": 0,
             "all_around_award_count": 0
         }
@@ -138,7 +138,7 @@
             "name": "10 & up d2",
             "short_name": "10 & up",
             "min_age": 10,
-            "max_age": 19,
+            "max_age": 18,
             "event_award_count": 0,
             "all_around_award_count": 0
         }
@@ -171,9 +171,9 @@
                 "New MEET!",
                 "jd"
             ],
-            "name": "11 & up",
+            "name": "12 & up",
             "short_name": "11 & up",
-            "min_age": 11,
+            "min_age": 12,
             "max_age": 19,
             "event_award_count": 0,
             "all_around_award_count": 0

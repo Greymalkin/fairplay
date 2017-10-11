@@ -597,6 +597,7 @@ class TeamAdmin(MeetDependentAdmin):
                                                  'address_1',
                                                  'address_2',
                                                  'city',
+                                                 'state',
                                                  'postal_code'),
                                       'classes': ('grp-collapse grp-closed',), }), )
         return fieldsets
