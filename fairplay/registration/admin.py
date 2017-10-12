@@ -416,42 +416,76 @@ class GymnastAdmin(MeetDependentAdmin):
         '''
         queryset = queryset.exclude(athlete_id__isnull=False, is_scratched=True).order_by('level', 'team', 'last_name')
         rows_updated = queryset.count()
+
+        # add gymnast events so scoring will work
+        events = Event.objects.filter(active=True)  # competition.Event
+        # turn off scoring though, we're not doing that right now
+        post_save.disconnect(
+            None,
+            sender=GymnastEvent,
+            dispatch_uid='update_rankings')
+
         level_max_athlete_id = {}
 
         for a in queryset:
-            # Check to see if we've calculated the max id for this level before.  If so, grab that id.
-            if a.level.level not in level_max_athlete_id:
-                max_id = models.Gymnast.objects.filter(level__level=a.level.level).aggregate(Max('athlete_id'))
-                max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
-                # First one: ID begins with level number. level 4 = 4000
-                print('**** level {} {}'.format(a.level.level, max_id))
-                if max_id == 0:
-                    # Accomodate the JD level
-                    if a.level.level == 999:
-                        max_id = 3 * 1000
-                    elif a.level.level == 10:
-                        max_id = 1000
-                    elif a.level.level > 10:
-                        max_id = (int(a.level.level) + 5) * 100
-                    else:
-                        max_id = (int(a.level.level) * 1000)
-            else:
-                max_id = level_max_athlete_id[a.level.level]
+            print('setting athlete id and creating events for {}'.format(a))
 
-            # Up the max id by one and save to athlete
-            max_id += 1
-            level_max_athlete_id[a.level.level] = max_id
-            a.athlete_id = max_id
-            a.save()
+            # Check if this athlete has an id already
+            if not a.athlete_id:
+
+                # Check to see if we've calculated the max id for this level before.  If so, grab that id.
+                if a.level.level not in level_max_athlete_id:
+                    max_id = models.Gymnast.objects.filter(level__level=a.level.level).aggregate(Max('athlete_id'))
+                    max_id = 0 if not max_id['athlete_id__max'] else max_id['athlete_id__max']
+                    # First one: ID begins with level number. level 4 = 4000
+                    print('**** level {} {}'.format(a.level.level, max_id))
+                    if max_id == 0:
+                        # Accomodate the JD level
+                        if a.level.level == 999:
+                            max_id = 3 * 1000
+                        elif a.level.level == 10:
+                            max_id = 1000
+                        elif a.level.level > 10:
+                            max_id = (int(a.level.level) + 5) * 100
+                        else:
+                            max_id = (int(a.level.level) * 1000)
+                else:
+                    max_id = level_max_athlete_id[a.level.level]
+
+                # Up the max id by one and save to athlete
+                max_id += 1
+                level_max_athlete_id[a.level.level] = max_id
+                a.athlete_id = max_id
+                a.save()
+
+            # filter for events only in this gymnast's discipline
+            for event in events.filter(is_mag=a.is_mag, is_wag=a.is_wag):
+                ae, created = GymnastEvent.objects.get_or_create(event=event, gymnast=a, meet=a.meet)
+                if a.is_scratched:
+                    ae.score = 0
+                    ae.save()
 
         if rows_updated == 1:
             message_bit = '1 athelete id was'
         else:
             message_bit = '{} athlete ids were'.format(rows_updated)
 
+        post_save.connect(
+            update_rankings,
+            sender=GymnastEvent,
+            dispatch_uid='update_rankings')
+
         messages.success(request, '{} updated'.format(message_bit))
     set_athlete_id.short_description = "Set athlete id"
 
+    def clear_athlete_id(self, modeladmin, request, queryset):
+        for a in queryset:
+            a.athlete_id = None
+            a.save()
+        messages.success(request, '{} athlete ids cleared'.format(queryset.count()))
+    clear_athlete_id.short_description = 'Clear athlete id'
+
+    # TODO: This was rolled up into set athlete id.  Don't think there's a need for it as a stand alone any longer.
     def create_events(self, modeladmin, req, qset):
         events = Event.objects.filter(active=True)  # competition.Event
 
@@ -482,7 +516,8 @@ class GymnastAdmin(MeetDependentAdmin):
 
     def get_actions(self, request):
         actions = [make_event_action(q) for q in Event.objects.filter(active=True)]  # competition.Event
-        actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events')))
+        # actions.insert(0, ('create_events', (self.create_events, 'create_events', 'Create events')))
+        actions.insert(0, ('clear_athlete_id', (self.clear_athlete_id, 'clear_athlete_id', 'Clear athlete id')))
         actions.insert(0, ('set_shirt_action', (self.set_shirt_action, 'set_shirt_action', 'Update shirt size')))
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', 'Set athlete id')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', 'Set age division')))
