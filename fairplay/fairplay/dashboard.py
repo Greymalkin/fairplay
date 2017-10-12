@@ -215,11 +215,12 @@ class CustomIndexDashboard(Dashboard):
                     'external': False,
                 })
 
-            # Table of Starting Events, with links to Competition.Gymnast admin
+            # Table of Starting Events, with links to Gymnast admin
+            #      if meet has mag and wag, the combined events will blow out the borders
+            #      instead of combining mag and wag as one meet, should break each discipline into its own meet
+
                 header = counts = ""
-                # TODO if meet has mag and wag, the combined events will blow out the borders
-                #      possibly two separate queries / display rows ... one specifically for mag, one for wag
-                for event in Event.objects.filter(active=True):  # competition.Event
+                for event in Event.objects.filter(is_mag=True):  # competition.Event
                     count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                     header += '<th>{}</th>'.format(event.initials)
                     link = '/admin/registration/gymnast/?meet={}&session={}&starting_event={}'.format(session.meet.id, session.id, event.id)

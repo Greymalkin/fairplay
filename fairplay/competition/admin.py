@@ -346,6 +346,9 @@ class GymnastEventAdmin(MeetDependentAdmin):
                 'description': ''}), )
         return fieldsets
 
+    def has_add_permission(self, request, obj=None):
+            return False
+
 
 @admin.register(models.Division)
 # TODO: Come back to this one
@@ -382,6 +385,17 @@ class DivisionAdmin(MeetDependentAdmin):
 @admin.register(models.Event)
 class EventAdmin(admin.ModelAdmin):
     list_display = ('name', 'initials', 'order', 'is_mag', 'is_wag', 'active')
+    actions = ['toggle_mag_wag']
+
+    def toggle_mag_wag(self, request, queryset):
+        for event in queryset:
+            # Don't let this work on trampoline events
+            if not (event.is_wag is False and event.is_mag is False):
+                event.is_wag = False if event.is_wag else True
+                event.is_mag = False if event.is_mag else True
+                event.active = False if event.active else True
+                event.save()
+    toggle_mag_wag.short_description = "Switch active events, mens and womens"
 
 
 @admin.register(models.Session)
