@@ -153,6 +153,21 @@ class StartingEventFilter(admin.SimpleListFilter):
             return queryset
 
 
+class GymnastEventFilter(admin.SimpleListFilter):
+    title = _('gymnast event')
+    parameter_name = 'gymnast_event'
+
+    def lookups(self, request, model_admin):
+        lookups = [(s.id, s.name) for s in models.Event.objects.filter(active=True)]  # competition.Event
+        return lookups
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            return queryset.filter(event__id=self.value())
+        else:
+            return queryset
+
+
 # Admins
 
 class GymnastEventInlineFormset(BaseInlineFormSet):
@@ -300,6 +315,7 @@ class TeamAwardAdmin(MeetDependentAdmin):
 @admin.register(models.TeamAwardRank)
 class TeamAwardRankAdmin(MeetDependentAdmin):
     list_display = ('team', 'team_award', 'rank', 'score')
+    list_filter = ['team', 'team_award']
 
     def has_add_permission(self, request, obj=None):
             return False
@@ -308,6 +324,8 @@ class TeamAwardRankAdmin(MeetDependentAdmin):
 @admin.register(models.TeamAwardRankEvent)
 class TeamAwardRankEventAdmin(MeetDependentAdmin):
     list_display = ('team_award_rank', 'event', 'gymnast_event', 'rank')
+    list_filter = ['team_award_rank__team', GymnastEventFilter]
+    search_fields = ['gymnast_event__gymnast__first_name', 'gymnast_event__gymnast__last_name']
 
     def has_add_permission(self, request, obj=None):
             return False
@@ -316,6 +334,7 @@ class TeamAwardRankEventAdmin(MeetDependentAdmin):
 @admin.register(models.GymnastEvent)
 class GymnastEventAdmin(MeetDependentAdmin):
     list_display = ('gymnast', 'event', 'score', 'rank', 'place')
+    list_filter = [GymnastEventFilter]
     search_fields = ['gymnast__first_name', 'gymnast__last_name', 'id', ]
 
     def get_fieldsets(self, request, obj=None):

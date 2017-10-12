@@ -153,7 +153,7 @@ class ImportFairplayViewSet(viewsets.ModelViewSet):
             # test for .zip
             if not request.data['file'].name.lower().endswith('.zip'):
                 messages.add_message(request, messages.ERROR, 'Please upload a zip file.')
-                return Response({"message": "Not a csv file."}, status=status.HTTP_200_OK)
+                return Response({"message": "Not a zip file."}, status=status.HTTP_200_OK)
         except Exception:
             messages.add_message(request, messages.ERROR, 'Not a Fairplay meet archive: Not a valid zip file.')
             return Response({"message": "Not a valid zip file."}, status=status.HTTP_200_OK)
