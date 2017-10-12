@@ -20,3 +20,5 @@ pytz==2017.2
 reportlab==3.4.0
 requests==2.18.4
 six==1.10.0
+sphinx==1.6.4
+sphinx-autobuild==0.7.1
