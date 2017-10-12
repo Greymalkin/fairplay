@@ -380,14 +380,14 @@ class GymnastAdmin(MeetDependentAdmin):
         messages.success(request, '{} updated'.format(message_bit))
     update_age.short_description = "Update competition age"
 
-    def set_verified(self, modeladmin, request, queryset):
-        rows_updated = queryset.update(is_verified=True)
+    def set_scratched(self, modeladmin, request, queryset):
+        rows_updated = queryset.update(is_scratched=True)
         if rows_updated == 1:
             message_bit = '1 gymnast was'
         else:
             message_bit = '{} gymnasts were'.format(rows_updated)
-        messages.success(request, '{} verified'.format(message_bit))
-    set_verified.short_description = "Mark selected gymnasts as verified"
+        messages.success(request, '{} scratched'.format(message_bit))
+    set_scratched.short_description = "Scratch gymnasts"
 
     # TODO: This should happen on save, not as an admin action
     def sort_into_divisions(self, modeladmin, request, queryset):
@@ -487,6 +487,7 @@ class GymnastAdmin(MeetDependentAdmin):
         actions.insert(0, ('set_athlete_id', (self.set_athlete_id, 'set_athlete_id', 'Set athlete id')))
         actions.insert(0, ('sort_into_divisions', (self.sort_into_divisions, 'sort_into_divisions', 'Set age division')))
         actions.insert(0, ('update_age', (self.update_age, 'update_age', 'Set competition age')))
+        actions.insert(0, ('set_scratched', (self.set_scratched, 'set_scratched', 'Scratch gymnast')))
         actions.append(('clear_event', (self.clear_event, 'clear_event', 'Set starting event to (None)')))
         return OrderedDict(actions)
 
