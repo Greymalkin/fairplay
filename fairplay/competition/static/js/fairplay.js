@@ -45,13 +45,13 @@
 </table>');
 
     function init() {
-        $.getJSON("data/meet.json")
+        $.getJSON("/static/data/meet.json")
         .done(function(data) {
             var sessionList = $("#sessionList");
             _.forEach(data.sessions, function(session) {
                 var button = $('<button class="u-full-width">'+session[1]+'</button>');
                 button.click(function() {
-                    loadSession("data/" + session[2]);
+                    loadSession("/static/data/" + session[2]);
                 });
                 sessionList.append(button);
             });

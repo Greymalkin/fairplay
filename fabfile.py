@@ -31,9 +31,9 @@ def local():
 def production():
     env.run = run
     env.cd = cd
-    env.user = 'bhall'
+    env.user = 'fairland'
     env.name = 'production'
-    env.hosts = ['fairplay.local']
+    env.hosts = ['scores.fairlandboysgymnastics.org']
     env.path = '/srv/fairplay/'
     env.project = 'fairplay'
     env.virtualenv = 'virtualenv -p python3'
@@ -42,8 +42,8 @@ def production():
     env.python = 'source {0}venv/bin/activate && python'.format(env.path)
     env.pip = 'source {0}venv/bin/activate && pip'.format(env.path)
     env.manage = MANAGE.format(env.python)
-    env.restart = ('sudo /usr/sbin/service uwsgi restart',
-                   'sudo /usr/sbin/service uwsgi restart',)
+    env.restart = ('sudo systemctl restart uwsgi',
+                   'sudo systemctl restart nginx',)
 
 @task
 def bootstrap():
@@ -88,13 +88,6 @@ def collectstatic():
 
 
 @task
-def syncdb():
-    with env.cd(env.path + env.project):
-        with prefix(ACTIVATE.format(env.environment)):
-            env.run(env.manage + SYNCDB.format(env.project, env.name))
-
-
-@task
 def migrate():
     with env.cd(env.path + env.project):
         with prefix(ACTIVATE.format(env.environment)):
@@ -109,9 +102,13 @@ def restart():
 
 
 @task
+def shell():
+    lrun('ssh {}@{} '.format(env.user, env.hosts[0]))
+
+
+@task
 def deploy():
     upload()
     collectstatic()
-    syncdb()
     migrate()
     restart()
