@@ -48,7 +48,7 @@ LOGGING = {
         'level': 'WARNING',
     },
     'loggers': {
-        'conductor': {
+        'fairplay': {
             'handlers': ['console', ],
             'propagate': False,
             'level': 'INFO',

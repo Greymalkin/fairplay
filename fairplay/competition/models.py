@@ -109,6 +109,11 @@ class DivisionManager(MeetManager):
     def get_by_natural_key(self, meet, level, name):
         return self.get(meet__name=meet, level__name=level, name=name)
 
+    def get_queryset(self):
+        qs = super(DivisionManager, self).get_queryset()
+        qs.select_related('level')
+        return qs
+
 
 class Division(models.Model):
     # TODO Foreign Key to registration.Discipline
@@ -170,6 +175,11 @@ def total_meet_medals():
 class SessionManager(MeetManager):
     def get_by_natural_key(self, meet, name):
         return self.get(meet__name=meet, name=name)
+
+    def get_queryset(self):
+        qs = super(SessionManager, self).get_queryset()
+        qs.prefetch_related('divisions')
+        return qs
 
 
 class Session(models.Model):
@@ -357,6 +367,11 @@ class GymnastEventManager(MeetManager):
             event__is_mag=event_mag,
             event__is_wag=event_wag)
 
+    def get_queryset(self):
+        qs = super(GymnastEventManager, self).get_queryset()
+        qs.select_related('gymnast', 'event')
+        return qs
+
 
 class GymnastEvent(models.Model):
     meet = models.ForeignKey(Meet, related_name='gymnast_events')
@@ -396,12 +411,6 @@ class GymnastEvent(models.Model):
 class CompetitionGymnastManager(MeetManager):
     def get_queryset(self):
         qs = super(CompetitionGymnastManager, self).get_queryset().filter(is_scratched=False, usag__isnull=False)
-
-        try:
-            current_meet = Meet.objects.get(is_current_meet=True)[0]
-            return qs.filter(meet=current_meet)
-        except Exception:
-            pass
         return qs
 
 
@@ -430,12 +439,6 @@ class Gymnast(MasterGymnast):
 class MensArtisticGymnastManager(MeetManager):
     def get_queryset(self):
         qs = super(MensArtisticGymnastManager, self).get_queryset().filter(is_scratched=False, discipline='mag', usag__isnull=False)
-
-        try:
-            current_meet = Meet.objects.get(is_current_meet=True)[0]
-            return qs.filter(meet=current_meet)
-        except Exception:
-            pass
         return qs
 
 
@@ -485,12 +488,6 @@ class MensArtisticGymnast(MasterGymnast):
 class WomensArtisticGymnastManager(MeetManager):
     def get_queryset(self):
         qs = super(WomensArtisticGymnastManager, self).get_queryset().filter(is_scratched=False, discipline='wag', usag__isnull=False)
-
-        try:
-            current_meet = Meet.objects.get(is_current_meet=True)[0]
-            return qs.filter(meet=current_meet)
-        except Exception:
-            pass
         return qs
 
 
@@ -583,34 +580,36 @@ class LEDShowMessage(models.Model):
 
 # Signals and Receivers
 
-def populate_athlete(instance, created, raw, **kwargs):
-    # Ignore fixtures and saves for existing courses.
-    if not created or raw:
-        return
+#  TODO: Don't think this does anything or needs to be here
+# def populate_athlete(instance, created, raw, **kwargs):
+#     # Ignore fixtures and saves for existing courses.
+#     print('**** populate_athlete')
+#     if not created or raw:
+#         return
 
-    instance.save()
+#     instance.save()
 
-    meet = Meet.objects.get(is_current_meet=True)
-    for event in Event.objects.filter(meet=meet):
-        ae = GymnastEvent.objects.get_or_create(event=event, gymnast=instance, meet=meet)
-        if instance.is_scratched:
-            ae.score = 0
-            ae.save()
+#     for event in Event.objects.filter(active=True):
+#         ae = GymnastEvent.objects.get_or_create(event=event, gymnast=instance)
+#         if instance.is_scratched:
+#             print('**** populate_athlete')
+#             ae.score = 0
+#             ae.save()
 
 
-def populate_event(instance, created, raw, **kwargs):
-    # Ignore fixtures and saves for existing courses.
-    if not created or raw:
-        return
+# def populate_event(instance, created, raw, **kwargs):
+#     # Ignore fixtures and saves for existing courses.
+#     if not created or raw:
+#         return
 
-    instance.save()
+#     instance.save()
 
-    meet = Meet.objects.get(is_current_meet=True)
-    for gymnast in Gymnast.objects.filter(meet=meet):
-        ae = GymnastEvent.objects.get_or_create(event=instance, gymnast=gymnast, meet=meet)
-        if gymnast.is_scratched:
-            ae.score = 0
-            ae.save()
+#     meet = Meet.objects.get(is_current_meet=True)
+#     for gymnast in Gymnast.objects.filter(meet=meet):
+#         ae = GymnastEvent.objects.get_or_create(event=instance, gymnast=gymnast, meet=meet)
+#         if gymnast.is_scratched:
+#             ae.score = 0
+#             ae.save()
 
 
 def scratch(instance, created, raw, **kwargs):
@@ -664,10 +663,10 @@ post_save.connect(
     sender=Gymnast,
     dispatch_uid='scratch')
 
-post_save.connect(
-    populate_athlete,
-    sender=Gymnast,
-    dispatch_uid='populate_athlete')
+# post_save.connect(
+#     populate_athlete,
+#     sender=Gymnast,
+#     dispatch_uid='populate_athlete')
 
 # post_save.connect(
 #     populate_event,

@@ -42,13 +42,7 @@ class Meet(models.Model):
 class MeetManager(models.Manager):
     def get_queryset(self):
         qs = super(MeetManager, self).get_queryset()
-
-        try:
-            current_meet = Meet.objects.get(is_current_meet=True)
-            return qs.filter(meet=current_meet)
-        except Exception:
-            pass
-        return qs
+        return qs.filter(meet__is_current_meet=True)
 
 
 # Helper Model, used so we can easily import Fairplay meet data using exported fixtures in an archive
@@ -62,3 +56,4 @@ class ImportFairplayMeetArchive(models.Model):
 
     class Meta:
         verbose_name_plural = ""
+        managed = False

@@ -139,7 +139,7 @@ class CustomIndexDashboard(Dashboard):
                     ['Scoreboard Control', '/scoreboard/'],
                     ['Download Roster', '/roster/'],
                     ['Download Athlete Labels', '/labels/athlete/'],
-                    ['Download Medal Labels', '/labels/team/'],
+                    ['Download Team Labels', '/labels/team/'],
                     ['Download Medal Labels', '/labels/medal/'],
                     ['Coaches Sign In', '/coaches/signin/'],
                 ),
@@ -154,7 +154,7 @@ class CustomIndexDashboard(Dashboard):
                 children=(
                     ['Meet Breakdown', '/breakdown/'],
                     ['Team Awards Breakdown', '/order/awards/'],
-                    ['Total Meet Medals: {}'.format(total_meet_medals()), '/'],
+                    ['Total Meet Medals: {}'.format(total_meet_medals()), '#'],
                     ['Coaches Hospitality', '/coaches/hospitality/'],
                     {
                         'title': 'Export Fairplay (Active Meet Only)',

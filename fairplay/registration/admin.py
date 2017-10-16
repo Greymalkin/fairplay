@@ -357,16 +357,17 @@ class GymnastAdmin(MeetDependentAdmin):
                 'form': form})
     set_shirt_action.short_description = u'Update shirt size'
 
+    # TODO: This method of updating competition age only works for MAG.
+    #       WAG is a completely different story
     def update_age(self, modeladmin, request, queryset):
         ''' competition age is based on gymnast age as of 5/31/yyyy '''
         rows_updated = 0
         for gymnast in queryset:
-            print(gymnast.meet.date)
             if not gymnast.meet.date:
                 messages.warning(request, 'Set a date in the Meet admin for when the {} meet will occur.'.format(request.session['meet']['short_name']))
             else:
                 if gymnast.dob is not None:
-                    gymnast.age = gymnast.competition_age
+                    gymnast.age = gymnast.competition_age_mag
                     gymnast.save()
                     rows_updated += 1
                 else:

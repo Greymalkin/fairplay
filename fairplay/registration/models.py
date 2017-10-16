@@ -13,6 +13,11 @@ class TeamManager(MeetManager):
     def get_by_natural_key(self, meet, gym, team):
         return self.get(meet__name=meet, gym=gym, team=team)
 
+    def get_queryset(self):
+        qs = super(TeamManager, self).get_queryset()
+        qs.prefetch_related('team_awards')
+        return qs
+
 
 class Team(models.Model):
     meet = models.ForeignKey(Meet, related_name='teams')
@@ -165,6 +170,11 @@ class GymnastManager(MeetManager):
             discipline=discipline,
             usag=usag)
 
+    def get_queryset(self):
+        qs = super(GymnastManager, self).get_queryset()
+        qs.select_related('team', 'shirt', 'level', 'division', 'starting_event')
+        return qs
+
 
 class Gymnast(Person):
     # TODO Foreign Key to registration.Discipline
@@ -186,8 +196,16 @@ class Gymnast(Person):
         blank=True, null=True,
         help_text='Competitive Age (as of {}/{})'.format(settings.COMPETITION_MONTH, settings.COMPETITION_DATE))
     is_us_citizen = models.BooleanField('US Citizen?', default=True)
-    shirt = models.ForeignKey('ShirtSize', blank=True, null=True, related_name="gymnasts", on_delete=models.SET_NULL)
-    level = models.ForeignKey('Level', blank=True, null=True, related_name="gymnasts", on_delete=models.SET_NULL)
+    shirt = models.ForeignKey(
+        'ShirtSize',
+        blank=True, null=True,
+        related_name="gymnasts",
+        on_delete=models.SET_NULL)
+    level = models.ForeignKey(
+        'Level',
+        blank=True, null=True,
+        related_name="gymnasts",
+        on_delete=models.SET_NULL)
     is_scratched = models.BooleanField('Scratched?', default=False)
     division = models.ForeignKey(
         'competition.Division',
@@ -231,7 +249,7 @@ class Gymnast(Person):
         return (self.meet.name, self.team.gym, self.last_name, self.first_name, self.discipline, self.usag)
 
     @property
-    def competition_age(self):
+    def competition_age_mag(self):
         # TODO: AGE... is differently calculated for mag than for wag.
         if self.dob and self.meet.date:
             if self.meet.date.month > 8:
@@ -245,7 +263,10 @@ class Gymnast(Person):
             return None
 
     def event_rotation_gymnasts(session, event):
-        qs = Gymnast.objects.filter(is_scratched=False, division__session=session, starting_event=event)
+        qs = Gymnast.objects.filter(
+            is_scratched=False,
+            division__session=session,
+            starting_event=event).select_related('starting_event', 'division', 'level', 'team')
         return qs
 
     def compute_tie_break(self):
@@ -467,6 +488,7 @@ class ImportUsagReservation(models.Model):
 
     class Meta:
         verbose_name_plural = ""
+        managed = False
 
 
 # Signals and Receivers
