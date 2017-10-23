@@ -239,9 +239,9 @@ class GymnastEventInlineAdmin(admin.TabularInline):
 
 class GymnastNoteInlineAdmin(admin.TabularInline):
     model = models.GymnastNotes
-    extra = 1
+    extra = 0
     exclude = ['meet']
-    verbose_name_plural = 'Notes'
+    verbose_name_plural = 'Internal Notes'
     readonly_fields = ['created']
     fields = ['author', 'note', 'created']
     classes = ('grp-collapse grp-open', 'grp-collapse grp-closed', )
@@ -299,7 +299,7 @@ class GymnastAdmin(MeetDependentAdmin):
                     'level',
                     'shirt',
                     ('is_us_citizen', 'is_verified', 'is_scratched', 'is_flagged',), ), }),
-                    # ('Checks', {'classes': ('grp-collapse grp-closed',), 'fields': ('is_us_citizen', 'is_scratched', 'is_flagged', 'is_verified',), }),
+                (None, {'fields': ('notes',), }),
                 ('Meet', {'classes': (
                     'grp-collapse grp-closed',),
                     'fields': (
@@ -397,13 +397,13 @@ class GymnastAdmin(MeetDependentAdmin):
         '''
         for gymnast in queryset:
             if gymnast.age and gymnast.level:
-                try:
-                    d = Division.objects.filter(level=gymnast.level).filter(Q(min_age__lte=gymnast.age) & Q(max_age__gte=gymnast.age)).first()
+                d = Division.objects.filter(level=gymnast.level).filter(Q(min_age__lte=gymnast.age) & Q(max_age__gte=gymnast.age)).first()
+
+                if not d:
+                    messages.error(request, 'No {2} age {1} division exists for {0}'.format(gymnast, gymnast.age, gymnast.level))
+                else:
                     gymnast.division = d
                     gymnast.save()
-
-                except Exception:
-                    messages.error(request, 'No division found for age: {1}, level: {2} ({0})'.format(gymnast, gymnast.age, gymnast.level))
 
             else:
                 messages.error(request, 'Age or level missing for gymnast {}'.format(gymnast))
@@ -582,9 +582,9 @@ class GymnastInline(admin.StackedInline):
 
 class TeamNotesInlineAdmin(admin.TabularInline):
     model = models.TeamNotes
-    extra = 1
+    extra = 0
     exclude = ['meet']
-    verbose_name_plural = 'Notes'
+    verbose_name_plural = 'Internal Notes'
     readonly_fields = ['created']
     fields = ['author', 'note', 'created']
     classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
@@ -627,6 +627,7 @@ class TeamAdmin(MeetDependentAdmin):
                                                  'total_cost',
                                                  'total_payments',
                                                  'show_paid_in_full', ), }),
+                         (None, {'fields': ('notes',), }),
                          ('Contact', {'fields': ('first_name',
                                                  'last_name',
                                                  'phone',

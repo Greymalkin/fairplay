@@ -318,7 +318,7 @@ class TeamAwardRankAdmin(MeetDependentAdmin):
     list_filter = ['team', 'team_award']
 
     def has_add_permission(self, request, obj=None):
-            return False
+        return False
 
 
 @admin.register(models.TeamAwardRankEvent)
@@ -328,7 +328,7 @@ class TeamAwardRankEventAdmin(MeetDependentAdmin):
     search_fields = ['gymnast_event__gymnast__first_name', 'gymnast_event__gymnast__last_name']
 
     def has_add_permission(self, request, obj=None):
-            return False
+        return False
 
 
 @admin.register(models.GymnastEvent)
@@ -347,7 +347,7 @@ class GymnastEventAdmin(MeetDependentAdmin):
         return fieldsets
 
     def has_add_permission(self, request, obj=None):
-            return False
+        return False
 
 
 @admin.register(models.Division)

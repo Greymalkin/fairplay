@@ -152,9 +152,8 @@ class CustomIndexDashboard(Dashboard):
                 layout='inline',
                 css_classes=('grp-open',),
                 children=(
-                    ['Meet Breakdown', '/breakdown/'],
+                    ['Meet Breakdown ({} awards)'.format(total_meet_medals()), '/breakdown/'],
                     ['Team Awards Breakdown', '/order/awards/'],
-                    ['Total Meet Medals: {}'.format(total_meet_medals()), '#'],
                     ['Coaches Hospitality', '/coaches/hospitality/'],
                     {
                         'title': 'Export Fairplay (Active Meet Only)',

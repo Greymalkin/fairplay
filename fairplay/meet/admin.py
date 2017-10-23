@@ -297,18 +297,18 @@ class MeetDependentAdmin(admin.ModelAdmin):
         from .changelist import MeetDependentChangeList
         return MeetDependentChangeList
 
-    def has_change_permission(self, request, obj=None):
-        if self.current_meet.count() != 1:
-            return False
-        return True
+    # def has_change_permission(self, request, obj=None):
+    #     if self.current_meet.count() != 1:
+    #         return False
+    #     return True
 
-    def has_add_permission(self, request, obj=None):
-        if self.current_meet.count() != 1:
-            return False
-        return True
+    # def has_add_permission(self, request, obj=None):
+    #     if self.current_meet.count() != 1:
+    #         return False
+    #     return True
 
-    def has_delete_permission(self, request, obj=None):
-        return True
+    # def has_delete_permission(self, request, obj=None):
+    #     return True
 
 
 @admin.register(models.ImportFairplayMeetArchive)
