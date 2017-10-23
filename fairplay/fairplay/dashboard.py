@@ -105,6 +105,8 @@ class CustomIndexDashboard(Dashboard):
             collapsible=True,
             models=(
                 'django.contrib.*',
+                'registration.models.GymnastNotes',
+                'registration.models.TeamNotes',
             ),
         ))
 

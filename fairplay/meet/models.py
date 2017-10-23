@@ -15,12 +15,13 @@ class Meet(models.Model):
     enable_ranking = models.BooleanField(
         'Ranking',
         default=False,
-        help_text='''scoring is live, gymnast and team ranks are adjusting as new scores come in.''')
-    event_award_percentage = models.FloatField(default=0.45)
+        help_text='''scoring is live, gymnast ranks and team ranks are adjusting as new scores come in''')
+    event_award_percentage = models.FloatField(default=0.33)
     all_around_award_percentage = models.FloatField(default=0.5)
+    team_award_percentage = models.FloatField(default=.33)
     all_last_place_ties_in_awards = models.BooleanField(
         default=False,
-        help_text="push out award count on tie at last place")
+        help_text="when running the award ceremony, push out award count when there is a tie at last place")
     notes = models.TextField(null=True, blank=True)
 
     objects = MeetNaturalKeyManager()

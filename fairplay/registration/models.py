@@ -47,7 +47,7 @@ class Team(models.Model):
     gymnast_cost = models.DecimalField('Total Gymnast Cost', decimal_places=2, max_digits=6, default=0)
     team_award_cost = models.DecimalField('Total Team Award Cost', decimal_places=2, max_digits=6, default=0)
     total_cost = models.DecimalField('Total Cost', decimal_places=2, max_digits=6, default=0)
-    notes = models.TextField(blank=True, null=True)
+    notes = models.TextField("Public Notes", blank=True, null=True, help_text="May be exposed in CSV data exports.")
     qualified = models.BooleanField(default=True, help_text="Qualifies for team awards")
 
     objects = TeamManager()
@@ -118,7 +118,7 @@ class Person(models.Model):
     usag = models.CharField('USAG #', max_length=225, blank=True, null=True)
     is_flagged = models.BooleanField('Flagged!', default=False)
     is_verified = models.BooleanField('Verified', default=False)
-    notes = models.TextField(blank=True, null=True)
+    notes = models.TextField("Public Notes", blank=True, null=True, help_text="May be exposed in CSV data exports.")
 
     class Meta:
         abstract = True
@@ -367,7 +367,7 @@ class ShirtSize(models.Model):
 
 class Notes(models.Model):
     author = models.CharField(max_length=50, blank=False, null=False)
-    note = models.CharField(max_length=255, blank=False, null=False)
+    note = models.TextField(blank=False, null=False)
     created = models.DateTimeField(auto_now_add=True)
 
     class Meta:

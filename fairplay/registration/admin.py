@@ -603,6 +603,20 @@ class PaymentsInlineAdmin(admin.TabularInline):
     inline_classes = ('grp-collapse grp-closed',)
 
 
+@admin.register(models.GymnastNotes)
+class GymnastInternalNotesAdmin(admin.ModelAdmin):
+    list_display = ['author', 'created', 'gymnast', 'note']
+    search_fields = ['gymnast__first_name', 'gymnast__last_name', 'gymnast__usag']
+    list_filter = ['gymnast__team']
+
+
+@admin.register(models.TeamNotes)
+class TeamInternalNotesAdmin(admin.ModelAdmin):
+    list_display =['author', 'created', 'team', 'note']
+    search_fields = ['note']
+    list_filter = ['team']
+
+
 @admin.register(models.Team)
 class TeamAdmin(MeetDependentAdmin):
     list_display = ('team', 'gym', 'usag', 'contact_name', 'num_gymnasts', 'show_paid_in_full', 'city', 'state')

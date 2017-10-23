@@ -50,6 +50,9 @@ class MeetAdmin(admin.ModelAdmin):
                 "name": obj.name,
                 "short_name": obj.short_name,
                 "enable_ranking": obj.enable_ranking,
+                "event_award_percentage": obj.event_award_percentage * 100,
+                "all_around_award_percentage": obj.all_around_award_percentage * 100,
+                "team_award_percentage": obj.team_award_percentage * 100
             }
         # Current meet was toggled off.  Remove from session
         elif request.session.get('meet', '') and request.session['meet'].get('id', 0) == obj.id:
