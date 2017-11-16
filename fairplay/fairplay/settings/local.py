@@ -2,9 +2,7 @@ from .base import *
 
 DEBUG = True
 
-INSTALLED_APPS += [
-    'django_extensions',
-]
+INSTALLED_APPS += []
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
@@ -12,7 +10,7 @@ INSTALLED_APPS += [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'ludwig',  # 'test_fairplay',
+        'NAME': 'test_fairplay',  # 'test_fairplay', or 'ludwig'
         'USER': 'fairplay',
         'PASSWORD': 'dbmaster',
         'HOST': 'localhost',
@@ -45,7 +43,7 @@ LOGGING = {
     'root': {
         'handlers': ['console', ],
         'propagate': True,
-        'level': 'WARNING',
+        'level': 'INFO',
     },
     'loggers': {
         'fairplay': {
