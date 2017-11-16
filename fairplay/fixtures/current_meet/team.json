@@ -1,0 +1,817 @@
+[
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "All Pro Gymnastics and Cheer Academy",
+        "team": "All Pro",
+        "address_1": null,
+        "address_2": null,
+        "city": "Elkridge",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "4109355783",
+        "first_name": "Abdelouahab",
+        "last_name": "Mammeri",
+        "email": "ulticoach@hotmail.com",
+        "usag": "97293",
+        "per_team_award_cost": 50,
+        "started": "2017-09-03T19:50:36.965Z",
+        "updated": "2017-11-13T23:35:40.246Z",
+        "gymnast_cost": "720.00",
+        "team_award_cost": "100.00",
+        "total_cost": "820.00",
+        "notes": "Balance owed: $820.  No payments received as of November 1, 2017.",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 6"
+            ],
+            [
+                "BWI 2017",
+                "Level 9/10"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Indigo Gymnastics Center",
+        "team": "Indigo",
+        "address_1": null,
+        "address_2": null,
+        "city": "New Providence",
+        "state": "NJ",
+        "postal_code": null,
+        "phone": "2152400054",
+        "first_name": "Elijah",
+        "last_name": "Price",
+        "email": "elijahprice5@yahoo.com",
+        "usag": "405001",
+        "per_team_award_cost": 50,
+        "started": "2017-09-03T19:50:36.970Z",
+        "updated": "2017-11-14T01:12:06.909Z",
+        "gymnast_cost": "630.00",
+        "team_award_cost": "100.00",
+        "total_cost": "730.00",
+        "notes": null,
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 8"
+            ],
+            [
+                "BWI 2017",
+                "Level 9/10"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "United Gymnastix",
+        "team": "United Gymnastix",
+        "address_1": null,
+        "address_2": null,
+        "city": "Reisterstown",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "4435708121",
+        "first_name": "Oleg",
+        "last_name": "Bezrodniy",
+        "email": "olegbezrodniy@hotmail.com",
+        "usag": "24609",
+        "per_team_award_cost": 50,
+        "started": "2017-09-03T19:50:36.974Z",
+        "updated": "2017-10-28T23:42:02.161Z",
+        "gymnast_cost": "1350.00",
+        "team_award_cost": "200.00",
+        "total_cost": "1550.00",
+        "notes": null,
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 5"
+            ],
+            [
+                "BWI 2017",
+                "Level 6"
+            ],
+            [
+                "BWI 2017",
+                "Level 7"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "APEX",
+        "team": "APEX",
+        "address_1": null,
+        "address_2": null,
+        "city": "Leesburg",
+        "state": "VA",
+        "postal_code": null,
+        "phone": "7035819864",
+        "first_name": "Richard",
+        "last_name": "Yoder",
+        "email": "bhchefyoder@yahoo.com",
+        "usag": "24893",
+        "per_team_award_cost": 50,
+        "started": "2017-09-06T04:30:32.789Z",
+        "updated": "2017-10-28T23:42:02.492Z",
+        "gymnast_cost": "1350.00",
+        "team_award_cost": "100.00",
+        "total_cost": "1450.00",
+        "notes": null,
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 5"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Sportsplex Gymnastics",
+        "team": "Sportsplex",
+        "address_1": null,
+        "address_2": null,
+        "city": "Landover",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "4102792489",
+        "first_name": "Robert",
+        "last_name": "Lundy",
+        "email": "lundy_b@yahoo.com",
+        "usag": "95651",
+        "per_team_award_cost": 50,
+        "started": "2017-09-06T04:30:32.800Z",
+        "updated": "2017-11-13T21:25:44.689Z",
+        "gymnast_cost": "1980.00",
+        "team_award_cost": "100.00",
+        "total_cost": "2080.00",
+        "notes": null,
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 6"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "The Gravity Forge Gymnastics",
+        "team": "Gravity Forged",
+        "address_1": null,
+        "address_2": null,
+        "city": "Hatboro",
+        "state": "PA",
+        "postal_code": null,
+        "phone": "2152757526",
+        "first_name": "Dan",
+        "last_name": "Galiczynski",
+        "email": "gravityforged@gmail.com",
+        "usag": "25275",
+        "per_team_award_cost": 50,
+        "started": "2017-09-12T18:27:52.584Z",
+        "updated": "2017-11-13T21:25:44.595Z",
+        "gymnast_cost": "1350.00",
+        "team_award_cost": "100.00",
+        "total_cost": "1450.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 6"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Docksiders",
+        "team": "Docksiders",
+        "address_1": null,
+        "address_2": null,
+        "city": "Millersville",
+        "state": "MD",
+        "postal_code": null,
+        "phone": null,
+        "first_name": "Charlie",
+        "last_name": "Kowalski",
+        "email": "Docksiders@aol.com",
+        "usag": "24544",
+        "per_team_award_cost": 50,
+        "started": "2017-09-12T18:30:09.997Z",
+        "updated": "2017-10-24T00:26:36.848Z",
+        "gymnast_cost": "1980.00",
+        "team_award_cost": "150.00",
+        "total_cost": "2130.00",
+        "notes": null,
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 5"
+            ],
+            [
+                "BWI 2017",
+                "Level 6"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Fairland Gymnastics",
+        "team": "Fairland",
+        "address_1": null,
+        "address_2": null,
+        "city": "Laurel",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "3013626060",
+        "first_name": "Wendy",
+        "last_name": "MacNaught",
+        "email": "wendy.macnaught@pgparks.com",
+        "usag": "24501",
+        "per_team_award_cost": 0,
+        "started": "2017-09-13T20:43:07.309Z",
+        "updated": "2017-11-14T01:13:33.884Z",
+        "gymnast_cost": "0.00",
+        "team_award_cost": "0.00",
+        "total_cost": "0.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 5"
+            ],
+            [
+                "BWI 2017",
+                "Level 6"
+            ],
+            [
+                "BWI 2017",
+                "Level 9/10"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Beach Bounders",
+        "team": "Beach Bounders",
+        "address_1": null,
+        "address_2": null,
+        "city": "Fruitland",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "4107422053",
+        "first_name": "Ramsey",
+        "last_name": "Mitchell",
+        "email": "Mitchell8355@gmail.com",
+        "usag": "397250",
+        "per_team_award_cost": 50,
+        "started": "2017-09-15T13:33:25.799Z",
+        "updated": "2017-11-13T15:10:50.061Z",
+        "gymnast_cost": "900.00",
+        "team_award_cost": "150.00",
+        "total_cost": "1050.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 5"
+            ],
+            [
+                "BWI 2017",
+                "Level 6"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Top Flight Gymnastics Center",
+        "team": "Top Flight",
+        "address_1": null,
+        "address_2": null,
+        "city": "Columbia",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "4109921600",
+        "first_name": "Dmitryi",
+        "last_name": "Gavrilyuk",
+        "email": "dalekkaestner@mac.com",
+        "usag": "26061",
+        "per_team_award_cost": 50,
+        "started": "2017-09-21T14:17:21.900Z",
+        "updated": "2017-10-29T00:16:46.156Z",
+        "gymnast_cost": "2160.00",
+        "team_award_cost": "200.00",
+        "total_cost": "2360.00",
+        "notes": null,
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 5"
+            ],
+            [
+                "BWI 2017",
+                "Level 6"
+            ],
+            [
+                "BWI 2017",
+                "Level JD"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Olympiad Gymnastics",
+        "team": "Olympiad",
+        "address_1": null,
+        "address_2": null,
+        "city": "Wilmington",
+        "state": "DE",
+        "postal_code": null,
+        "phone": "4845573169",
+        "first_name": "Steve",
+        "last_name": "Heitz",
+        "email": "steve@flipkidz.com",
+        "usag": "487229",
+        "per_team_award_cost": 50,
+        "started": "2017-09-25T20:00:51.179Z",
+        "updated": "2017-11-04T17:08:00.681Z",
+        "gymnast_cost": "360.00",
+        "team_award_cost": "0.00",
+        "total_cost": "360.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": []
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Fairfax Gymnastics Academy",
+        "team": "Fairfax",
+        "address_1": null,
+        "address_2": null,
+        "city": "Fairfax",
+        "state": "VA",
+        "postal_code": null,
+        "phone": "7037253077",
+        "first_name": "Vanik",
+        "last_name": "Chamasyan",
+        "email": "vanikchamasyan@gmail.com",
+        "usag": "25560",
+        "per_team_award_cost": 50,
+        "started": "2017-09-29T19:20:21.828Z",
+        "updated": "2017-11-14T01:12:40.671Z",
+        "gymnast_cost": "900.00",
+        "team_award_cost": "100.00",
+        "total_cost": "1000.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 5"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Prestige Gymnastics",
+        "team": "Prestige",
+        "address_1": null,
+        "address_2": null,
+        "city": "Lancaster",
+        "state": "PA",
+        "postal_code": null,
+        "phone": "7172288916",
+        "first_name": "Travis",
+        "last_name": "Shelton",
+        "email": "tjs313@hotmail.com",
+        "usag": "23077",
+        "per_team_award_cost": 50,
+        "started": "2017-09-29T19:20:21.847Z",
+        "updated": "2017-10-28T23:42:01.851Z",
+        "gymnast_cost": "990.00",
+        "team_award_cost": "0.00",
+        "total_cost": "990.00",
+        "notes": null,
+        "qualified": true,
+        "team_awards": []
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "North Shore Gymnastics",
+        "team": "North Shore",
+        "address_1": null,
+        "address_2": null,
+        "city": "Elkton",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "3027315206",
+        "first_name": "Jakub",
+        "last_name": "Simacek",
+        "email": "jsimacek@udel.edu",
+        "usag": "208806",
+        "per_team_award_cost": 50,
+        "started": "2017-10-02T23:39:46.390Z",
+        "updated": "2017-11-04T17:06:57.761Z",
+        "gymnast_cost": "540.00",
+        "team_award_cost": "50.00",
+        "total_cost": "590.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 6"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Rebounders Gymnastics Inc.",
+        "team": "Rebounders",
+        "address_1": null,
+        "address_2": null,
+        "city": "Timonium",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "4438206951",
+        "first_name": "Jamal",
+        "last_name": "Rice",
+        "email": "hjr1976@yahoo.com",
+        "usag": "23955",
+        "per_team_award_cost": 50,
+        "started": "2017-10-06T02:52:46.523Z",
+        "updated": "2017-11-14T01:16:40.207Z",
+        "gymnast_cost": "2700.00",
+        "team_award_cost": "200.00",
+        "total_cost": "2900.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ],
+            [
+                "BWI 2017",
+                "Level 5"
+            ],
+            [
+                "BWI 2017",
+                "Level 6"
+            ],
+            [
+                "BWI 2017",
+                "Level 8"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Paragon National Training Center",
+        "team": "Paragon",
+        "address_1": null,
+        "address_2": null,
+        "city": "Columbia",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "4435456226",
+        "first_name": "Robert",
+        "last_name": "Preston",
+        "email": "kevin@gymparagon.com",
+        "usag": "930875",
+        "per_team_award_cost": 50,
+        "started": "2017-10-11T16:59:55.543Z",
+        "updated": "2017-11-04T17:01:40.588Z",
+        "gymnast_cost": "3690.00",
+        "team_award_cost": "250.00",
+        "total_cost": "3940.00",
+        "notes": "Balance owed: $90.  Two coaches needed in Sessions 2 and 3.",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 5"
+            ],
+            [
+                "BWI 2017",
+                "Level 6"
+            ],
+            [
+                "BWI 2017",
+                "Level 8"
+            ],
+            [
+                "BWI 2017",
+                "Level 9/10"
+            ],
+            [
+                "BWI 2017",
+                "Level JD"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Youth Sports Virginia Training Center",
+        "team": "Youth Sports",
+        "address_1": null,
+        "address_2": null,
+        "city": "Woodbridge",
+        "state": "VA",
+        "postal_code": null,
+        "phone": "7036068655",
+        "first_name": "Helena",
+        "last_name": "Thorpe",
+        "email": "ThorpeHR@pwcs.edu",
+        "usag": "24571",
+        "per_team_award_cost": 50,
+        "started": "2017-10-11T21:54:20.668Z",
+        "updated": "2017-11-04T17:09:05.466Z",
+        "gymnast_cost": "720.00",
+        "team_award_cost": "100.00",
+        "total_cost": "820.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 9/10"
+            ],
+            [
+                "BWI 2017",
+                "Level JD"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Preston Gymnastics Academy",
+        "team": "Preston",
+        "address_1": null,
+        "address_2": null,
+        "city": "Gaithersburg",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "3019480827",
+        "first_name": "Tim",
+        "last_name": "Preston",
+        "email": "tim@prestongymnastics.net",
+        "usag": "118420",
+        "per_team_award_cost": 50,
+        "started": "2017-10-14T16:59:59.826Z",
+        "updated": "2017-11-14T01:28:46.508Z",
+        "gymnast_cost": "1350.00",
+        "team_award_cost": "100.00",
+        "total_cost": "1450.00",
+        "notes": "Balance owed $1450. No payment as of November 1, 2017.",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 8"
+            ],
+            [
+                "BWI 2017",
+                "Level 9/10"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Columbia Gymnastics",
+        "team": "Columbia",
+        "address_1": null,
+        "address_2": null,
+        "city": "Columbia",
+        "state": "MD",
+        "postal_code": null,
+        "phone": "4432866948",
+        "first_name": "David",
+        "last_name": "Curry",
+        "email": "dwcurry7@yahoo.com",
+        "usag": "25703",
+        "per_team_award_cost": 50,
+        "started": "2017-10-17T00:33:29.276Z",
+        "updated": "2017-11-14T01:14:59.533Z",
+        "gymnast_cost": "1080.00",
+        "team_award_cost": "100.00",
+        "total_cost": "1180.00",
+        "notes": null,
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 5"
+            ],
+            [
+                "BWI 2017",
+                "Level 9/10"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Dynamic Gymnastics",
+        "team": "Dynamic",
+        "address_1": null,
+        "address_2": null,
+        "city": "Arlington",
+        "state": "VA",
+        "postal_code": null,
+        "phone": "5712126335",
+        "first_name": "Christopher",
+        "last_name": "Yurek",
+        "email": "cyurek@griffingymnastics.com",
+        "usag": "624661",
+        "per_team_award_cost": 50,
+        "started": "2017-10-17T15:15:41.285Z",
+        "updated": "2017-11-04T17:08:43.624Z",
+        "gymnast_cost": "1260.00",
+        "team_award_cost": "50.00",
+        "total_cost": "1310.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": [
+            [
+                "BWI 2017",
+                "Level 4"
+            ]
+        ]
+    }
+},
+{
+    "model": "registration.team",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "gym": "Upper Merion Dance and Gymnastics",
+        "team": "Upper Merion",
+        "address_1": null,
+        "address_2": null,
+        "city": "King Of Prussia",
+        "state": "PA",
+        "postal_code": null,
+        "phone": "6104056866",
+        "first_name": "David",
+        "last_name": "Evasew",
+        "email": "devasew@gmail.com",
+        "usag": "123108",
+        "per_team_award_cost": 50,
+        "started": "2017-10-28T23:41:46.982Z",
+        "updated": "2017-11-06T20:28:38.720Z",
+        "gymnast_cost": "700.00",
+        "team_award_cost": "0.00",
+        "total_cost": "700.00",
+        "notes": "",
+        "qualified": true,
+        "team_awards": []
+    }
+}
+]

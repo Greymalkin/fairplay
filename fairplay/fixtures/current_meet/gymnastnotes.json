@@ -1,0 +1,59 @@
+[
+{
+    "model": "registration.gymnastnotes",
+    "fields": {
+        "author": "Patti",
+        "note": "Broken arm.  We were notified prior to the scratch deadline.",
+        "created": "2017-10-11T17:17:10.285Z",
+        "meet": [
+            "BWI 2017"
+        ],
+        "gymnast": [
+            "BWI 2017",
+            "United Gymnastix",
+            "Louther",
+            "Job",
+            "mag",
+            "1302218"
+        ]
+    }
+},
+{
+    "model": "registration.gymnastnotes",
+    "fields": {
+        "author": "Patti",
+        "note": "Gymnast is too old for Level 8.  Asked team how to change level.  While waiting for team response, added gymnast to JD level so we could complete rotations.  Will adjust later if necessary.",
+        "created": "2017-10-19T13:12:56.746Z",
+        "meet": [
+            "BWI 2017"
+        ],
+        "gymnast": [
+            "BWI 2017",
+            "Fairfax Gymnastics Academy",
+            "Rohani",
+            "Nima",
+            "mag",
+            "472060"
+        ]
+    }
+},
+{
+    "model": "registration.gymnastnotes",
+    "fields": {
+        "author": "Patti",
+        "note": "Gymnast is too old for Level 8.  Asked team how to change level.  While waiting for team response, added gymnast to JD level so we could complete rotations.  Will adjust later if necessary.",
+        "created": "2017-10-19T13:13:11.332Z",
+        "meet": [
+            "BWI 2017"
+        ],
+        "gymnast": [
+            "BWI 2017",
+            "Fairfax Gymnastics Academy",
+            "Rothwell",
+            "Daniel",
+            "mag",
+            "643533"
+        ]
+    }
+}
+]

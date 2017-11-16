@@ -8,6 +8,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 
 from . import models
+from meet.views import get_meet
 from meet.admin import MeetDependentAdmin
 from registration.models import Level
 
@@ -360,12 +361,12 @@ class DivisionAdmin(MeetDependentAdmin):
     list_filter = ['level']
 
     def meet_awards_percentage(self, request, queryset):
-        meet = models.Meet.objects.get(is_current_meet=True)
+        # Make sure to exclude scratched gymnasts when running the award count
         for division in queryset:
-            division.event_award_count = math.ceil(len(division.gymnasts.all()) * meet.event_award_percentage)
-            division.all_around_award_count = math.ceil(len(division.gymnasts.all()) * meet.all_around_award_percentage)
+            division.event_award_count = math.ceil(division.gymnasts.filter(is_scratched=False).count() * division.meet.event_award_percentage)
+            division.all_around_award_count = math.ceil(division.gymnasts.filter(is_scratched=False).count() * division.meet.all_around_award_percentage)
             division.save()
-    meet_awards_percentage.short_description = "Set to meet awards percentage"
+    meet_awards_percentage.short_description = "Calculate AA & event awards from %%s in Meet admin"
 
     def get_queryset(self, request):
         # TODO: annotate query with num_gymnasts, so the column can be sortable in the admin

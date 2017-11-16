@@ -85,6 +85,11 @@ def no_meets_at_all():
     return False if models.Meet.objects.all().count() > 0 else True
 
 
+def get_meet(column):
+    meet = models.Meet.objects.filter(is_current_meet=True).values(column)
+    return meet
+
+
 class MeetViewSet(viewsets.ReadOnlyModelViewSet):
     """ Retrieve a meet by its id """
     queryset = models.Meet.objects.all()
@@ -111,6 +116,10 @@ class MeetViewSet(viewsets.ReadOnlyModelViewSet):
             'name': meet.name,
             'short_name': meet.short_name,
             'enable_ranking': meet.enable_ranking,
+            "event_award_percentage": meet.event_award_percentage * 100,
+            "all_around_award_percentage": meet.all_around_award_percentage * 100,
+            "team_award_percentage": meet.team_award_percentage * 100
+
         }
         return Response({"status": "active meet: {}".format(request.session['meet'])}, status=status.HTTP_200_OK)
 

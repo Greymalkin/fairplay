@@ -1,0 +1,202 @@
+[
+{
+    "model": "competition.session",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Session 1",
+        "warmup": "Traditional",
+        "session_start": "2017-12-09T12:30:00Z",
+        "timed_warmup_start": "08:00:00",
+        "competition_start": "09:20:00",
+        "presentation_start": "09:00:00",
+        "divisions": [
+            [
+                "BWI 2017",
+                "6 d1",
+                "8-11 d1"
+            ],
+            [
+                "BWI 2017",
+                "6 d1",
+                "12 & up d1"
+            ],
+            [
+                "BWI 2017",
+                "6 d2",
+                "8-11 d2"
+            ],
+            [
+                "BWI 2017",
+                "6 d2",
+                "12 & up d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.session",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Session 2",
+        "warmup": "Traditional",
+        "session_start": "2017-12-09T17:30:00Z",
+        "timed_warmup_start": "13:00:00",
+        "competition_start": "14:20:00",
+        "presentation_start": "14:00:00",
+        "divisions": [
+            [
+                "BWI 2017",
+                "7 d1",
+                "10-11 d1"
+            ],
+            [
+                "BWI 2017",
+                "7 d1",
+                "12 & up d1"
+            ],
+            [
+                "BWI 2017",
+                "7 d2",
+                "10 & up d2"
+            ],
+            [
+                "BWI 2017",
+                "jd d1",
+                "11-14 d1"
+            ],
+            [
+                "BWI 2017",
+                "jd d1",
+                "15 & up d1"
+            ],
+            [
+                "BWI 2017",
+                "jd d2",
+                "all"
+            ],
+            [
+                "BWI 2017",
+                "8",
+                "11-12"
+            ],
+            [
+                "BWI 2017",
+                "8",
+                "13-14"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.session",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Session 3",
+        "warmup": "Warm-up/Compete",
+        "session_start": "2017-12-09T22:30:00Z",
+        "timed_warmup_start": "18:20:00",
+        "competition_start": "18:20:00",
+        "presentation_start": "18:00:00",
+        "divisions": [
+            [
+                "BWI 2017",
+                "9",
+                "13"
+            ],
+            [
+                "BWI 2017",
+                "9",
+                "14 & up"
+            ],
+            [
+                "BWI 2017",
+                "10",
+                "15-16"
+            ],
+            [
+                "BWI 2017",
+                "10",
+                "17 & up"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.session",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Session 4",
+        "warmup": "Traditional",
+        "session_start": "2017-12-10T13:00:00Z",
+        "timed_warmup_start": "08:30:00",
+        "competition_start": "09:50:00",
+        "presentation_start": "09:30:00",
+        "divisions": [
+            [
+                "BWI 2017",
+                "4 d1",
+                "6-8 d1"
+            ],
+            [
+                "BWI 2017",
+                "4 d1",
+                "9 & up d1"
+            ],
+            [
+                "BWI 2017",
+                "4 d2",
+                "6-8 d2"
+            ],
+            [
+                "BWI 2017",
+                "4 d2",
+                "9 & up d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.session",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Session 5",
+        "warmup": "Traditional",
+        "session_start": "2017-12-10T06:00:00Z",
+        "timed_warmup_start": "13:30:00",
+        "competition_start": "14:50:00",
+        "presentation_start": "14:30:00",
+        "divisions": [
+            [
+                "BWI 2017",
+                "5 d1",
+                "7-9 d1"
+            ],
+            [
+                "BWI 2017",
+                "5 d1",
+                "10 & up d1"
+            ],
+            [
+                "BWI 2017",
+                "5 d2",
+                "7-10 d2"
+            ],
+            [
+                "BWI 2017",
+                "5 d2",
+                "11 & up d2"
+            ]
+        ]
+    }
+}
+]

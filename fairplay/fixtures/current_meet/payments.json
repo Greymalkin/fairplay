@@ -1,0 +1,342 @@
+[
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Docksiders",
+            "Docksiders"
+        ],
+        "amount": "2270.00",
+        "paid": "2017-09-15",
+        "detail": "check #1676",
+        "updated": "2017-09-22T02:00:28.913Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "United Gymnastix",
+            "United Gymnastix"
+        ],
+        "amount": "1550.00",
+        "paid": "2017-09-08",
+        "detail": "check #132",
+        "updated": "2017-09-22T02:01:46.897Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "The Gravity Forge Gymnastics",
+            "Gravity Forged"
+        ],
+        "amount": "1630.00",
+        "paid": "2017-09-12",
+        "detail": "check #155",
+        "updated": "2017-09-22T02:04:58.942Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Indigo Gymnastics Center",
+            "Indigo"
+        ],
+        "amount": "820.00",
+        "paid": "2017-09-12",
+        "detail": "check #1613",
+        "updated": "2017-09-22T02:06:17.723Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "APEX",
+            "APEX"
+        ],
+        "amount": "1500.00",
+        "paid": "2017-09-27",
+        "detail": "Check #397 from Virginia Gymnastics Booster Club",
+        "updated": "2017-10-06T14:57:36.071Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Olympiad Gymnastics",
+            "Olympiad"
+        ],
+        "amount": "270.00",
+        "paid": "2017-10-06",
+        "detail": "Veronika received the check.  I do not have a copy of it.",
+        "updated": "2017-10-09T21:31:14.343Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "North Shore Gymnastics",
+            "North Shore"
+        ],
+        "amount": "590.00",
+        "paid": "2017-10-07",
+        "detail": "Veronika received the check.  I do not have a copy of it.",
+        "updated": "2017-10-09T21:38:41.313Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Columbia Gymnastics",
+            "Columbia"
+        ],
+        "amount": "1180.00",
+        "paid": "2017-10-10",
+        "detail": "Check #902(1/7)",
+        "updated": "2017-10-17T00:35:48.222Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Sportsplex Gymnastics",
+            "Sportsplex"
+        ],
+        "amount": "2080.00",
+        "paid": "2017-10-13",
+        "detail": "Paid by check #5800",
+        "updated": "2017-10-17T13:33:33.990Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Paragon National Training Center",
+            "Paragon"
+        ],
+        "amount": "3850.00",
+        "paid": "2017-10-12",
+        "detail": "Paid by check # ?",
+        "updated": "2017-10-17T13:34:49.006Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Top Flight Gymnastics Center",
+            "Top Flight"
+        ],
+        "amount": "2360.00",
+        "paid": "2017-10-06",
+        "detail": "Check #5084",
+        "updated": "2017-10-19T01:05:07.186Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Olympiad Gymnastics",
+            "Olympiad"
+        ],
+        "amount": "90.00",
+        "paid": "2017-10-13",
+        "detail": "Check #995988",
+        "updated": "2017-10-19T01:07:38.602Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Prestige Gymnastics",
+            "Prestige"
+        ],
+        "amount": "990.00",
+        "paid": "2017-10-05",
+        "detail": "Check #1926",
+        "updated": "2017-10-19T01:08:51.698Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Dynamic Gymnastics",
+            "Dynamic"
+        ],
+        "amount": "1310.00",
+        "paid": "2017-10-17",
+        "detail": "Check #1442",
+        "updated": "2017-10-23T22:44:13.151Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Fairfax Gymnastics Academy",
+            "Fairfax"
+        ],
+        "amount": "1180.00",
+        "paid": "2017-10-16",
+        "detail": "Check #138",
+        "updated": "2017-10-23T22:45:26.568Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Youth Sports Virginia Training Center",
+            "Youth Sports"
+        ],
+        "amount": "820.00",
+        "paid": "2017-10-14",
+        "detail": "Check #2146",
+        "updated": "2017-10-23T22:46:34.160Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Upper Merion Dance and Gymnastics",
+            "Upper Merion"
+        ],
+        "amount": "700.00",
+        "paid": "2017-11-01",
+        "detail": "By check.  Number not known.",
+        "updated": "2017-11-04T14:18:51.000Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Beach Bounders",
+            "Beach Bounders"
+        ],
+        "amount": "1050.00",
+        "paid": "2017-10-31",
+        "detail": "Check number unknown.  Veronika responded to an email chain with the gym that she had received this check.",
+        "updated": "2017-11-13T15:10:50.078Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "All Pro Gymnastics and Cheer Academy",
+            "All Pro"
+        ],
+        "amount": "820.00",
+        "paid": "2017-11-13",
+        "detail": "Check #1155",
+        "updated": "2017-11-13T23:35:40.260Z"
+    }
+},
+{
+    "model": "registration.payments",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "team": [
+            "BWI 2017",
+            "Rebounders Gymnastics Inc.",
+            "Rebounders"
+        ],
+        "amount": "2900.00",
+        "paid": "2017-11-01",
+        "detail": "Check #2203",
+        "updated": "2017-11-14T01:02:13.866Z"
+    }
+}
+]

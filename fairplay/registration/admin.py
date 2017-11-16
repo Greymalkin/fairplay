@@ -12,6 +12,7 @@ from django.dispatch import receiver
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.forms.models import BaseInlineFormSet
+from django.forms import TextInput, Textarea
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from django.shortcuts import render
@@ -138,22 +139,6 @@ class GymnastMissingDobFilter(SimpleListFilter):
             return queryset.filter(dob__isnull=True)
 
 
-# class CoachMissingUsagFilter(SimpleListFilter):
-#     title = ('Missing USAG#')
-#     parameter_name = 'no_usag'
-
-#     def lookups(self, request, model_admin):
-#         return (('none', ('Missing USAG#s')),)
-
-#     def queryset(self, request, queryset):
-#         if self.value() == 'none':
-#             return (queryset.filter(usag__isnull=True)
-#                     | queryset.filter(usag__isnull=True)
-#                     | queryset.filter(usag_expire_date__isnull=True)
-#                     | queryset.filter(safety_expire_date=True)
-#                     | queryset.filter(background_expire_date=True))
-
-
 # Admins
 
 
@@ -175,11 +160,9 @@ class LevelAdmin(MeetDependentAdmin):
 @admin.register(models.Coach)
 class CoachAdmin(MeetDependentAdmin):
     list_display = ('last_name', 'first_name', 'usag', 'team', 'has_usag', 'is_verified')
-    list_filter = ['team']  # CoachMissingUsagFilter,
+    list_filter = ['team']
     search_fields = ('last_name', 'first_name', 'usag')
     actions = ['export_as_csv']
-    # raw_id_fields = ('team',)
-    # autocomplete_lookup_fields = {'fk': ['team']}
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(CoachAdmin, self).get_fieldsets(request, obj)
@@ -636,22 +619,22 @@ class TeamAdmin(MeetDependentAdmin):
                                              'usag',
                                              'per_team_award_cost',
                                              'team_awards',), }),
-                         ('Registration', {'fields': ('gymnast_cost',
-                                                 'team_award_cost',
-                                                 'total_cost',
-                                                 'total_payments',
-                                                 'show_paid_in_full', ), }),
-                         (None, {'fields': ('notes',), }),
-                         ('Contact', {'fields': ('first_name',
-                                                 'last_name',
-                                                 'phone',
-                                                 'email',
-                                                 'address_1',
-                                                 'address_2',
-                                                 'city',
-                                                 'state',
-                                                 'postal_code'),
-                                      'classes': ('grp-collapse grp-closed',), }), )
+                          ('Registration', {'fields': ('gymnast_cost',
+                                                       'team_award_cost',
+                                                       'total_cost',
+                                                       'total_payments',
+                                                       'show_paid_in_full', ), }),
+                          (None, {'fields': ('notes',), }),
+                          ('Contact', {'fields': ('first_name',
+                                                  'last_name',
+                                                  'phone',
+                                                  'email',
+                                                  'address_1',
+                                                  'address_2',
+                                                  'city',
+                                                  'state',
+                                                  'postal_code'),
+                                       'classes': ('grp-collapse grp-closed',), }), )
         return fieldsets
 
     def get_queryset(self, request):
@@ -673,8 +656,8 @@ class TeamAdmin(MeetDependentAdmin):
     num_gymnasts.admin_order_field = 'num_gymnasts'
 
     def export_with_session(self, request, queryset):
-        """ Generic csv export admin action. """
-        opts = self.model._meta
+        """ Exports Gymnast info for a team, incl. Session assignments.
+            Public team notes are included on new line if any exist. """
         response = HttpResponse(content_type='text/csv')
         team_name = queryset[0].team
         response['Content-Disposition'] = 'attachment; filename={}_bwi_roster.csv'.format(team_name)
@@ -689,7 +672,7 @@ class TeamAdmin(MeetDependentAdmin):
                        'shirt',
                        'is_scratched',
                        'level',
-                       'division', ]
+                       'division']
         with_session = field_names.copy()
         with_session.append('Session')
         # Write a first row with header information
@@ -705,12 +688,18 @@ class TeamAdmin(MeetDependentAdmin):
                 except Exception:
                     field_values.append(None)
                 writer.writerow(field_values)
+
+            # Write Notes on new line
+            if obj.notes:
+                writer.writerow('')
+                writer.writerow([obj.notes])
+
         return response
     export_with_session.short_description = "Export with session, as csv file"
 
-    # TODO... needs to be updated now that notes is a child model
     def export_with_notes(self, request, queryset):
-        """ Generic csv export admin action. """
+        """ Exports Gymnast info for a team, incl. public notes about the gymnast
+            Information about team registration cost and payments received printed on new line. """
         response = HttpResponse(content_type='text/csv')
         team_name = queryset[0].team
         response['Content-Disposition'] = 'attachment; filename={}_bwi_roster.csv'.format(team_name)
@@ -736,10 +725,9 @@ class TeamAdmin(MeetDependentAdmin):
                 field_values = [getattr(gymnast, field) for field in field_names]
                 writer.writerow(field_values)
 
-            # Write total cost data
+            # Write row containing registration cost and payment data
             writer.writerow('')
             writer.writerow(['Payment Details',
-                             '', '', '', '', '', '', '', '', '',
                              'Gymnast Cost: ${}'.format(obj.calc_gymnast_cost()),
                              'Level Awards Cost: ${}'.format(obj.calc_team_award_cost()),
                              'Total Cost: ${}'.format(obj.calc_total_cost()),

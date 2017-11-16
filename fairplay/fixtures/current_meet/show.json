@@ -1,0 +1,20 @@
+[
+{
+    "model": "competition.ledshow",
+    "fields": {
+        "name": "ID Events"
+    }
+},
+{
+    "model": "competition.ledshow",
+    "fields": {
+        "name": "Clear Signs"
+    }
+},
+{
+    "model": "competition.ledshow",
+    "fields": {
+        "name": "Pre-Session"
+    }
+}
+]

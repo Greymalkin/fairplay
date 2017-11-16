@@ -1,0 +1,141 @@
+[
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Level 4",
+        "award_count": 0,
+        "order": 0,
+        "levels": [
+            [
+                "BWI 2017",
+                "4 d1"
+            ],
+            [
+                "BWI 2017",
+                "4 d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Level 5",
+        "award_count": 0,
+        "order": 1,
+        "levels": [
+            [
+                "BWI 2017",
+                "5 d1"
+            ],
+            [
+                "BWI 2017",
+                "5 d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Level 6",
+        "award_count": 0,
+        "order": 2,
+        "levels": [
+            [
+                "BWI 2017",
+                "6 d1"
+            ],
+            [
+                "BWI 2017",
+                "6 d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Level 7",
+        "award_count": 0,
+        "order": 3,
+        "levels": [
+            [
+                "BWI 2017",
+                "7 d1"
+            ],
+            [
+                "BWI 2017",
+                "7 d2"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Level 8",
+        "award_count": 0,
+        "order": 4,
+        "levels": [
+            [
+                "BWI 2017",
+                "8"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Level 9/10",
+        "award_count": 0,
+        "order": 5,
+        "levels": [
+            [
+                "BWI 2017",
+                "9"
+            ],
+            [
+                "BWI 2017",
+                "10"
+            ]
+        ]
+    }
+},
+{
+    "model": "competition.teamaward",
+    "fields": {
+        "meet": [
+            "BWI 2017"
+        ],
+        "name": "Level JD",
+        "award_count": 0,
+        "order": 6,
+        "levels": [
+            [
+                "BWI 2017",
+                "jd d1"
+            ]
+        ]
+    }
+}
+]

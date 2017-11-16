@@ -1,0 +1,18 @@
+[
+{
+    "model": "meet.meet",
+    "fields": {
+        "name": "BWI 2017",
+        "short_name": "BWI 2017",
+        "host": "Fairland Boys Gymnastics",
+        "date": "2017-12-09",
+        "is_current_meet": true,
+        "enable_ranking": false,
+        "event_award_percentage": 0.33,
+        "all_around_award_percentage": 0.5,
+        "team_award_percentage": 0.33,
+        "all_last_place_ties_in_awards": false,
+        "notes": ""
+    }
+}
+]

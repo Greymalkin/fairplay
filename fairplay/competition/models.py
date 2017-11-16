@@ -162,14 +162,39 @@ class Division(models.Model):
     num_gymnasts.short_description = "Gymnasts"
 
 
-def total_meet_medals():
+def total_meet_medals(details=False):
     ''' For individual medals, count the number of awards we are giving in each division
             and multiply by the number of events
         For all around medals, count the number of awards we are giving in each division
             and subtract 3 for each division, as 1st-3rd place get trophies '''
-    medals = Division.objects.all().\
-        aggregate(total_medals=Sum('all_around_award_count') - (Count('name') * 3) + Sum(F('event_award_count') * 6))
-    return medals['total_medals']
+    medalsa = Division.objects.exclude(event_award_count__lte=3).\
+    aggregate(
+        num_divisions_indiv_other_places=Count('name'),
+        indiv_other_place_medals=(Sum(F('event_award_count') * 6) - (Count('name') * 3 * 6)),
+    )
+
+    medalsb = Division.objects.exclude(all_around_award_count__lte=3).\
+    aggregate(
+        num_divisions_aa_other_places=Count('name'),
+        aa_other_place_medals=(Sum('all_around_award_count') - (Count('name') * 3))
+    )
+    medalsc = Division.objects.all().\
+        aggregate(
+            num_divisions_total=Count('name'),
+            indiv_top_3_total=Count('name') * 6 * 3,
+            aa_top_3_total=Count('name') * 3,
+            total_awards=Sum('all_around_award_count') + Sum(F('event_award_count') * 6)
+    )
+    medals = {}
+    medals.update(medalsa)
+    medals.update(medalsb)
+    medals.update(medalsc)
+    medals['total_awards'] = medalsa['indiv_other_place_medals'] + medalsb['aa_other_place_medals'] + medalsc['indiv_top_3_total'] + medalsc['aa_top_3_total']
+    if details:
+        return medals
+    if medals['total_awards'] < 0:
+        return 0
+    return medals['total_awards']
 
 
 class SessionManager(MeetManager):

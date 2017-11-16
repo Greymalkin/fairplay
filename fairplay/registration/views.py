@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import FormParser, MultiPartParser
 from competition.models import TeamAward
 from meet.models import Meet
+from competition.models import total_meet_medals
 from . import models, serializers
 
 
@@ -40,6 +41,8 @@ class MeetBreakdownView(TemplateView):
         context['age_range'] = range(4, 20)
         context['total_registered'] = models.Gymnast.objects.filter(is_scratched=False).count()
         context['no_ages'] = models.Gymnast.objects.filter(age=None, is_scratched=False).count()
+        context['medals'] = total_meet_medals(details=True)
+        context['meet'] = Meet.objects.get(is_current_meet=True)
         return context
 
 
@@ -159,6 +162,8 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
         try:
             name = group = level = int(test[1])
         except Exception:
+            # TODO: USAG only lists JD kids as jd... but as of 7/31/17 rules update, they need to be jd d1 or jd d2.
+            #       For now make them just jd, fix it manually in the cms later
             if 'junior development' in level.lower():
                 level = 11
                 name = group = 'jd'

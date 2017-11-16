@@ -26,6 +26,17 @@
     <p style="font-weight: bold; font-style: italic;">There are {{no_ages}} gymnasts without an age in the system.</p>
   {% endif %}
 
+  {% if medals.total_awards > 0 %}
+  <p style="font-weight: bold; font-style: italic;">
+  {{medals.total_awards}} Total Meet Awards across {{medals.num_divisions_total}} divisions ... AA at {% widthratio meet.all_around_award_percentage 1 100 %}% ... Individual at {% widthratio meet.event_award_percentage 1 100 %}%
+  </p>
+  <dl>
+    <dd>{{medals.indiv_top_3_total}} Individual Top 3 (Gold, Silver, Bronze) </dd>
+    <dd>{{medals.indiv_other_place_medals}} Individual other placement medals (4th, etc.)</dd>
+    <dd>{{medals.aa_other_place_medals}} All Around other placement medals (4th, etc.)</dd>
+    <dd>{{medals.aa_top_3_total}} All Around Top 3 Trophies</dd>
+  </dl>
+  {% endif %}
 
 <div style="width: 400px">
   <!-- How many gymnasts are registered in each major level (level group) -->
