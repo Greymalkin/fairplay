@@ -10,7 +10,7 @@ INSTALLED_APPS += []
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test_fairplay',  # 'test_fairplay', or 'ludwig'
+        'NAME': 'ludwig',  # 'test_fairplay', or 'ludwig'
         'USER': 'fairplay',
         'PASSWORD': 'dbmaster',
         'HOST': 'localhost',
@@ -20,6 +20,8 @@ DATABASES = {
 }
 
 STATIC_ROOT = 'local_static'
+
+ALLOWED_HOSTS = ['*']
 
 # Django Debug Toolbar
 INTERNAL_IPS = ('127.0.0.1', 'localhost')
