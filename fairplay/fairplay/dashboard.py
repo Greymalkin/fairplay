@@ -224,7 +224,7 @@ class CustomIndexDashboard(Dashboard):
                 for event in Event.objects.filter(is_mag=True):  # competition.Event
                     count = Gymnast.objects.filter(division__session__id=session.id, starting_event=event, is_scratched=False).count()
                     header += '<th>{}</th>'.format(event.initials)
-                    link = '/admin/registration/gymnast/?meet={}&session={}&starting_event={}'.format(session.meet.id, session.id, event.id)
+                    link = '/admin/registration/gymnast/?meet={}&session={}&starting_event={}&is_scratched__exact=0'.format(session.meet.id, session.id, event.id)
                     counts += '<td><a href="{}">{}</a></td>'.format(link, count)
 
                 self.children.append(modules.LinkList(

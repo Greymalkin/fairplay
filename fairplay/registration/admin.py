@@ -1,4 +1,4 @@
-import requests
+# import requests
 import csv
 import datetime
 
@@ -8,11 +8,10 @@ from django.contrib.admin import SimpleListFilter
 from django.contrib.admin.models import LogEntry
 from django.db.models import Count, Max, Q
 from django.db.models.signals import post_save
-from django.dispatch import receiver
+# from django.dispatch import receiver
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.forms.models import BaseInlineFormSet
-from django.forms import TextInput, Textarea
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from django.shortcuts import render

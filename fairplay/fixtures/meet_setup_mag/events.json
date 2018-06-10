@@ -15,7 +15,7 @@
     "model": "competition.event",
     "fields": {
         "order": 3,
-        "name": "Rings",
+        "name": "Still Rings",
         "initials": "sr",
         "sign": null,
         "active": true,
@@ -63,83 +63,11 @@
     "model": "competition.event",
     "fields": {
         "order": 6,
-        "name": "High Bar",
+        "name": "Horizontal Bar",
         "initials": "hb",
         "sign": null,
         "active": true,
         "is_mag": true,
-        "is_wag": false
-    }
-},
-{
-    "model": "competition.event",
-    "fields": {
-        "order": 10,
-        "name": "Floor",
-        "initials": "fx",
-        "sign": null,
-        "active": false,
-        "is_mag": false,
-        "is_wag": true
-    }
-},
-{
-    "model": "competition.event",
-    "fields": {
-        "order": 9,
-        "name": "Uneven Bars",
-        "initials": "ub",
-        "sign": null,
-        "active": false,
-        "is_mag": false,
-        "is_wag": true
-    }
-},
-{
-    "model": "competition.event",
-    "fields": {
-        "order": 8,
-        "name": "Balance Beam",
-        "initials": "bb",
-        "sign": null,
-        "active": false,
-        "is_mag": false,
-        "is_wag": true
-    }
-},
-{
-    "model": "competition.event",
-    "fields": {
-        "order": 7,
-        "name": "Vault",
-        "initials": "vt",
-        "sign": null,
-        "active": false,
-        "is_mag": false,
-        "is_wag": true
-    }
-},
-{
-    "model": "competition.event",
-    "fields": {
-        "order": 11,
-        "name": "Double Mini Tramp",
-        "initials": "dm",
-        "sign": null,
-        "active": false,
-        "is_mag": false,
-        "is_wag": false
-    }
-},
-{
-    "model": "competition.event",
-    "fields": {
-        "order": 12,
-        "name": "Trampoline",
-        "initials": "tt",
-        "sign": null,
-        "active": false,
-        "is_mag": false,
         "is_wag": false
     }
 }

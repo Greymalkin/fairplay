@@ -101,10 +101,22 @@
             "meet": [
                 "New MEET!"
             ],
-            "name": "jd",
+            "name": "jd d1",
             "group": "jd",
             "level": 11,
             "order": 9
+        }
+    },,
+    {
+        "model": "registration.level",
+        "fields": {
+            "meet": [
+                "New MEET!"
+            ],
+            "name": "jd d2",
+            "group": "jd",
+            "level": 11,
+            "order": 10
         }
     },
     {
@@ -116,7 +128,7 @@
             "name": "8",
             "group": "8",
             "level": 8,
-            "order": 10
+            "order": 11
         }
     },
     {
@@ -128,7 +140,7 @@
             "name": "9",
             "group": "9",
             "level": 9,
-            "order": 11
+            "order": 12
         }
     },
     {
@@ -140,7 +152,7 @@
             "name": "10",
             "group": "10",
             "level": 10,
-            "order": 12
+            "order": 13
         }
     }
 ]

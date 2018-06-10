@@ -189,10 +189,12 @@ def total_meet_medals(details=False):
     medals.update(medalsa)
     medals.update(medalsb)
     medals.update(medalsc)
+
     try:
         medals['total_awards'] = medalsa['indiv_other_place_medals'] + medalsb['aa_other_place_medals'] + medalsc['indiv_top_3_total'] + medalsc['aa_top_3_total']
     except Exception:
         medals['total_awards'] = 0
+
     if details:
         return medals
     if medals['total_awards'] < 0:
