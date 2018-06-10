@@ -6,6 +6,8 @@ import signal
 import time
 import logging
 
+from threading import Event
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -41,24 +43,26 @@ logger = logging.getLogger('manager')
 
 
 class Command(BaseCommand):
-    """
-    Example: $ ./manage.py upload_scores "Session 1,Session 2"
-    """
-    args = "session"
+    help = 'Closes the specified poll for voting'
 
-    def handle(self, *args, **kwargs):
+    def add_arguments(self, parser):
+        parser.add_argument('session', nargs='+', type=str)
+
+    def handle(self, *args, **options):
         self.running = True
+        self.exit = Event()
+
         signal.signal(signal.SIGTERM, self.on_signal)
         signal.signal(signal.SIGINT, self.on_signal)
-        self.session_names = args[0].split(',')
+        self.session_names = options.get('session')
 
-        while self.running:
+        while not self.exit.is_set():
             file_paths = self.generate_scores(self.session_names)
             self.upload_files(file_paths)
-            time.sleep(settings.ONLINE_SCORES_RATE)
+            self.exit.wait(settings.ONLINE_SCORES_RATE)
 
     def on_signal(self, sig, frame):
-        self.running = False
+        self.exit.set()
 
     def generate_scores(self, session_names):
         currentMeet = meet.models.Meet.objects.filter(is_current_meet=True)[0]
@@ -181,4 +185,4 @@ class Command(BaseCommand):
 
             logger.info('Uploaded new scores for {}'.format(', '.join(self.session_names)))
         except Exception:
-            logger.error('Problem uploading scores for {}'.format(', '.join(self.session_names)))
+            logger.exception('Problem uploading scores for {}'.format(', '.join(self.session_names)))
