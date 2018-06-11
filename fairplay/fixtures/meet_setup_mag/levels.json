@@ -106,7 +106,7 @@
             "level": 11,
             "order": 9
         }
-    },,
+    },
     {
         "model": "registration.level",
         "fields": {

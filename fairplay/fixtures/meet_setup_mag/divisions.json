@@ -169,11 +169,29 @@
             ],
             "level": [
                 "New MEET!",
-                "jd"
+                "jd d1"
             ],
-            "name": "12 & up",
+            "name": "11 & up",
             "short_name": "11 & up",
-            "min_age": 12,
+            "min_age": 11,
+            "max_age": 19,
+            "event_award_count": 0,
+            "all_around_award_count": 0
+        }
+    },
+    {
+        "model": "competition.division",
+        "fields": {
+            "meet": [
+                "New MEET!"
+            ],
+            "level": [
+                "New MEET!",
+                "jd d2"
+            ],
+            "name": "11 & up",
+            "short_name": "11 & up",
+            "min_age": 11,
             "max_age": 19,
             "event_award_count": 0,
             "all_around_award_count": 0
