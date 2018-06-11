@@ -168,8 +168,9 @@ class CoachAdmin(MeetDependentAdmin):
         # If there's no active meet, hide fields until active meet has been set
         if request.session.get('meet', ''):
             fieldsets += ((None, {
-                'fields': ('first_name', 'last_name', 'usag', 'team', 'is_flagged', 'is_verified',
-                           'usag_expire_date', 'safety_expire_date', 'background_expire_date', 'notes'),
+                'fields': (('first_name', 'last_name'), ('usag', 'team'),
+                           ('usag_expire_date', 'safety_expire_date', 'background_expire_date'),
+                           ('is_flagged', 'is_verified'), 'notes'),
                 'description': ''}),
             )
         return fieldsets
@@ -252,7 +253,7 @@ class GymnastAdmin(MeetDependentAdmin):
                     'is_flagged',
                     'is_verified')
     list_filter = ['team',
-                   DisciplineFilter,
+                   # DisciplineFilter,
                    GymnastMissingUsagFilter,
                    GymnastMissingDobFilter,
                    HighLevelFilter,
@@ -276,9 +277,9 @@ class GymnastAdmin(MeetDependentAdmin):
                 (None, {'fields': (
                     'link_team',
                     ('first_name', 'last_name'),
-                    ('usag', 'discipline',),
+                    ('usag', 'level'),
                     ('dob', 'age',),
-                    'level',
+                    # 'level',
                     'shirt',
                     ('is_us_citizen', 'is_verified', 'is_scratched', 'is_flagged',), ), }),
                 (None, {'fields': ('notes',), }),
@@ -519,6 +520,7 @@ class CoachInline(admin.StackedInline):
     classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-open',)
     extra = 0
+    fields = [('first_name', 'last_name'), 'usag', ('usag_expire_date', 'safety_expire_date', 'background_expire_date')]
 
 
 class GymnastInline(admin.StackedInline):
@@ -529,9 +531,8 @@ class GymnastInline(admin.StackedInline):
         (None, {'fields': (
             'per_gymnast_cost',
             ('first_name', 'last_name'),
-            ('usag', 'discipline',),
+            ('usag', 'level',),
             ('dob', 'age',),
-            'level',
             'shirt',
             ('is_us_citizen', 'is_verified', 'is_scratched', 'is_flagged',),
             'show_notes',
@@ -594,7 +595,7 @@ class GymnastInternalNotesAdmin(admin.ModelAdmin):
 
 @admin.register(models.TeamNotes)
 class TeamInternalNotesAdmin(admin.ModelAdmin):
-    list_display =['author', 'created', 'team', 'note']
+    list_display = ['author', 'created', 'team', 'note']
     search_fields = ['note']
     list_filter = ['team']
 

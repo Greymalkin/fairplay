@@ -183,7 +183,8 @@ class Gymnast(Person):
     DISCIPLINE_CHOICES = ((MAG, 'Mens Artistic'), (WAG, 'Womens Artistic'))
     meet = models.ForeignKey(Meet, related_name='gymnasts')
     team = models.ForeignKey(Team, related_name="gymnasts", blank=True, null=True)
-    discipline = models.CharField(max_length=20, null=True, choices=DISCIPLINE_CHOICES)
+    # set default here to mag to make it easier for fairland people. will hide discipline on the admin form
+    discipline = models.CharField(max_length=20, null=True, choices=DISCIPLINE_CHOICES, default="mag")
     # TODO can per_gymnast_cost default be a callable?
     per_gymnast_cost = models.PositiveSmallIntegerField(
         'Cost',
