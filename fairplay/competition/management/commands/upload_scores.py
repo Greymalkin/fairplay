@@ -49,17 +49,21 @@ class Command(BaseCommand):
         parser.add_argument('session', nargs='+', type=str)
 
     def handle(self, *args, **options):
-        self.running = True
-        self.exit = Event()
+        try:
+            self.running = True
+            self.exit = Event()
 
-        signal.signal(signal.SIGTERM, self.on_signal)
-        signal.signal(signal.SIGINT, self.on_signal)
-        self.session_names = options.get('session')
+            signal.signal(signal.SIGTERM, self.on_signal)
+            signal.signal(signal.SIGINT, self.on_signal)
+            self.session_names = options.get('session')
 
-        while not self.exit.is_set():
-            file_paths = self.generate_scores(self.session_names)
-            self.upload_files(file_paths)
-            self.exit.wait(settings.ONLINE_SCORES_RATE)
+            while not self.exit.is_set():
+                file_paths = self.generate_scores(self.session_names)
+                self.upload_files(file_paths)
+                self.exit.wait(settings.ONLINE_SCORES_RATE)
+
+        except Exception as e:
+            print("Could not send session {}!\nCheck to be sure it exists in the current meet.".format(', '.join(self.session_names)))
 
     def on_signal(self, sig, frame):
         self.exit.set()

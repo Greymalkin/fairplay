@@ -7,3 +7,4 @@ venv/
 __pycache__
 fairplay/local_*
 scores/node_modules
+fairplay/fairplay_db
