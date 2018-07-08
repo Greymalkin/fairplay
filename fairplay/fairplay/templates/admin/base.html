@@ -6,7 +6,7 @@
 <!-- MESSAGES -->
 {% block messages %}
     {% if request.session.meet.enable_ranking %}
-    <ul class="grp-messagelist"><li>SCORING IS LIVE!</li></ul>
+    <ul class="grp-messagelist"><li class="grp-warning">SCORING IS LIVE!</li></ul>
     {% endif %}
     {{block.super}}
 {% endblock %}
