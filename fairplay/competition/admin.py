@@ -358,7 +358,7 @@ class DivisionAdmin(MeetDependentAdmin):
     list_editable = ('min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     ordering = ('level', 'min_age')
     actions = ['meet_awards_percentage', ]
-    list_filter = ['level']
+    list_filter = ['level', 'level__group']
 
     def meet_awards_percentage(self, request, queryset):
         # Make sure to exclude scratched gymnasts when running the award count
