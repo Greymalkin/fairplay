@@ -5,5 +5,12 @@
         "name": "Men's Artistic",
         "abbr": "mag"
     }
+},
+{
+    "model": "registration.discipline",
+    "fields": {
+        "name": "Women's Artistic",
+        "abbr": "wag"
+    }
 }
 ]

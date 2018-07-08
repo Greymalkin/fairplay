@@ -6,7 +6,7 @@ from django.contrib.admin.widgets import ManyToManyRawIdWidget, ForeignKeyRawIdW
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.utils.html import escape, format_html
+from django.utils.html import escape
 
 from . import models
 from registration.models import Level, Team
@@ -155,8 +155,6 @@ class MeetAdmin(admin.ModelAdmin):
 # Base form that all admins with a FK to meet inherit from
 # Enforces ties to the currently active meet when creating new instances
 
-# Add lnked raw id field functionality
-
 class VerboseForeignKeyRawIdWidget(ForeignKeyRawIdWidget):
     def label_for_value(self, value):
         key = self.rel.get_related_field().name
@@ -299,19 +297,6 @@ class MeetDependentAdmin(admin.ModelAdmin):
         # If there's no active meet, hide change list table
         from .changelist import MeetDependentChangeList
         return MeetDependentChangeList
-
-    # def has_change_permission(self, request, obj=None):
-    #     if self.current_meet.count() != 1:
-    #         return False
-    #     return True
-
-    # def has_add_permission(self, request, obj=None):
-    #     if self.current_meet.count() != 1:
-    #         return False
-    #     return True
-
-    # def has_delete_permission(self, request, obj=None):
-    #     return True
 
 
 @admin.register(models.ImportFairplayMeetArchive)

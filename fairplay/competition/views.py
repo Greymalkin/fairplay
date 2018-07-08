@@ -257,7 +257,7 @@ class SessionCeremonyDivisionView(TemplateView):
 
                 leaderboards.append({'event': event.name,
                                      'initials': event.initials,
-                                     'level': division.level.level,
+                                     'level': division.level.name,
                                      'age_division': division.name,
                                      'gymnasts': event_leaderboard})
 
@@ -286,7 +286,7 @@ class SessionCeremonyDivisionView(TemplateView):
                     })
             leaderboards.append({'event': 'All Around',
                                  'initials': "aa",
-                                 'level': division.level.level,
+                                 'level': division.level.name,
                                  'age_division': division.name,
                                  'athletes': aa_leaderboard})
 
@@ -362,7 +362,7 @@ class SessionCeremonyEventView(TemplateView):
 
                 leaderboards.append({'event': event.name,
                                      'initials': event.initials,
-                                     'level': division.level.level,
+                                     'level': division.level.name,
                                      'age_division': division.name,
                                      'gymnasts': event_leaderboard})
 
@@ -398,7 +398,7 @@ class SessionCeremonyEventView(TemplateView):
                     })
             leaderboards.append({'event': 'All Around',
                                  'initials': "aa",
-                                 'level': division.level.level,
+                                 'level': division.level.name,
                                  'age_division': division.name,
                                  'gymnasts': aa_leaderboard})
 
