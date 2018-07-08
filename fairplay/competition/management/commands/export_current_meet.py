@@ -13,10 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         dirname = os.path.dirname(settings.BASE_DIR)
-        try:
-            os.mkdir(os.path.join(dirname, 'fixtures/current_meet'))
-        except Exception:
-            pass
+        os.makedirs(os.path.join(dirname, 'fixtures/current_meet'), exist_ok=True)
 
         # write csv of the Scores, since the one-to-one relationship with Gymnast means it isn't easy (or possible?) to import them from a fixture
         # opts = ScoreRankEvent._meta
