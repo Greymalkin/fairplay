@@ -253,7 +253,7 @@ class SessionCeremonyDivisionView(TemplateView):
                             'abbr_name': '{} {}.'.format(a.gymnast.first_name, a.gymnast.last_name[0]),
                             'full_name': '{} {}'.format(a.gymnast.first_name, a.gymnast.last_name),
                             'team': a.gymnast.team.team,
-                            'score': a.score,
+                            'score': '{:.1f}'.format(a.score),
                             'rank': a.rank
                         })
 
@@ -283,7 +283,7 @@ class SessionCeremonyDivisionView(TemplateView):
                         'abbr_name': '{} {}.'.format(a.first_name, a.last_name[0]),
                         'full_name': '{} {}'.format(a.first_name, a.last_name),
                         'team': a.team.team,
-                        'score': a.overall_score,
+                        'score': '{:.1f}'.format(a.overall_score),
                         'rank': a.rank
                     })
             leaderboards.append({'event': 'All Around',
@@ -311,7 +311,7 @@ class SessionCeremonyDivisionView(TemplateView):
             teams = []
 
             for t in tars[:team_award.award_count]:
-                teams.append({'name': t.team.team, 'score': t.score, 'rank': t.rank})
+                teams.append({'name': t.team.team, 'score': '{:.1f}'.format(t.score), 'rank': t.rank})
 
             team_awards.append({'id': team_award.id, 'award': team_award.name, 'teams': teams})
 
@@ -357,7 +357,7 @@ class SessionCeremonyEventView(TemplateView):
                             'abbr_name': '{} {}.'.format(a.gymnast.first_name, a.gymnast.last_name[0]),
                             'full_name': '{} {}'.format(a.gymnast.first_name, a.gymnast.last_name),
                             'team': a.gymnast.team.team,
-                            'score': a.score,
+                            'score': '{:.1f}'.format(a.score),
                             'rank': a.rank,
                             'place': a.place
                         })
@@ -394,7 +394,7 @@ class SessionCeremonyEventView(TemplateView):
                         'abbr_name': '{} {}.'.format(a.first_name, a.last_name[0]),
                         'full_name': '{} {}'.format(a.first_name, a.last_name),
                         'team': a.team.team,
-                        'score': a.overall_score,
+                        'score': '{:.1f}'.format(a.overall_score),
                         'rank': a.rank,
                         'place': a.place
                     })
@@ -424,7 +424,7 @@ class SessionCeremonyEventView(TemplateView):
             teams = []
 
             for t in tars[:team_award.award_count]:
-                teams.append({'name': t.team.team, 'score': t.score, 'rank': t.rank})
+                teams.append({'name': t.team.team, 'score': '{:.1f}'.format(t.score), 'rank': t.rank})
 
             team_awards.append({'id': team_award.id, 'award': team_award.name, 'teams': teams})
 
