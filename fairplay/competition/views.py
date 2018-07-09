@@ -2,6 +2,8 @@ import json
 import csv
 import operator
 import labels
+import logging
+
 from datetime import datetime
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.conf import settings
@@ -305,7 +307,7 @@ class SessionCeremonyDivisionView(TemplateView):
         for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
             ranking.update_team_ranking(team_award)
 
-            tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
+            tars = models.TeamAwardRank.objects.filter(team_award=team_award).exclude(rank=None).order_by('rank')
             teams = []
 
             for t in tars[:team_award.award_count]:
@@ -415,11 +417,10 @@ class SessionCeremonyEventView(TemplateView):
 
         team_awards = []
         for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
-
             # !! This calculates the team ranking for this award level.  It takes a hella long time.
             ranking.update_team_ranking(team_award)
 
-            tars = team_award.team_ranks.all().order_by('rank')
+            tars = team_award.team_ranks.exclude(rank=None).order_by('rank')
             teams = []
 
             for t in tars[:team_award.award_count]:
@@ -428,6 +429,7 @@ class SessionCeremonyEventView(TemplateView):
             team_awards.append({'id': team_award.id, 'award': team_award.name, 'teams': teams})
 
         # team leaderboards
+        print(team_awards)
         context['teams'] = team_awards
         return context
 
