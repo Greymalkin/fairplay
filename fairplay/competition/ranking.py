@@ -132,6 +132,7 @@ def update_division_ranking(event, division):
         a.place = gymnast['place']
         a.save()
 
+@transaction.atomic
 def update_team_ranking(team_award):
     from . import models
 

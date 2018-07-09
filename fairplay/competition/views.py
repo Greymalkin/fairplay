@@ -307,7 +307,7 @@ class SessionCeremonyDivisionView(TemplateView):
         for team_award in models.TeamAward.objects.filter(levels__in=session_levels).distinct():
             ranking.update_team_ranking(team_award)
 
-            tars = models.TeamAwardRank.objects.filter(team_award=team_award).order_by('rank')
+            tars = models.TeamAwardRank.objects.filter(team_award=team_award).exclude(rank=None).order_by('rank')
             teams = []
 
             for t in tars[:team_award.award_count]:
