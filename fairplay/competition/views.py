@@ -489,7 +489,7 @@ class SessionTeamView(TemplateView):
             for tar in tars:
                 team = {
                     'name': tar.team.team,
-                    'score': tar.score,
+                    'score': '{:.1f}'.format(tar.score) if tar.score else None,
                     'rank': tar.rank,
                     'gymnasts': []}
 
