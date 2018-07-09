@@ -4,11 +4,10 @@ import math
 from django.forms.models import BaseInlineFormSet
 from django.contrib import admin
 from django.conf import settings
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.http import HttpResponse
 
 from . import models
-from meet.views import get_meet
 from meet.admin import MeetDependentAdmin
 from registration.models import Level
 
@@ -297,6 +296,7 @@ class TeamAwardAdmin(MeetDependentAdmin):
     list_display = ('name', 'award_count', 'number_qualified_teams', 'order',)
     filter_horizontal = ('levels',)
     list_editable = ('order',)
+    actions = ['meet_awards_percentage']
 
     def get_fieldsets(self, request, obj=None):
         fieldsets = super(TeamAwardAdmin, self).get_fieldsets(request, obj)
@@ -311,6 +311,27 @@ class TeamAwardAdmin(MeetDependentAdmin):
         qualified_teams = obj.qualified_teams()
         return qualified_teams.count()
     number_qualified_teams.short_description = '# Qualified Teams'
+
+    def meet_awards_percentage(self, request, queryset):
+        ''' Count how many teams, with at least 3 gymnasts, registered to be considered for team awards.
+            Calculate percentage of that number, using value stored in Meet Admin.
+            Save calculated percentage to the award.
+
+            gymnasts__level__group__in=award.levels.all().values('group') needed to handle the
+            edge case of an award that spans two levels, which the BWI does for levels 9/10
+        '''
+        for award in queryset:
+            awards = models.Team.objects.filter(
+                team_awards=award, gymnasts__is_scratched=False,
+                gymnasts__level__group__in=award.levels.all().values('group'))\
+                .annotate(num_gymnasts=Count('id')).exclude(num_gymnasts__lt=3)
+
+            if awards.count() == 1:
+                award.award_count = 1
+            else:
+                award.award_count = math.ceil(awards.count() * award.meet.team_award_percentage)
+            award.save()
+    meet_awards_percentage.short_description = "Calculate team awards from %% in Meet admin"
 
 
 @admin.register(models.TeamAwardRank)
@@ -357,7 +378,7 @@ class DivisionAdmin(MeetDependentAdmin):
     list_display = ('name', 'level', 'num_gymnasts', 'min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     list_editable = ('min_age', 'max_age', 'event_award_count', 'all_around_award_count')
     ordering = ('level', 'min_age')
-    actions = ['meet_awards_percentage', ]
+    actions = ['meet_awards_percentage']
     list_filter = ['level', 'level__group']
 
     def meet_awards_percentage(self, request, queryset):
