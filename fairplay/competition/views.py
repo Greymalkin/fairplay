@@ -454,7 +454,7 @@ class SessionIndividualView(TemplateView):
                     score = gymnast_event.score
                     if score is None:
                         score = 0.0
-                    events.append({'score': score, 'rank': gymnast_event.rank, 'place': gymnast_event.place})
+                    events.append({'score': '{:.1f}'.format(score), 'rank': gymnast_event.rank, 'place': gymnast_event.place})
 
                 gymnasts.append({'info': gymnast, 'events': events})
             context['divisions'].append({'info': division.title(), 'gymnasts': gymnasts})
