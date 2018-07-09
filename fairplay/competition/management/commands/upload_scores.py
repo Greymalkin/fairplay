@@ -34,7 +34,7 @@ logging.config.dictConfig({
         'manager': {
             'handlers': ['default'],
             'level': 'INFO',
-            'propagate': True
+            'propagate': False
         }
     }
 })

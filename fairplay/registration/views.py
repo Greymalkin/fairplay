@@ -33,8 +33,11 @@ class MeetBreakdownView(TemplateView):
                 )
         )
 
-        levels = models.Level.objects.all().order_by('group').distinct('group')
-        level_groups = sorted(levels, key=operator.attrgetter('order'))
+        levels = models.Level.objects.all().order_by('order')
+        level_groups = dict((x.level, x) for x in levels).values()
+
+        # levels = models.Level.objects.all().order_by('group').distinct('group')
+        # level_groups = sorted(levels, key=operator.attrgetter('order'))
 
         context['level_groups'] = level_groups
         context['level_divisions'] = level_divisions
