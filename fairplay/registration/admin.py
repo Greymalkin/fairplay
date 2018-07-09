@@ -226,7 +226,7 @@ class GymnastNoteInlineAdmin(admin.TabularInline):
     verbose_name_plural = 'Internal Notes'
     readonly_fields = ['created']
     fields = ['author', 'note', 'created']
-    classes = ('grp-collapse grp-open', 'grp-collapse grp-closed', )
+    classes = ('grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-open',)
 
     def created(self, obj):
@@ -569,7 +569,7 @@ class TeamNotesInlineAdmin(admin.TabularInline):
     verbose_name_plural = 'Internal Notes'
     readonly_fields = ['created']
     fields = ['author', 'note', 'created']
-    classes = ('grp-collapse grp-closed', 'grp-collapse grp-open',)
+    classes = ('grp-collapse grp-open',)
     inline_classes = ('grp-collapse grp-closed',)
 
     def created(self, obj):

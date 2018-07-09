@@ -5,8 +5,8 @@ import datetime
 
 from django.conf import settings
 from django.contrib import messages
-from django.db.models import Count
-from django.db.models import Prefetch
+from django.db import transaction
+from django.db.models import Count, Prefetch
 from django.views.generic import TemplateView
 
 from rest_framework import viewsets, status
@@ -76,6 +76,7 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
             self.meet = None
         return super(ImportUsagReservationViewSet, self).__init__(*args, **kwargs)
 
+    @transaction.atomic
     def create(self, request):
         if not request.session.get('meet') or not self.meet:
             messages.add_message(request, messages.WARNING, 'Open the Meet admin and choose the active meet before uploading USAG reservations.')
