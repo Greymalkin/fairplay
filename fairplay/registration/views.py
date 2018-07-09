@@ -165,11 +165,13 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
         try:
             name = group = level = int(test[1])
         except Exception:
-            # TODO: USAG only lists JD kids as jd... but as of 7/31/17 rules update, they need to be jd d1 or jd d2.
-            #       For now make them just jd, fix it manually in the cms later
+            # USAG only lists JD kids as junior developent... but as of 7/31/17 rules update, they need to be jd d1 or jd d2.
+            # For now assume them to be jd d1
+            # Expect this to change in the USAG CSV file
             if 'junior development' in level.lower():
                 level = 11
-                name = group = 'jd'
+                name = 'jd d1'
+                group = 'jd'
             else:
                 level = 0
                 name = group = '?'
@@ -185,18 +187,33 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
         # determine discipline, from sex?  col9
         # parse level, add to db if needed  col17
 
+        level = self.parse_level(row[17])
+
         data = {
             "is_verified": True,
             "first_name": row[1],
             "last_name": row[2],
             "dob": datetime.datetime.strptime(row[15], "%m/%d/%y").date(),
             "age": row[16],
-            "level": self.parse_level(row[17]),
+            "level": level,
             "is_us_citizen": True if row[14].lower() == 'yes' else False,
             "discipline": 'mag' if row[9].lower() == 'm' else 'wag',  # won't work for tramp, acro, rhythmic... how do I figure that out in future?
         }
+        if level.name.startswith('jd') or level.name == '?':
+            data['is_flagged'] = True
+
         gymnast, created = models.Gymnast.objects.update_or_create(
             meet=self.meet, team=team, usag=row[0], defaults=data)
+
+        if level.name.startswith('jd'):
+            gymnast.gymnast_notes.create(
+                meet=gymnast.meet, author='import from usag file',
+                note='system set level division to D1 on import because USAG file contained ambiguious information.\n\n Ask team\'s coach to confirm gymnast is supposed to be JD D1, or JD D2')
+        elif level.name == '?':
+            gymnast.gymnast_notes.create(
+                meet=gymnast.meet, author='import from usag file',
+                note='system cannot determine gymnast\'s level from USAG import.\n\nWhat level is this boy?')
+
         return gymnast
 
     def parse_coach(self, row, team):
