@@ -256,17 +256,17 @@ class Session(models.Model):
 
     @property
     def levels(self):
-        levels = self.divisions.order_by('level_id').distinct('level_id').values_list('level__name', flat=True)
+        levels = self.divisions.order_by('level_id').values_list('level__name', flat=True).distinct()
         return levels
 
     @property
     def level_groups(self):
-        levels = self.divisions.order_by('level_group').distinct('level_group').values_list('level__group', flat=True)
+        levels = self.divisions.order_by('level_group').values_list('level__group', flat=True).distinct()
         return levels
 
     @property
     def level_divisions(self):
-        levels = self.divisions.order_by('level_id').distinct('level_id').values_list('level__name', flat=True)
+        levels = self.divisions.order_by('level_id').values_list('level__name', flat=True).distinct()
         return levels
 
     @property
@@ -673,7 +673,7 @@ def update_rankings(sender, instance, created, raw, using, update_fields, **kwar
         instance.gymnast.save()
         score.save()
 
-        ranking.update_division_ranking(instance.gymnast.division)
+        ranking.update_division_ranking(instance.event, instance.gymnast.division)
         print(Fore.GREEN + 'Updating {} {} ({}): {} - {}'.format(
             instance.gymnast.first_name,
             instance.gymnast.last_name,

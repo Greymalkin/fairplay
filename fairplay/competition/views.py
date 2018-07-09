@@ -617,7 +617,9 @@ class SessionRotationView(TemplateView):
         return teams
 
     def team_starting_events(self, session, team):
-        events = team.gymnasts.filter(division__session=session, is_scratched=False).distinct('starting_event').order_by()
+        gymnasts = team.gymnasts.filter(division__session=session, is_scratched=False)
+        events = dict((x.starting_event, x) for x in gymnasts).values() # since sqlite3 does not support distinct on
+        # events = team.gymnasts.filter(division__session=session, is_scratched=False).distinct('starting_event').order_by()
         return events
 
 
@@ -658,7 +660,7 @@ class SessionAnnouncerView(TemplateView):
         return levels
 
     def num_team_starting_events(self, session, team):
-        qs = models.Gymnast.objects.filter(team=team, division__session=session).order_by().distinct('starting_event')
+        qs = models.Gymnast.objects.filter(team=team, division__session=session).values('starting_event').distinct()
         return qs.count()
 
 
@@ -669,9 +671,8 @@ class CoachHospitalityView(TemplateView):
         context = super(CoachHospitalityView, self).get_context_data(**kwargs)
         # context['session'] = models.Session.objects.get(id=self.kwargs['id'])
 
-        levels = Level.objects.all().order_by('group').distinct('group')
-        levels_sorted = sorted(levels, key=operator.attrgetter('order'))
-        context['all_levels'] = levels_sorted
+        levels = Level.objects.all().order_by('order')
+        context['all_levels'] = dict((x.level, x) for x in levels).values()
 
         return context
 

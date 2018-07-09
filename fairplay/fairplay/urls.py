@@ -1,12 +1,16 @@
+import colorama
+import competition.views
+import registration.views
+import meet.views
+
 from django.conf.urls import include, url
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
-import competition.views
-import registration.views
-import meet.views
+
+colorama.init()
 
 admin.site.site_header = settings.GRAPPELLI_ADMIN_TITLE = 'Fairplay Gymnastics Scoreboard'
 

@@ -83,7 +83,7 @@ class LevelFilter(admin.SimpleListFilter):
     parameter_name = 'level'
 
     def lookups(self, request, model_admin):
-        return [(s.level, s.group) for s in Level.objects.all().distinct('level').order_by('level')]
+        return [(s['level'], s['group']) for s in Level.objects.all().values('level', 'group').distinct().order_by('level')]
 
     def queryset(self, request, queryset):
         if self.value() is not None:
@@ -237,7 +237,7 @@ class GymnastAdmin(MeetDependentAdmin):
         return qs
 
     def all_around(self, obj):
-        return obj.aa
+        return '{:.1f}'.format(obj.aa)
     all_around.admin_order_field = 'aa'
     all_around.short_description = 'AA'
 

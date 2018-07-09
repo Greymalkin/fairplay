@@ -92,8 +92,7 @@ class HighLevelFilter(SimpleListFilter):
     parameter_name = 'level'
 
     def lookups(self, request, model_admin):
-        qs = model_admin.get_queryset(request)
-        return [(i, i) for i in qs.values_list('level__group', flat=True).distinct('level__group').order_by('level__group', 'level__order')]
+        return dict((x.group, (x.group, x.group)) for x in models.Level.objects.all().order_by('order')).values()
 
     def queryset(self, request, queryset):
         if self.value():
