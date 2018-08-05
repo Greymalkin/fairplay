@@ -138,7 +138,7 @@ class ImportUsagReservationViewSet(viewsets.ModelViewSet):
                         self.parse_coach(row, team)
 
             messages.add_message(request, messages.SUCCESS, '{} USAG {} reservations imported.'.format(i, parse_type))
-            os.remove(destination_file_path)
+            # os.remove(destination_file_path)
             return Response({"message": "USAG reservations imported."}, status=status.HTTP_201_CREATED)
 
     def test_gymnast(self, header):
